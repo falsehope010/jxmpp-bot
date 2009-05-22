@@ -22,7 +22,7 @@ public class Main {
 		//db.Connect();
 		//System.out.print( System.getProperty("user.dir") );
 		
-
+		System.out.print("test svn diff");
 	}
 	
 	protected static void XmppConnect(){
