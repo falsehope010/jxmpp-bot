@@ -13,8 +13,14 @@ public class Main {
 
 	    	try {
 	    	    Database db = new Database("test_db");
+	    	    db.Connect();
 	    	    //User usr = new User("tillias", "123", new AccessLevel(1));
-	    	    db.InsertUser("tillias", "123", new AccessLevel(1));
+	    	    //db.InsertUser("tillias", "123", new AccessLevel(1));
+	    	    
+	    	    db.InsertUserJid(usrID, "tillias@jabber");
+	    	    
+	    	    db.Disconnect();
+	    	    //System.out.print(usrID);
 		} catch (Exception e) {
 		    System.out.print(e.getMessage());
 		}
