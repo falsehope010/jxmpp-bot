@@ -1,0 +1,13 @@
+#summary Introduction to jxmpp-bot
+
+= Introduction =
+
+jxmpp-bot is java-based open-source jabber bot. It can be used as jabber conference bot or standalone application for remote control over PC.
+
+jxmpp-bot has *core API* and *plugins API*. It allows to create custom plugins for user needs.
+
+_put Core API UML diagram here_
+
+_put Plugins API UML diagram here_
+
+
