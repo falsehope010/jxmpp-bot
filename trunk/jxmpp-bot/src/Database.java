@@ -2,27 +2,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.*;
 
-/**
- * @author tillias_work
- *
- */
-/**
- * @author tillias_work
- *
- */
-/**
- * @author tillias_work
- *
- */
-/**
- * @author tillias_work
- * 
- */
 public class Database {
 
 	String fileName;
@@ -61,6 +46,17 @@ public class Database {
 		}
 	}
 
+	public boolean isConnected(){
+		try {
+			return conn != null && !conn.isClosed();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+	
 	public boolean insertUser(String realName, String JID,
 			AccessLevel accessLevel) {
 		boolean result = false;
@@ -208,8 +204,133 @@ public class Database {
 	}
 
 	/**
+	 * Updates user in database (if user isPersistent). 
+	 * Note: method doesn't update jid collection of user, so if you need it, use
+	 * Database.updateUserJidCollection() method
+	 * @param user User to be updated
+	 * @return true if succeded, false otherwise
+	 */
+	public boolean updateUser(User user){
+		boolean result = false;
+		
+		if ( user != null && user.isPersistent()){
+			
+			PreparedStatement prep = null;
+			
+			try {
+				//update user fields
+				prep = conn.prepareStatement("update users set real_name=?,access_level=? where id=?;");
+				prep.setString(1, user.getRealName());
+				prep.setInt(2, user.getAccessLevel().getValue());
+				prep.setLong(3, user.getID());
+				
+				int rows_affected = prep.executeUpdate();
+				
+				if ( rows_affected == 1 ){
+					user.setPersistence(true);
+					result = true;
+				}
+				
+			} catch (Exception e) {
+			}
+			finally{
+				Cleanup(prep);
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Updates jid collection in database for given user (if it is persistent).
+	 * @param user User which jid collection will be updated
+	 * @return True if succeded, false otherwise
+	 */
+	public boolean updateUserJidCollection(User user){
+		boolean result = false;
+		
+		PreparedStatement prep = null;
+		
+		if ( user != null && user.isPersistent()){
+			try {
+				//delete all jids for given user from database
+				prep = conn.prepareStatement("delete from jids where id_user=?");
+				prep.setLong(1, user.getID());
+				
+				int rows_affected = prep.executeUpdate();
+				
+				if (rows_affected > 0 ){
+					//now insert jid collection back to database
+					prep = conn.prepareStatement("insert into jids(id_user,jid) values(?,?);");
+					
+					ArrayList<String> jidCollection = user.getJidCollection();
+					conn.setAutoCommit(false); // prepare for batch insert jids
+					
+					for (String jid: jidCollection){
+						prep.setLong(1, user.getID());
+						prep.setString(2, jid);
+						prep.addBatch();
+					}
+					
+					int[] rows_inserted = prep.executeBatch();
+					conn.commit();
+					conn.setAutoCommit(true); // restore auto commit back
+					
+					int insertedRows = getSumElements(rows_inserted);
+					if (insertedRows == jidCollection.size()){
+						result = true;
+					}
+				}
+			} catch (Exception e) {
+				System.out.print(e.getMessage());
+			}
+			finally{
+				Cleanup(prep);
+			}
+		}
+		
+		return result;
+	}
+	
+	public boolean deleteUser(User user){
+		boolean result = false;
+		
+		PreparedStatement prep = null;
+
+		if ( user != null && user.isPersistent()){
+			try {
+				//first delete all user's jids
+				prep = conn.prepareStatement("delete from jids where id_user=?;");
+				prep.setLong(1, user.getID());
+				
+				int jids_deleted = prep.executeUpdate();
+				
+				if (jids_deleted == user.getJidCount()){
+					//now remove user itself
+					
+					prep = conn.prepareStatement("delete from users where id=?" );
+					prep.setLong(1, user.getID());
+					
+					int users_deleted = prep.executeUpdate();
+					
+					if (users_deleted == 1){
+						user.setPersistence(false); // mark user as non persistent
+						result = true;
+					}
+				}
+				
+			} catch (Exception e) {
+			}
+			finally{
+				Cleanup(prep);
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
 	 * Returns last inserted rowid (after insert in any table in database)
-	 * 
 	 * @return rowid if any insert was performed before call, 0 otherwise
 	 */
 	public long LastInsertRowID() {
@@ -343,4 +464,52 @@ public class Database {
 		return result;
 	}
 
+	/**
+	 * Gets sum of elements in array
+	 * @param ar Array which elements will be summed
+	 * @return Sum of elements of array. -1 if ar is null or empty
+	 */
+	protected int getSumElements(int[] ar){
+		int result = -1;
+		
+		if ( ar != null && ar.length > 0 ){
+			result = ar[0];
+			
+			for (int i = 1; i < ar.length; ++i){
+				result += ar[i];
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Counts tables in database. Method only for unit testing
+	 * @return
+	 */
+	protected int countTables(){
+		int result = -1;
+		
+		Statement stat = null;
+		ResultSet rs = null;
+		try {
+			stat = conn.createStatement();
+			
+			rs = stat.executeQuery("SELECT count(1) FROM sqlite_master where name not like '%sequence%'");
+			
+			if ( rs.next()){
+				int count = rs.getInt(1);
+				
+				if (count > 0){
+					result = count;
+				}
+			}
+		} catch (Exception e) {
+		}
+		finally{
+			Cleanup(stat, rs);
+		}
+		
+		return result;
+	}
 }
