@@ -12,7 +12,7 @@
 
  _TODO: Insert diagram here_
 
- * *BibleQuote plugin*
+ * *Bible Quote plugin*
  Allows to search through Holy Bible
 
  _TODO: Insert diagram here_
