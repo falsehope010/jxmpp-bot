@@ -10,4 +10,4 @@ _put Core API UML diagram here_
 
 _put Plugins API UML diagram here_
 
-
+[http://code.google.com/p/jxmpp-bot/wiki/PluginsList See current list of all plugins]
