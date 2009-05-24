@@ -3,8 +3,26 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.io.*;
 
+/**
+ * @author tillias_work
+ *
+ */
+/**
+ * @author tillias_work
+ *
+ */
+/**
+ * @author tillias_work
+ *
+ */
+/**
+ * @author tillias_work
+ * 
+ */
 public class Database {
 
 	String fileName;
@@ -24,31 +42,30 @@ public class Database {
 		this.fileName = fileName;
 	}
 
-	public boolean Connect() {
+	public boolean connect() {
 		boolean result = false;
 
 		conn = getConnection();
 
-		if (conn != null ) {
+		if (conn != null) {
+			result = true;
 		}
 
 		return result;
 	}
 
-	public void Disconnect() {
+	public void disconnect() {
 		try {
 			conn.close();
 		} catch (Exception e) {
 		}
 	}
 
-	public boolean InsertUser(String realName, String JID,
+	public boolean insertUser(String realName, String JID,
 			AccessLevel accessLevel) {
 		boolean result = false;
 
 		PreparedStatement prep = null;
-		Statement id_fetch_st = null;
-		ResultSet rs = null;
 
 		try {
 			prep = conn
@@ -59,39 +76,31 @@ public class Database {
 
 			prep.execute();
 
-			// extract id for inserted user
-			id_fetch_st = conn.createStatement();
-			rs = id_fetch_st.executeQuery("select last_insert_rowid()");
+			long usrID = LastInsertRowID();
 
-			if (rs.next()) {
-				long usrID = rs.getLong(1);
+			if (usrID > 0) {
+				Cleanup(prep); // clean up after previous insert
 
-				rs.close();
+				prep = conn
+						.prepareStatement("insert into jids(id_user,jid) values(?,?);");
 
-				if (usrID > 0) {
-					Cleanup(prep); // clean up after previous insert
+				prep.setLong(1, usrID);
+				prep.setString(2, JID);
 
-					prep = conn
-							.prepareStatement("insert into jids(id_user,jid) values(?,?);");
+				int rows_affected = prep.executeUpdate();
 
-					prep.setLong(1, usrID);
-					prep.setString(2, JID);
-
-					prep.execute();
-
+				if (rows_affected == 1)
 					result = true;
-				}
 			}
 		} catch (Exception e) {
 		} finally {
-			Cleanup(prep, rs);
-			Cleanup(id_fetch_st);
+			Cleanup(prep, null);
 		}
 
 		return result;
 	}
 
-	public boolean InsertUserJid(long UserID, String JID) {
+	public boolean insertUserJid(long UserID, String JID) {
 		boolean result = false;
 
 		PreparedStatement prep = null;
@@ -121,9 +130,10 @@ public class Database {
 					prep.setLong(1, UserID);
 					prep.setString(2, JID);
 
-					prep.execute();
+					int rows_affected = prep.executeUpdate();
 
-					result = true;
+					if (rows_affected == 1)
+						result = true;
 				}
 			}
 		} catch (Exception e) {
@@ -135,6 +145,73 @@ public class Database {
 		return result;
 	}
 
+	/**
+	 * Loads all users from database
+	 * 
+	 * @return All users from database if succeded, null if any error is occured
+	 */
+	public ArrayList<User> loadAllUsers() {
+		ArrayList<User> result = null;
+
+		Statement stat = null;
+		ResultSet rs = null;
+
+		try {
+			//cache all jids from database into memory
+			HashMap<Long, ArrayList<String>> usrJids = getUsersJids();
+
+			if (usrJids != null) { // no errors occured
+
+				// load all records from users table
+				stat = conn.createStatement();
+
+				rs = stat
+						.executeQuery("select id,real_name,access_level from users");
+
+				result = new ArrayList<User>();
+
+				while (rs.next()) {
+					try {
+						long id = rs.getLong(1);
+						String real_name = rs.getString(2);
+						int access_level = rs.getInt(3);
+						
+						if ( usrJids.containsKey(id)){
+							ArrayList<String> jidList = usrJids.get(id);
+							
+							if (jidList.size() > 0){
+								String jid = jidList.get(0);
+								User usr = new User(real_name, jid, new AccessLevel(access_level));
+								usr.setID(id);
+
+								//add additional jids if they exist
+								for (int i = 1; i < jidList.size(); ++i){
+									usr.addJID(jidList.get(i));
+								}
+								
+								usr.setPersistence(true);
+								
+								result.add(usr);
+							}
+						}
+
+					} catch (Exception e) {
+					}
+				}
+			}
+		} catch (Exception e) {
+		} finally {
+			Cleanup(stat, rs);
+		}
+
+		return result;
+	}
+
+	/**
+	 * Returns last inserted rowid (after insert in any table in database)
+	 * 
+	 * @return rowid if any insert was performed before call, 0 otherwise
+	 */
 	public long LastInsertRowID() {
 		long result = 0;
 
@@ -150,13 +227,18 @@ public class Database {
 
 		} catch (Exception e) {
 		} finally {
-			
+
 			Cleanup(stat, rs);
 		}
 
 		return result;
 	}
 
+	/**
+	 * Initializes sqlite database connection.
+	 * 
+	 * @return valid connection to database if succeded, null otherwise
+	 */
 	protected Connection getConnection() {
 		Connection result = null;
 
@@ -170,6 +252,14 @@ public class Database {
 		return result;
 	}
 
+	/**
+	 * Closes java.sql.Statement and java.sql.ResultSet. Any can be null.
+	 * 
+	 * @param stat
+	 *            Statement to be closed
+	 * @param rs
+	 *            ResultSet to be closed
+	 */
 	protected void Cleanup(Statement stat, ResultSet rs) {
 		if (stat != null) {
 			try {
@@ -185,6 +275,12 @@ public class Database {
 		}
 	}
 
+	/**
+	 * Closes java.sql.Statement. It can be null.
+	 * 
+	 * @param stat
+	 *            Statement to be closed
+	 */
 	protected void Cleanup(Statement stat) {
 		if (stat != null) {
 			try {
@@ -193,4 +289,58 @@ public class Database {
 			}
 		}
 	}
+
+	
+	/**
+	 * Retrieves all records from 'jids' database table and creates mapping
+	 * between userID and it's jids collection.
+	 * We use jids collection because user can have multiple jids
+	 * @return Mapping between userID and it's jids collection
+	 */
+	protected HashMap<Long, ArrayList<String>> getUsersJids() {
+		HashMap<Long, ArrayList<String>> result = null;
+
+		Statement stat = null;
+		ResultSet rs = null;
+		try {
+			stat = conn.createStatement();
+
+			rs = stat.executeQuery("select id_user,jid from jids;");
+
+			result = new HashMap<Long, ArrayList<String>>();
+
+			while (rs.next()) {
+				long usrID = rs.getLong(1);
+				String usrJid = rs.getString(2);
+
+				/*
+				 * We've just loaded new userID, so we need create new list of
+				 * jids for it
+				 */
+				if (!result.containsKey(usrID)) {
+					ArrayList<String> jidList = new ArrayList<String>();
+					jidList.add(usrJid);
+					result.put(usrID, jidList);
+				}
+				/*
+				 * usrID is already present in hashMap. Simply add jid to
+				 * existing jid list
+				 */
+				else {
+					ArrayList<String> jidList = result.get(usrID);
+					if (jidList != null) {
+						jidList.add(usrJid);
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			result = null;
+		} finally {
+			Cleanup(stat, rs);
+		}
+
+		return result;
+	}
+
 }
