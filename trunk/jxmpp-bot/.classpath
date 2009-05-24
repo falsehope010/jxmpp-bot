@@ -5,5 +5,6 @@
 	<classpathentry kind="lib" path="D:/Downloads/Software/Java/smack_3_1_0/smackx.jar"/>
 	<classpathentry kind="lib" path="D:/Downloads/Software/Java/smack_3_1_0/smack.jar"/>
 	<classpathentry kind="lib" path="D:/Downloads/Software/Java/sqlitejdbc-v054.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,4 +1,6 @@
 
+import java.util.ArrayList;
+
 import org.jivesoftware.smack.*;
 
 public class Main {
@@ -13,13 +15,27 @@ public class Main {
 
 	    	try {
 	    	    Database db = new Database("test_db");
-	    	    db.Connect();
+	    	    db.connect();
 	    	    //User usr = new User("tillias", "123", new AccessLevel(1));
-	    	    //db.InsertUser("tillias", "123", new AccessLevel(1));
+	    	    //db.insertUser("tillias", "123", new AccessLevel(1));
 	    	    
-	    	    db.InsertUserJid(usrID, "tillias@jabber");
+	    	    //db.InsertUserJid(usrID, "tillias@jabber");
 	    	    
-	    	    db.Disconnect();
+	    	    ArrayList<User> users = db.loadAllUsers();
+	    	    
+	    	    if (users != null ){
+	    	    	System.out.print(users.size());
+	    	    	for ( User u : users){
+	    	    		u.DebugPrint();
+	    	    	}
+	    	    }
+	    	    
+	    	    User use2 = null;
+	    	    
+	    	    System.out.print(users.get(0).equals(use2));
+	    	    
+	    	    
+	    	    db.disconnect();
 	    	    //System.out.print(usrID);
 		} catch (Exception e) {
 		    System.out.print(e.getMessage());
