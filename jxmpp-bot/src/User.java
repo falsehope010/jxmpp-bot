@@ -36,35 +36,63 @@ public class User {
 	}
 
 	// getters
+	/**
+	 * Gets user id from database. 
+	 * @return User id greater then zero if user is persisten't, 0 otherwise
+	 */
 	public long getID() {
 		return _id;
 	}
 
+	/**
+	 * Gets user real name. Can be null
+	 * @return User's real name (any combination of name, surname, last name and so on
+	 */
 	public String getRealName() {
 		return _real_name;
 	}
 
+	/**
+	 * Gets user access level. Can't be null
+	 * @return User access level
+	 */
 	public AccessLevel getAccessLevel() {
 		return _accessLevel;
 	}
 
+	/**
+	 * Gets value indicating that user is present in database
+	 * (e.g. it has valid id).
+	 * @return True if user with given id is present id database,
+	 * false otherwise
+	 */
 	public boolean isPersistent() {
 		return _isPersistent;
 	}
 
-	// setters
+	/**
+	 * Sets user id. Normaly you mustn't change id manually. 
+	 * Use Database class to insert user in database in order to make it persistent
+	 * and assign valid id.
+	 * @param ID New user id
+	 */
 	public void setID(long ID) {
 		_id = ID;
-
-		setPersistence(false);
 	}
 
+	/**
+	 * Sets new user real name. Can be null
+	 * @param realName New user's real name
+	 */
 	public void setRealName(String realName) {
 		_real_name = realName;
-
-		setPersistence(false);
 	}
 
+	/**
+	 * Sets new user access level. Can't be null
+	 * @param accessLevel New user's access level.
+	 * @throws NullPointerException Thrown if you passed null accessLevel parameter
+	 */
 	public void setAccessLevel(AccessLevel accessLevel)
 			throws NullPointerException {
 
@@ -73,18 +101,38 @@ public class User {
 		}
 
 		_accessLevel = accessLevel;
-		setPersistence(false);
 	}
 
+	/**
+	 * Sets persistence of entity. Normally you mustn't use this method.
+	 * Call Database class methods to obtain users from database, insert, update or delete
+	 * @param value
+	 */
 	public void setPersistence(boolean value) {
 		_isPersistent = value;
 	}
 
-	// JID methods
+	/**
+	 * Gets collection of JIDs for user
+	 * @return JID collection of user
+	 */
 	public ArrayList<String> getJidCollection() {
 		return _jidCollection;
 	}
 
+	/**
+	 * Gets jid count. User can have multiple jids
+	 * @return Jid count
+	 */
+	public int getJidCount(){
+		return _jidCollection.size();
+	}
+	
+	/**
+	 * Adds JID to user's jid collection. Duplicates will be ignored
+	 * @param JID JID to be added into user's jid collection. Can't be null
+	 * @throws NullPointerException Thrown if JID to be added is null
+	 */
 	public void addJID(String JID) throws NullPointerException {
 
 		if (JID == null)
@@ -92,19 +140,24 @@ public class User {
 
 		if (!_jidCollection.contains(JID)) {
 			_jidCollection.add(JID);
-
-			setPersistence(false);
 		}
 	}
 
+	/**
+	 * Removes JID from user's jid collection.
+	 * @param JID JID to be removed, can be null
+	 */
 	public void removeJID(String JID) {
 		if (_jidCollection.contains(JID)) {
 			_jidCollection.remove(JID);
-
-			setPersistence(false);
 		}
 	}
 
+	/**
+	 * Checks whether user has given JID
+	 * @param JID JID to be checked
+	 * @return True if user has given JID, false otherwise
+	 */
 	public boolean hasJID(String JID) {
 		return _jidCollection.contains(JID);
 	}
@@ -119,13 +172,50 @@ public class User {
 		}
 	}
 
+	/**
+	 * Checks two users for equality
+	 * @param rhs User with which equality will be checked
+	 * @return True if users are equal, false otherwise
+	 */
 	public boolean equals(User rhs){
 		boolean result = false;
 		
 		try {
 			
-			
+			if ( _id == rhs.getID() && _real_name.equals(rhs.getRealName())){
+				int rhs_level = rhs.getAccessLevel().getValue();
+				
+				if ( _accessLevel.getValue() == rhs_level){
+					
+					ArrayList<String> rhsJidCollection = rhs.getJidCollection();
+					//compare jids
+					if (getJidCount() == rhsJidCollection.size()){
+						
+						//compare each JID one by one
+						result =
+							( _jidCollection.containsAll(rhsJidCollection) &&
+									_jidCollection.containsAll(rhsJidCollection));
+					}
+				}
+			}
 		} catch (Exception e) {
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Compares two arrays if they consists of the same elements.
+	 * Order of elements isn't taken into account
+	 * @param lhs First array
+	 * @param rhs Second array
+	 * @return True if arrays contains the same elements, false otherwise
+	 */
+	protected boolean InvariantCompare(ArrayList<String> lhs, ArrayList<String> rhs){
+		boolean result = false;
+		
+		if ( lhs.containsAll(rhs) && rhs.containsAll(lhs)){
+			result = true;
 		}
 		
 		return result;

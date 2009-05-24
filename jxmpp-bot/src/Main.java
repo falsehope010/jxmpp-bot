@@ -23,16 +23,23 @@ public class Main {
 	    	    
 	    	    ArrayList<User> users = db.loadAllUsers();
 	    	    
-	    	    if (users != null ){
-	    	    	System.out.print(users.size());
-	    	    	for ( User u : users){
-	    	    		u.DebugPrint();
-	    	    	}
-	    	    }
+	    	    User first = users.get(0);
+	    	    first.setRealName("tillias_changed");
+	    	    first.setAccessLevel(new AccessLevel(333));
+	    	    first.getJidCollection().clear();
+	    	    first.addJID("new_jid_333@org");
+	    	    db.updateUser(first);
+	    	    db.updateUserJidCollection(first);
 	    	    
-	    	    User use2 = null;
+	    	    first.DebugPrint();
 	    	    
-	    	    System.out.print(users.get(0).equals(use2));
+	    	    db.deleteUser(first);
+	    	    
+	    	    System.out.print(first.isPersistent());
+	    	    
+/*	    	    int[] ar1 = null;
+	    	    int[] ar2 = new int[] {1,2,2,3};
+	    	    int[] ar3 = new int[]{};*/
 	    	    
 	    	    
 	    	    db.disconnect();
