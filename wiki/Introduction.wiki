@@ -42,7 +42,7 @@
 
  jxmpp-bot uses extensible architecture. All extensions are plugins which are loaded by bot on it's startup. If you need you own function - make plugin which performs it.
 
-[http://code.google.com/p/jxmpp-bot/wiki/PluginsList See current list of all plugins]
+ [http://code.google.com/p/jxmpp-bot/wiki/PluginsList See current list of all plugins]
 
 
  * *Local configuration management*
