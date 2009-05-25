@@ -7,10 +7,10 @@
  = Abbreviations =
  
 
- * `[`_optional_param_`]` - Optional parameters are put in square brackets
- * { _required_param_ } - Required parameters are put in braces
- * _Output (s)_ - Output of command if _*s*_ucceded
- * _Output (e)_ - Output of command if _*e*_rror occured
+  * `[`_optional_param_`]` - Optional parameters are put in square brackets
+  * { _required_param_ } - Required parameters are put in braces
+  * _Output (s)_ - Output of command if _*s*_ucceded
+  * _Output (e)_ - Output of command if _*e*_rror occured
 
  = List of system commands =
 
