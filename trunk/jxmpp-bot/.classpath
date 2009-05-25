@@ -3,9 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="G:/jxmpp-bot/jxmpp-bot/lib/smackx.jar"/>
-	<classpathentry kind="lib" path="G:/jxmpp-bot/jxmpp-bot/lib/smack.jar"/>
-	<classpathentry kind="lib" path="G:/jxmpp-bot/jxmpp-bot/lib/sqlitejdbc-v054.jar"/>
+	<classpathentry kind="lib" path="D:/Projects/jxmpp-bot/lib/smackx.jar"/>
+	<classpathentry kind="lib" path="D:/Projects/jxmpp-bot/lib/smack.jar"/>
+	<classpathentry kind="lib" path="D:/Projects/jxmpp-bot/lib/sqlitejdbc-v054.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
