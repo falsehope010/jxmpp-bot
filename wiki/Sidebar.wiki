@@ -3,6 +3,7 @@
 == Contents ==
 
  * [Introduction Introduction] 
+ * [SstemCommands System commands]
  * [PluginsList Plugins list] 
  * [CoreAPI Core API]
  * [PluginsAPI Plugins API] 
