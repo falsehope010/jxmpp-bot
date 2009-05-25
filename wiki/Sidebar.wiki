@@ -8,3 +8,4 @@
  * [PluginsAPI Plugins API] 
  * [Development Development]
   * [DevOverview Overview]
+  * [BotLifecycle Bot lifecycle]
