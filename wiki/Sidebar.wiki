@@ -2,14 +2,9 @@
 
 == Contents ==
 
- * [Introduction Introduction] 
-
- * [PluginsList Plugins list] 
-
- * [Core API]
-
- * [Plugins API] 
-
- * [Development]
-
-  * [Overview]
+* [Introduction Introduction] 
+* [PluginsList Plugins list] 
+* [Core_API]
+* [Plugins_API] 
+* [Development]
+ * [Overview]
