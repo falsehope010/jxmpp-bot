@@ -22,6 +22,4 @@ _TODO: Add links to PluginsManager and SystemCommandsParser_
 
 == User management ==
 
-_Create [UserManagementAndPermissionsCommands] child page under SystemCommands and move all user management and permission checking commands into this child page_
-
-Using Users table we provide almost complete implementation of several user management and permission checking commands {_Link to [UserManagementAndPermissionsCommands] page_ }
+Using Users table we provide almost complete implementation of several user management and permission checking commands, see [UserManagementCommands User management commands] and [PermissionCheckingCommands Access level management commands]
