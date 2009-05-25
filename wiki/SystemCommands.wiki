@@ -2,18 +2,27 @@
 
  = System commands =
  
- Commands listed below are treated as *system commands*. They performs system or admin actions and require high access level. See [CommandSyntax Command syntax section] if you aren't familar with it
+ Commands listed below are treated as *system commands*. They performs system or admin actions and require high access level. See [CommandSyntax Command syntax section] if you aren't familar with it.
 
+ = Abbreviations =
+ 
+
+ * `[`_optional_param_`]` Optional parameters are put in square brackets
+ * { _required_param_ } Required parameters are put in braces
+
+ = List of system commands =
+
+----
  * *Register user*
 
- Registers new user with given JID and access level
+ Attempts to register new user with given JID and access level. Registered user user will be put into local bot's database and granted corresponding access level. You must have access level more then than 40000 in order to register new users. If you will try to grant access level to user greater then you are, error will be generated
  
- Syntax: _reguser {usr`_`jid} {access`_`level}_
+ _*Syntax:*_ _reg_user {usr`_`jid} {access`_`level} `[`real_name`]`_
 
- Output: _ok_
+ _*Output (s):*_ _ok_
 
-
-
+ _*Output (e):*_ _error message_
+----
  * *Grant access*
 
  Changes access level for given user
