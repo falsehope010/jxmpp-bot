@@ -5,6 +5,9 @@
 
 = Description =
 
+
+== Permissions checking ==
+
 When bot recieves xmpp message (e.g. message body, sender JID and some other attributes) from server first of all it checks whether it is system command. If message is system command (this is checked using system commands parser), bot checks whether command sender (remote user) have enough permissions to execute it. There is the place where UsersTable comes to scene. It provides robust access to user's access level based on user JID.
 
 If command was sent by anonymous user, access level of sender is set to *zero*
@@ -15,3 +18,10 @@ Plugin developer may want to put access level restriction on plugin execution, s
 
 
 _TODO: Add links to PluginsManager and SystemCommandsParser_
+
+
+== User management ==
+
+_Create [UserManagementAndPermissionsCommands] child page under SystemCommands and move all user management and permission checking commands into this child page_
+
+Using Users table we provide almost complete implementation of several user management and permission checking commands {_Link to [UserManagementAndPermissionsCommands] page_ }
