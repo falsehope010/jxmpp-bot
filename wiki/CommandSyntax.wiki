@@ -1,4 +1,12 @@
-#summary Contains commands syntax
+#summary Contains commands syntax and default behaviour description
 
- = Introduction =
+= Introduction =
+
+You can send commands to jxmpp-bot using four methods:
+
+  # Send text message using any IM application directly to bot (using bot's JID)
+  # Send private message while you are in jabber conference room `*`
+  # Send group-chat message while you are in jabber conference room `*`
+  # Send xmpp message using your own software/tool
+ Note: Bot must be in the same room as you are [[Introduction]]
  
