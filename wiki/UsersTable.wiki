@@ -3,3 +3,5 @@
 
 
 = Description =
+
+Every bot's command (both system commands and commands from plugins)
