@@ -59,4 +59,4 @@
 
  Local data storage is used to "store" persistent data which should be saved between bot's restarts/shutdowns (for example registered users info is stored inside local data storage). 
 
-Current implementation is based on SQLite database.
+ Current implementation is based on SQLite database.
