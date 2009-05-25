@@ -1,0 +1,12 @@
+#summary Describes jxmpp-bot lifecycle
+
+ = Activity diagram =
+
+ _Put activity diagram here_
+
+ = Description =
+
+ _Put description here_
+
+ 
+
