@@ -7,8 +7,10 @@
  = Abbreviations =
  
 
- * `[`_optional_param_`]` Optional parameters are put in square brackets
- * { _required_param_ } Required parameters are put in braces
+ * `[`_optional_param_`]` - Optional parameters are put in square brackets
+ * { _required_param_ } - Required parameters are put in braces
+ * _Output (s)_ - Output of command if _*s*_ucceded
+ * _Output (e)_ - Output of command if _*e*_rror occured
 
  = List of system commands =
 
@@ -17,12 +19,12 @@
 
  Attempts to register new user with given JID and access level. Registered user user will be put into local bot's database and granted corresponding access level. You must have access level more then than 40000 in order to register new users. If you will try to grant access level to user greater then you are, error will be generated
  
- _*Syntax:*_ _reg_user {usr`_`jid} {access`_`level} `[`real_name`]`_
+ _*Syntax:*_ _reg_user_ {_usr`_`jid_} {_access`_`level_} `[`_real_name_`]`
 
  _*Output (s):*_ _ok_
 
- _*Output (e):*_ _error message_
+ _*Output (e):*_ {_error message_}
 ----
  * *Grant access*
 
- Changes access level for given user
+ Changes access level for given user. 
