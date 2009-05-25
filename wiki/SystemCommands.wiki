@@ -27,12 +27,6 @@
  _*Output (e):*_ {_error message_}
 
 ----
-
- ==Set access level==
-
- Changes access level for given user. 
-
-----
  ==Drop user==
 
 ----
