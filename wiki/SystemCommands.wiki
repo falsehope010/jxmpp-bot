@@ -2,7 +2,8 @@
 
  = System commands =
  
- Commands listed below are treated as *system commands*. They performs system or admin actions and require high access level. See [CommandSyntax Command syntax]
+ Commands listed below are treated as *system commands*. They performs system or admin actions and require high access level. See [CommandSyntax Command syntax section] if you aren't familar with command syntax
+
  * *Register user*
 
  Registers new user with given JID and access level
