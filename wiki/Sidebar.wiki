@@ -2,14 +2,14 @@
 
 == Contents ==
 
-[http://code.google.com/p/jxmpp-bot/wiki/Introduction Introduction] 
+ * [Introduction Introduction] 
 
-[http://code.google.com/p/jxmpp-bot/wiki/PluginsList Plugins list] 
+ * [PluginsList Plugins list] 
 
-Core API 
+ * [Core API]
 
-Plugins API 
+ * [Plugins API] 
 
-Development
+ * [Development]
 
- Overview
+  * [Overview]
