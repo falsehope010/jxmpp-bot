@@ -1,0 +1,15 @@
+#summary List of bot system commands with brief overview and permission level
+
+ = System commands =
+ 
+ Commands listed below are treated as *system commands*. They performs system or admin actions and require high access level
+
+ * *Register user*
+
+ Registers new user with given JID and access level
+
+ * *Grant access*
+
+ Changes access level for given user
+
+
