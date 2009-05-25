@@ -11,3 +11,4 @@
  * [Development Development]
   * [DevOverview Overview]
   * [BotLifecycle Bot lifecycle]
+  * [UsersTable Users table]
