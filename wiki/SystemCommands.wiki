@@ -8,7 +8,10 @@
 
  Registers new user with given JID and access level
  
- Syntax: _admin reg user {usr_jid} {access_level}
+ Syntax: _reguser {usr`_`jid} {access`_`level}_
+
+ Output: _ok_
+
 
 
  * *Grant access*
