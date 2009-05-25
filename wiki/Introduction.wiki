@@ -24,7 +24,7 @@
   
  * *User permissions management and distinction*
 
- Each user has it's own access level. Access level is number between 0 and 65535. Top access level is 65535 and assigned only to owner. Users with access level *higher than 30000* can change other users' access levels but not more than their own. 
+ Each user has it's own access level. Access level is number between 0 and 65535. Top access level is 65535 and assigned only to owner. Users with access level higher than 30000 can change other users' access levels but not more than their own. 
 
  All information about access levels for registered users is stored inside bot's local database. Owner is special user. It's JID is stored directly in bot's configuration file, so there are no ways to changed owner remotely. There can be only one bot's owner with unlimited permissions, but you can always change owner by editing local bot's configuration.
 
