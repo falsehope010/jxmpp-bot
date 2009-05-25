@@ -4,7 +4,34 @@
 
 jxmpp-bot is java-based open-source jabber bot. It can be used as jabber conference bot or standalone application for remote control over PC.
 
-jxmpp-bot has *core API* and *plugins API*. It allows to create custom plugins for user needs.
+jxmpp-bot is designed to be very flexible because of it's plugin management system. You can write your own plugins for processing messages, text filtering, task editing and executing and many other things. 
+
+
+
+= Architecture overview =
+http://img268.imageshack.us/img268/8905/mainusecasemodelp.jpg
+
+ * *User management*
+
+ Bot's user is a person that uses it remotely or locally. There are two types of users - _registered_ and _anonymous_. Registered user has it's own record about it's JID (jabber user id) and access level, stored inside bot's local database. Anonymous user has no such a record in database an can use only very basic functions and commands (such as 'ping','time' and so on).
+ Registered user must always provide at least one valid JID (jabber user ID) in order to start using bot and execute commands. Registered users can have multiple jids
+
+ * *User commands management*
+
+ The main purpose of jxmpp-bot is to process commands from remote users. You can send commands directly to bot (using for example IM messenger) or from any other application using xmpp protocol. The bot distincts commands that are sent directly (private messages by it's JID) and group-chat commands (e.g. jabber conference room). 
+ Using user management system bot distinct whether command was sent by registered user (e.g. it's JID and access level is stored in local bot database) or by anonymous sender. 
+ NOTE: Anonymous users still can perform several actions.
+  
+ * *User permissions management and distinction*
+
+ Each user has it's own access level. Access level is number between 0 and 65535. Top access level is 65535 and assigned only to owner. Users with access level higher than 50000 can change other users' access levels but not more than their own. 
+
+ E.g. "user1" has acess level 50000, "user2" has "1000". First user can set access level for second one from range `[`0;50000`]`.
+
+ All information about access levels for registered users is stored inside bot's local database. Owner is special user. It's JID is stored directly in bot's configuration file, so there are no ways to changed owner remotely. So there can be only one bot's owner with unlimited permissions.
+
+
+ Each registered bot user (
 
 _put Core API UML diagram here_
 
