@@ -1,6 +1,6 @@
 #summary One-sentence summary of this page.
 
-= Desciption =
+= Description =
 
 Add your content here.
 
