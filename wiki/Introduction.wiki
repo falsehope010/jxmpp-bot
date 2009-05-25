@@ -44,7 +44,7 @@ jxmpp-bot is designed to be very flexible because of it's plugin management syst
 
 
  * *Local configuration management*
- All top critical 
+ All top critical configuration parameters are stored inside local configurations cache
  
 
 
