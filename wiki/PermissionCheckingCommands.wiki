@@ -15,6 +15,6 @@ Add your content here.
 
 ----
 
- ==Show access level==
+ ==Get access level==
 
  Shows access level for given user. 
