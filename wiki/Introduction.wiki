@@ -35,7 +35,18 @@ jxmpp-bot is designed to be very flexible because of it's plugin management syst
  * *Remote management and administration*
 
  There is a wide list of management and administrative operations and commands. Almost all of them can be performed remitely by users with access level greater than 50000. Only top critical operations are allowed to be performed only by owner.
- _TODO Create 
+ 
+ _TODO Create system operations list_
+
+ * *Plugin management*
+
+ jxmpp-bot uses extensible architecture. All extensions are plugins which are loaded by bot on it's startup. If you need you own function - make plugin which performs it.
+
+
+ * *Local configuration management*
+ All top critical 
+ 
+
 
 
 _put Core API UML diagram here_
