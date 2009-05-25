@@ -24,9 +24,7 @@
   
  * *User permissions management and distinction*
 
- Each user has it's own access level. Access level is number between 0 and 65535. Top access level is 65535 and assigned only to owner. Users with access level higher than 30000 can change other users' access levels but not more than their own. 
-
- E.g. "user1" has acess level 30000, "user2" has "1000" and "user3" has 400. First user can set up access level for second one using value from 0 to 30000. Third user can change access level for no one.
+ Each user has it's own access level. Access level is number between 0 and 65535. Top access level is 65535 and assigned only to owner. Users with access level *higher than 30000* can change other users' access levels but not more than their own. 
 
  All information about access levels for registered users is stored inside bot's local database. Owner is special user. It's JID is stored directly in bot's configuration file, so there are no ways to changed owner remotely. There can be only one bot's owner with unlimited permissions, but you can always change owner by editing local bot's configuration.
 
@@ -36,13 +34,13 @@
 
  There is a wide list of management and administrative operations and commands. Almost all of them can be performed remitely by users with access level greater than 50000. Only top critical operations are allowed to be performed only by owner.
  
- _TODO Create system operations list_
+ [SystemCommands See list of all system commands]
 
  * *Plugin management*
 
  jxmpp-bot uses extensible architecture. All extensions are plugins which are loaded by bot on it's startup. If you need you own function - make plugin which performs it.
 
- [http://code.google.com/p/jxmpp-bot/wiki/PluginsList See current list of all plugins]
+ [PluginsList See current list of all plugins]
 
 
  * *Local configuration management*
