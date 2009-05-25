@@ -1,14 +1,14 @@
 #summary Introduction to jxmpp-bot
 
-= Introduction =
+ = Introduction =
 
-jxmpp-bot is java-based open-source jabber bot. It can be used as jabber conference bot or standalone application for remote control over PC.
+ jxmpp-bot is java-based open-source jabber bot. It can be used as jabber conference bot or standalone application for remote control over PC.
 
-jxmpp-bot is designed to be very flexible because of it's plugin management system. You can write your own plugins for processing messages, text filtering, task editing and executing and many other things. 
+ jxmpp-bot is designed to be very flexible because of it's plugin management system. You can write your own plugins for processing messages, text filtering, task editing and executing and many other things. 
 
 
 
-= Architecture overview =
+ = Architecture overview =
  http://img268.imageshack.us/img268/8905/mainusecasemodelp.jpg
 
  * *User management*
@@ -42,15 +42,21 @@ jxmpp-bot is designed to be very flexible because of it's plugin management syst
 
  jxmpp-bot uses extensible architecture. All extensions are plugins which are loaded by bot on it's startup. If you need you own function - make plugin which performs it.
 
+[http://code.google.com/p/jxmpp-bot/wiki/PluginsList See current list of all plugins]
+
 
  * *Local configuration management*
- All top critical configuration parameters are stored inside local configurations cache
+
+ All top critical configuration parameters are stored inside local configurations file. For example there are stored bot JID, password, conference room name etc. Configuration file also includes owner's JID and additional owner's information. Configuration parameters are loaded during bot initialization and can't be changed during runtime. If you change bot local configuration (which can be done only by editing config file locally) you need to restart bot to affect changes 
  
 
+ * *Data exchange with xmpp server*
+
+ During bot's life-cycle it recieves data from xmpp (jabber) server, processes this data and send response back to server. Response is generated only if recieved data flow contains command or some plugin has performed some operation over this data and created output.
 
 
-_put Core API UML diagram here_
+ * *Local data storage*
 
-_put Plugins API UML diagram here_
+ Local data storage is used to "store" persistent data which should be saved between bot's restarts/shutdowns (for example registered users info is stored inside local data storage). 
 
-[http://code.google.com/p/jxmpp-bot/wiki/PluginsList See current list of all plugins]
+Current implementation is based on SQLite database.
