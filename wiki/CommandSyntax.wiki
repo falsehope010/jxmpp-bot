@@ -1,12 +1,25 @@
 #summary Contains commands syntax and default behaviour description
 
-= Introduction =
+= Syntax overview =
 
 You can send commands to jxmpp-bot using four methods:
 
   # Send text message using any IM application directly to bot (using bot's JID)
-  # Send private message while you are in jabber conference room `*`
-  # Send group-chat message while you are in jabber conference room `*`
+  # Send private message while you are in jabber conference room (`*`)
+  # Send group-chat message while you are in jabber conference room (`*`)
   # Send xmpp message using your own software/tool
- Note: Bot must be in the same room as you are [[Introduction]]
+ (`*`) Bot must be in the same room as you are
+
+Each command has folowing syntax:
+
+ {`*`}   {command_name}   {param1}   {param2}   ...
+
+If you want to invoke command using group-chat message, you must put `*` char before command name. After command name you must put command parameters (if any needed)
  
+= Default behaviour =
+
+By default if invalid command syntax used:
+
+ * Bot doesn't produce error message if user sent group-char message (e.g. attempted to invoke command inside group-chat)
+
+ * Bot produces error message and optionally help message if user sent private message or send direct xmpp message
