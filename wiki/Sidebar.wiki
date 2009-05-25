@@ -2,7 +2,7 @@
 
 == Contents ==
 
- # Introduction
+ # [http://code.google.com/p/jxmpp-bot/wiki/Introduction Introduction]
  # Plugins list
  # Core API
  # Plugins API 
