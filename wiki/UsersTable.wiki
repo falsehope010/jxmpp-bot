@@ -1,5 +1,3 @@
-#summary Users table
-
 = Use-case =
 
 
