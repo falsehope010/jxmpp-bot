@@ -29,3 +29,7 @@ It also provides formatted database description of user (which in conjunction wi
 Format:
 
  {_Field Name_}  :  {_Field Value_}  _*\n*_  {_Field Name_}  :  {_Field Value_}  _*\n*_ ...
+
+== Caching records ==
+
+Users table provides RAM cache of database users table in junction with additional user's information stored in database (e.g. jid collection for each user and so on). Users table should be used by plugins to get user access level and get/set additional user's information.
