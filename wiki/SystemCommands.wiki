@@ -2,14 +2,14 @@
 
  = System commands =
  
- Commands listed below are treated as *system commands*. They performs system or admin actions and require high access level
-
+ Commands listed below are treated as *system commands*. They performs system or admin actions and require high access level. See [CommandSyntax Command syntax]
  * *Register user*
 
  Registers new user with given JID and access level
+ 
+ Syntax: _admin reg user {usr_jid} {access_level}
+
 
  * *Grant access*
 
  Changes access level for given user
-
-
