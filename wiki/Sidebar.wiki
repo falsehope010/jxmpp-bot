@@ -4,7 +4,7 @@
 
  * [Introduction Introduction] 
  * [PluginsList Plugins list] 
- * [Core_API]
- * [Plugins_API] 
- * [Development]
-  * [Overview]
+ * [Core`*` API CoreAPI]
+ * [Plugins`*` API PluginsAPI] 
+ * [Development Development]
+  * [Overview DevOverview]
