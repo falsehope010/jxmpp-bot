@@ -27,3 +27,8 @@ Add your content here.
 
 ----
  ==Set user real name==
+
+----
+ ==Describe user==
+
+ _Note: Join vcard info with user's db info. Also output whether user is registered or not_
