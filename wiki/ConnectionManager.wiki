@@ -7,6 +7,6 @@ Add your content here.
 
 = Description =
 
-If connection is established, bot attempts to join groupchat, otherwise error information will be written into bot application [SysLogger log] and bot goes reconnecting. [BotConfig See reconnect timeout option].
+If connection is established, bot attempts to join groupchat, otherwise error information will be written into bot application [SysLogger log] and bot goes reconnecting. See [BotConfig reconnect timeout option].
 
 If bot has successfully joined groupchat, it starts its main loop.
