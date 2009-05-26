@@ -1,0 +1,10 @@
+#summary One-sentence summary of this page.
+
+= Syntax overview =
+
+_Put sample here in code block_
+
+= Parameters =
+
+ * Reconnect timeout
+ Specifies timeout after which bot will attempt to establish connection with xmpp server.
