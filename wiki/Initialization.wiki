@@ -1,0 +1,11 @@
+#summary One-sentence summary of this page.
+
+= Activity diagram =
+
+http://img21.imageshack.us/img21/2320/startupl.png
+
+
+= Description =
+
+_Describe initialization process_
+
