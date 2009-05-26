@@ -15,5 +15,6 @@
  * [Development Development]
   * [BotLifecycle Bot lifecycle]
   * [Initialization Initialization]
+  * [ConnectionManager Connection manager]
   * [UsersTable Users table]
   * [SysLogger System logger]
