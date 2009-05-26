@@ -2,7 +2,7 @@
 
 = Activity diagram =
 
-http://img16.imageshack.us/img16/9259/mainlifecycleactivity.png
+http://img2.imageshack.us/img2/9259/mainlifecycleactivity.png
 
 = Description =
 
