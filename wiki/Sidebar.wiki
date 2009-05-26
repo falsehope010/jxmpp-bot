@@ -13,6 +13,6 @@
  * [PluginsAPI Plugins API] 
  * [Development Development]
   * [BotLifecycle Bot lifecycle]
-   * [Initialization Initialization]
+  * [Initialization Initialization]
   * [UsersTable Users table]
   * [SysLogger System logger]
