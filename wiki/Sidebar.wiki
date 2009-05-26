@@ -14,4 +14,5 @@
  * [Development Development]
   * [DevOverview Overview]
   * [BotLifecycle Bot lifecycle]
+   * [Initialization Initialization]
   * [UsersTable Users table]
