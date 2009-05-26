@@ -12,7 +12,7 @@
  * [CoreAPI Core API]
  * [PluginsAPI Plugins API] 
  * [Development Development]
-  * [DevOverview Overview]
   * [BotLifecycle Bot lifecycle]
    * [Initialization Initialization]
   * [UsersTable Users table]
+  * [SysLogger System logger]
