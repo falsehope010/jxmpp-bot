@@ -6,5 +6,5 @@ _Put sample here in code block_
 
 = Parameters =
 
- * Reconnect timeout
+ * *Reconnect timeout*
  Specifies timeout after which bot will attempt to establish connection with xmpp server.
