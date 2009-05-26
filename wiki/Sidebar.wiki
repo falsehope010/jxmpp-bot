@@ -3,6 +3,7 @@
 == Contents ==
 
  * [Introduction Introduction] 
+ * [BotConfig Configuration]
  * [CommandSyntax Command syntax]
  * [SystemCommands System commands]
   * [UserManagementCommands User management commands]
