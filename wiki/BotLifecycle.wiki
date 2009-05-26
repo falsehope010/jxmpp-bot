@@ -2,15 +2,11 @@
 
 = Activity diagram =
 
-http://img2.imageshack.us/img2/9259/mainlifecycleactivity.png
+http://img148.imageshack.us/img148/9259/mainlifecycleactivity.png
 
 = Description =
 
-After bot process has been started up [Initialization initialization] occurs. Then using provided initialization information, bot attempts to connect to remote xmpp server.
-
-If connection is established, bot attempts to join groupchat, otherwise error information will be written into bot application log. 
-
-If bot has successfully joined groupchat, it starts its main loop.
+After bot process has been launched [Initialization initialization] occurs. Then using provided initialization information, bot attempts to [ConnectionManager connect] to remote xmpp server and login.
 
 Each iteration bot waits until new message will be recieved from xmpp server. If message has been arrived
 
