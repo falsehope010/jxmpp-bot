@@ -3,7 +3,7 @@
 
 = Overview =
 
-System logger performs _add description that only system and error logs_
+System logger performs logging system events such as various errors, connection attempts and failures etc. It has nothing with group-chat / private-chat logging, though it may be used for logging system xmpp messages (e.g. error auth messages).
 
 Currently I want to store system logs inside local database (SQLite). Log records life time depends on several options:
 
@@ -29,11 +29,6 @@ _TODO: Add user case for all operations on syslog_
 
 = Data model =
 
-!LogRecord { id, timestamp, text, session_id }
-
-Session { id, start_date, finish_date }
-
 http://img5.imageshack.us/img5/9959/sessionse.png
 
 = Implementation =
-
