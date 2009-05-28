@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 
 import org.jivesoftware.smack.*;
@@ -100,5 +99,6 @@ public class Main {
 			System.out.print(ex.getMessage());
 		}
 	}
+
 
 }
