@@ -1,8 +1,7 @@
 #labels Phase-Design
-
 = Overview =
 
-System logger performs logging system events such as various errors, connection attempts and failures etc. It has nothing with group-chat / private-chat logging, though it may be used for logging system xmpp messages (e.g. error auth messages). 
+System logger performs logging of system events such as various errors, connection attempts and failures etc. It has nothing with group-chat / private-chat logging, though it may be used for logging system xmpp messages (e.g. error auth messages). 
 
 System log can be configured through [BotConfig system configuration] 
 
