@@ -3,13 +3,15 @@
 
 = Overview =
 
-System logger performs logging system events such as various errors, connection attempts and failures etc. It has nothing with group-chat / private-chat logging, though it may be used for logging system xmpp messages (e.g. error auth messages).
+System logger performs logging system events such as various errors, connection attempts and failures etc. It has nothing with group-chat / private-chat logging, though it may be used for logging system xmpp messages (e.g. error auth messages). 
 
-Currently I want to store system logs inside local database (SQLite). Log records life time depends on several options:
+System log can be configured through [BotConfig system configuration] 
+
+System logs are stored inside local database (SQLite). Log records life time depends on several options:
 
  * *Store system log for specified number of sessions.*
 
- When bot is launched, we assume that new session is started. User can specify in [Config system configuration] how many sessions will be logged.
+ When bot is launched, we assume that new session is started. User can specify number of sessions to be logged in system configuration.
 
  * *Store system log records for specified time period*
 
@@ -25,10 +27,24 @@ Currently I want to store system logs inside local database (SQLite). Log record
 
 = Use-case =
 
-_TODO: Add user case for all operations on syslog_
+http://jxmpp-bot.googlecode.com/svn/trunk/jxmpp-bot/wiki_images/Syslog%20Use-Case.png
 
 = Data model =
 
-http://img5.imageshack.us/img5/9959/sessionse.png
+http://jxmpp-bot.googlecode.com/svn/trunk/jxmpp-bot/wiki_images/Syslog%20database.png
 
 = Implementation =
+
+_in progress_
+
+= List of reserved syslog cathegories =
+
+_in progress_
+
+= List of reserved syslog types =
+
+_in progress_
+
+= List of reserved syslog senders =
+
+_in progress_
