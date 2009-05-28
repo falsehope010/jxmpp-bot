@@ -1,5 +1,40 @@
 #summary System logger overview.
+#labels Phase-Design
 
 = Overview =
 
-Currently I want to store system logs inside local database (SQLite). 
+System logger performs _add description that only system and error logs_
+
+Currently I want to store system logs inside local database (SQLite). Log records life time depends on several options:
+
+ * *Store system log for specified number of sessions.*
+
+ When bot is launched, we assume that new session is started. User can specify in [Config system configuration] how many sessions will be logged.
+
+ * *Store system log records for specified time period*
+
+ If bot is running permanently, user can specify interval of storing system logs. If log record will be older then logging interval it will be cleaned up automatically.
+
+ * *Store only specified ammount of system log records*
+
+ Only latest records will be present in system log. Total count of them is specified in system configuration _Link needed_
+
+ * *Combination of all methods*
+
+ System log cleans up old records and stores logs for only specified number of sessions. Additionally only specified number of system log records will be stored.
+
+= Data model =
+
+!LogRecord { id, timestamp, text, session_id }
+
+Session { id, start_date, finish_date }
+
+= Implementation =
+
+I'd prefer to create additional database table where we will store those parameters:
+
+ # Sessions counter
+ # Total number of records
+
+First parameter can't be evaluted without been stored in RAM independent storage. Second parameter can be evaluted by counting all records in syslog database table, but due to performance reason it's better to store one LONG variable in special database table.
+
