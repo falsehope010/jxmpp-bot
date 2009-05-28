@@ -23,18 +23,17 @@ Currently I want to store system logs inside local database (SQLite). Log record
 
  System log cleans up old records and stores logs for only specified number of sessions. Additionally only specified number of system log records will be stored.
 
+= Use-case =
+
+_TODO: Add user case for all operations on syslog_
+
 = Data model =
 
 !LogRecord { id, timestamp, text, session_id }
 
 Session { id, start_date, finish_date }
 
+http://img5.imageshack.us/img5/9959/sessionse.png
+
 = Implementation =
-
-I'd prefer to create additional database table where we will store those parameters:
-
- # Sessions counter
- # Total number of records
-
-First parameter can't be evaluted without been stored in RAM independent storage. Second parameter can be evaluted by counting all records in syslog database table, but due to performance reason it's better to store one LONG variable in special database table.
 
