@@ -1,4 +1,3 @@
-#summary Contains commands syntax and default behaviour description
 
 = Syntax overview =
 
