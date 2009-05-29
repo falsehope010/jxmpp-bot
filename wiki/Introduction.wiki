@@ -9,7 +9,7 @@
 
 
  = Architecture overview =
- http://img268.imageshack.us/img268/8905/mainusecasemodelp.jpg
+ http://jxmpp-bot.googlecode.com/svn/trunk/jxmpp-bot/wiki_images/Project%20Use-Case.png
 
  * *User management*
 
