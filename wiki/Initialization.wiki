@@ -2,10 +2,9 @@
 
 = Activity diagram =
 
-http://img21.imageshack.us/img21/2320/startupl.png
+http://jxmpp-bot.googlecode.com/svn/trunk/jxmpp-bot/wiki_images/Initialization%20(Activity).png
 
 
 = Description =
 
 _Describe initialization process_
-
