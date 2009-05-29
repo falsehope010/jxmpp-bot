@@ -1,4 +1,4 @@
-#summary Plugins List
+
 = Plugins List =
 
 
