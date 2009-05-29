@@ -2,7 +2,7 @@
 
 = Activity diagram =
 
-http://img148.imageshack.us/img148/9259/mainlifecycleactivity.png
+http://jxmpp-bot.googlecode.com/svn/trunk/jxmpp-bot/wiki_images/Main%20LifeCycle%20(Activity).png
 
 = Description =
 
