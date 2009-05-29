@@ -1,4 +1,3 @@
-#summary List of bot system commands with brief overview and permission level
 
  = System commands =
  
