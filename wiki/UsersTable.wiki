@@ -1,6 +1,6 @@
 = Use-case =
 
- http://img14.imageshack.us/img14/64/usertableusecase.png
+ http://jxmpp-bot.googlecode.com/svn/trunk/jxmpp-bot/wiki_images/UserTable%20Use-Case.png
 
 
 = Description =
