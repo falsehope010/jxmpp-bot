@@ -9,9 +9,7 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
-		
-
+			
 	    	try {
 	    	    Database db = new Database("test_db");
 	    	    db.connect();
