@@ -1,3 +1,5 @@
+package domain;
+
 public class AccessLevel {
     public static final int Min = 0;
     public static final int Max = 65535;

@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 
 import org.jivesoftware.smack.*;
+import database.*;
+import domain.*;
 
 public class Main {
 

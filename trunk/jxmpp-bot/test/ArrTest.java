@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import database.*;
+import domain.*;
 
 public class ArrTest extends TestCase {
 	public static final String testDbName = "test/test_db";
