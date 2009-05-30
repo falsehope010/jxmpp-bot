@@ -1,3 +1,5 @@
+package domain;
+
 public class DomainObject {
 	
 	long id;

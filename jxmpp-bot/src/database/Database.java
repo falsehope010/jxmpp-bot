@@ -1,3 +1,5 @@
+package database;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -7,6 +9,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.*;
+
+import domain.*;
 
 public class Database {
 
@@ -50,7 +54,6 @@ public class Database {
 		try {
 			return conn != null && !conn.isClosed();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -360,7 +363,7 @@ public class Database {
 	 * 
 	 * @return valid connection to database if succeded, null otherwise
 	 */
-	protected Connection getConnection() {
+	public Connection getConnection() {
 		Connection result = null;
 
 		try {
@@ -402,7 +405,7 @@ public class Database {
 	 * @param stat
 	 *            Statement to be closed
 	 */
-	protected void Cleanup(Statement stat) {
+	public void Cleanup(Statement stat) {
 		if (stat != null) {
 			try {
 				stat.close();
@@ -469,7 +472,7 @@ public class Database {
 	 * @param ar Array which elements will be summed
 	 * @return Sum of elements of array. -1 if ar is null or empty
 	 */
-	protected int getSumElements(int[] ar){
+	public int getSumElements(int[] ar){
 		int result = -1;
 		
 		if ( ar != null && ar.length > 0 ){
@@ -487,7 +490,7 @@ public class Database {
 	 * Counts tables in database. Method only for unit testing
 	 * @return
 	 */
-	protected int countTables(){
+	public int countTables(){
 		int result = -1;
 		
 		Statement stat = null;

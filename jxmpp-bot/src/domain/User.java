@@ -1,3 +1,5 @@
+package domain;
+
 import java.util.ArrayList;
 
 public class User extends DomainObject {
