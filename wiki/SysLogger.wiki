@@ -33,6 +33,8 @@ http://jxmpp-bot.googlecode.com/svn/trunk/jxmpp-bot/wiki_images/Syslog%20databas
 
 = Implementation =
 
+== Creating new log messages ==
+
 Syslog is active object. In predefined intervals (through system configuration) it initiates log cleaning activity. Interval mustn't be too small due to performance issues.
 By default log cleaning interval is 10 minutes. This means that each 10 minutes syslog checks if there are any _old_ log messages which should be cleaned from database and memory (if they are cached)
 
@@ -61,7 +63,7 @@ Typically we will use such a process of construction of log message (_*Listing 1
  Syslog.putMessage(msg);
 }}}
 
-
+In the first example we create new cathegory, type and sender of Syslog message and attach them to message itself using it's constructor. Those records will be marked as non-persistent and Syslog will take care of inserting them into corresponding tables. Syslog will also cache them in memory in order to reuse them for new log messages.
 
 
 We can use more user-friendly syntax (_*Listing 2*_):
@@ -73,9 +75,30 @@ We can use more user-friendly syntax (_*Listing 2*_):
  Syslog.putMessage(msg);
 }}}
 
-In second example session information will be assigned to message automatically (current session will be used) by Syslog. Syslog also will take care of all database routines about creating and caching new cathegory, sender, type. Or if they are already present in database Syslog will retrieve them from cache by text name and assign to LogMessage.
+In the second example session's information will be assigned to message automatically (current session will be used) by Syslog. Syslog also will take care of all database routines about creating and caching new cathegory, sender, type. Or if they are already present in database Syslog will retrieve them from cache by text name and assign to LogMessage.
 
+In all methods above you don't need to specify message's timestamp since it will be generated automatically in constructor of message. Timestamp will be set according to current system time.
 
+== Retrieve messages from syslog ==
+
+Syslog provides several methods of retrieving messages from database. Consumer of Syslog can specify folowing retrieval conditions:
+
+ # Date interval (e.g. startDate, endDate)
+ # Session(s)
+ # Message type(s)
+ # Message cathegory(s)
+ # Message sender(s)
+
+Syslog will retrieve records from database model (also it reuses cached records) using those conditions. Optionally syslog provides general methods:
+
+{{{
+  getMessages(startDate, endDate, sessions, types, cathegories, senders)
+
+  getMessages(startDate, endDate, session, type, cathegory, sender)
+}}}
+
+Consumer can pass null to those methods instead of any parameter(s).
+For example if consumer will pass null instead of valid cathegory, Syslog will retrieve messages that can have any cathegory. 
 
 
 = List of reserved syslog cathegories =
