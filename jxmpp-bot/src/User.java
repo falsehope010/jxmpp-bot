@@ -1,10 +1,9 @@
 import java.util.ArrayList;
 
-public class User {
-	long _id;
+public class User extends DomainObject {
 	String _real_name;
 	AccessLevel _accessLevel;
-	boolean _isPersistent;
+	
 
 	ArrayList<String> _jidCollection;
 
@@ -26,7 +25,7 @@ public class User {
 			throw new NullPointerException("jid can't be null");
 		}
 
-		_isPersistent = false;
+		setPersistence(false);
 		_real_name = realName;
 
 		_accessLevel = accessLevel;
@@ -36,13 +35,6 @@ public class User {
 	}
 
 	// getters
-	/**
-	 * Gets user id from database. 
-	 * @return User id greater then zero if user is persisten't, 0 otherwise
-	 */
-	public long getID() {
-		return _id;
-	}
 
 	/**
 	 * Gets user real name. Can be null
@@ -58,26 +50,6 @@ public class User {
 	 */
 	public AccessLevel getAccessLevel() {
 		return _accessLevel;
-	}
-
-	/**
-	 * Gets value indicating that user is present in database
-	 * (e.g. it has valid id).
-	 * @return True if user with given id is present id database,
-	 * false otherwise
-	 */
-	public boolean isPersistent() {
-		return _isPersistent;
-	}
-
-	/**
-	 * Sets user id. Normaly you mustn't change id manually. 
-	 * Use Database class to insert user in database in order to make it persistent
-	 * and assign valid id.
-	 * @param ID New user id
-	 */
-	public void setID(long ID) {
-		_id = ID;
 	}
 
 	/**
@@ -101,15 +73,6 @@ public class User {
 		}
 
 		_accessLevel = accessLevel;
-	}
-
-	/**
-	 * Sets persistence of entity. Normally you mustn't use this method.
-	 * Call Database class methods to obtain users from database, insert, update or delete
-	 * @param value
-	 */
-	public void setPersistence(boolean value) {
-		_isPersistent = value;
 	}
 
 	/**
@@ -163,7 +126,7 @@ public class User {
 	}
 	
 	public void DebugPrint(){
-		System.out.print("User id: " + _id + '\n');
+		System.out.print("User id: " + getID() + '\n');
 		System.out.print("User name: " + _real_name + '\n');
 		System.out.print("User access level: " + _accessLevel.value + '\n');
 		
@@ -182,7 +145,7 @@ public class User {
 		
 		try {
 			
-			if ( _id == rhs.getID() && _real_name.equals(rhs.getRealName())){
+			if ( getID() == rhs.getID() && _real_name.equals(rhs.getRealName())){
 				int rhs_level = rhs.getAccessLevel().getValue();
 				
 				if ( _accessLevel.getValue() == rhs_level){
