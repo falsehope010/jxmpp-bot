@@ -33,7 +33,50 @@ http://jxmpp-bot.googlecode.com/svn/trunk/jxmpp-bot/wiki_images/Syslog%20databas
 
 = Implementation =
 
-_in progress_
+Syslog is active object. In predefined intervals (through system configuration) it initiates log cleaning activity. Interval mustn't be too small due to performance issues.
+By default log cleaning interval is 10 minutes. This means that each 10 minutes syslog checks if there are any _old_ log messages which should be cleaned from database and memory (if they are cached)
+
+Syslog makes decision whether the record is old or not by the use of _selected strategy of cleaning_. 
+
+During initialization syslog caches multiple database tables into memory:
+
+ # syslog_cathegories
+ # sessions
+ # syslog_types
+ # syslog_senders
+
+Those are "primitives" which will be uses very often in the process of construction of new log messages, so we need to cache them in memory. Also we need a fast thread-safe method which will return current session.
+
+Typically we will use such a process of construction of log message (_*Listing 1*_):
+
+{{{
+ Session currentSession = Syslog.getCurrentSession();
+
+ SysLogMessageCathegory cath = new SysLogMessageCathegory("new cathegory");
+ SysLogMessageType tp = new SysLogMessageType("new type");
+ SysLogSender sndr = new SysLogSender("bot");
+ 
+ SysLogMessage msg = new SysLogMessage("this is new message", currentSession, cath, tp, sndr);
+  
+ Syslog.putMessage(msg);
+}}}
+
+
+
+
+We can use more user-friendly syntax (_*Listing 2*_):
+
+{{{
+ SysLogMessage msg = new SysLogMessage("this is next message. 
+     current session will be assigned to it automatically", "test cathegory", "test type", "test sender");
+ 
+ Syslog.putMessage(msg);
+}}}
+
+In second example session information will be assigned to message automatically (current session will be used) by Syslog. Syslog also will take care of all database routines about creating and caching new cathegory, sender, type. Or if they are already present in database Syslog will retrieve them from cache by text name and assign to LogMessage.
+
+
+
 
 = List of reserved syslog cathegories =
 
