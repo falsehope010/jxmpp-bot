@@ -1,15 +1,13 @@
-package domain;
+package domain.users;
 
 import java.util.ArrayList;
+import domain.DomainObject;
 
 public class User extends DomainObject {
 	String _real_name;
 	AccessLevel _accessLevel;
-	
-
 	ArrayList<String> _jidCollection;
 
-	
 	/**
 	 * Creates new User
 	 * @param realName User real name (any combination of name, surname, lastname)
@@ -27,7 +25,7 @@ public class User extends DomainObject {
 			throw new NullPointerException("jid can't be null");
 		}
 
-		setPersistence(false);
+		mapperSetPersistence(false);
 		_real_name = realName;
 
 		_accessLevel = accessLevel;
@@ -169,20 +167,5 @@ public class User extends DomainObject {
 		return result;
 	}
 	
-	/**
-	 * Compares two arrays if they consists of the same elements.
-	 * Order of elements isn't taken into account
-	 * @param lhs First array
-	 * @param rhs Second array
-	 * @return True if arrays contains the same elements, false otherwise
-	 */
-	protected boolean InvariantCompare(ArrayList<String> lhs, ArrayList<String> rhs){
-		boolean result = false;
-		
-		if ( lhs.containsAll(rhs) && rhs.containsAll(lhs)){
-			result = true;
-		}
-		
-		return result;
-	}
+
 }

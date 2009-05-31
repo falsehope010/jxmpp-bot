@@ -4,18 +4,19 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.*;
 
-import domain.*;
+import domain.users.AccessLevel;
+import domain.users.User;
 
 public class Database {
 
 	String fileName;
 	Connection conn;
+	boolean connected;
 
 	public Database(String fileName) throws NullPointerException,
 			FileNotFoundException {
@@ -31,35 +32,199 @@ public class Database {
 		this.fileName = fileName;
 	}
 
+	/**
+	 * Opens connection to database and validates connection status by sending small fast query.
+	 * If connection is already open does nothing.
+	 * @return true if connection is successfully open, false otherwise
+	 */
 	public boolean connect() {
 		boolean result = false;
 
-		conn = getConnection();
-
-		if (conn != null) {
+		if (isConnected()) { // if already connected
 			result = true;
+		} else {
+			conn = createConnection();
+
+			if (conn != null && countTables() > 0) {
+				result = true;
+
+				setConnected(result);
+			}
 		}
 
 		return result;
 	}
 
+	/**
+	 * Closes connection to database and validates connection status by sending small fast query.
+	 * If connection is already closed does nothing.
+	 */
 	public void disconnect() {
 		try {
-			conn.close();
+
+			if (isConnected() && conn != null) {
+				conn.close();
+
+				if (countTables() <= 0 && conn.isClosed()) {
+					setConnected(false);
+				}
+			}
 		} catch (Exception e) {
 		}
 	}
 
+	/**
+	 * Gets value indicating whether database connection is open. Works fast.
+	 * @return true if connection is is open, false otherwise
+	 */
 	public boolean isConnected(){
-		try {
-			return conn != null && !conn.isClosed();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return false;
+		return connected;
 	}
 	
+	/**
+	 * Returns last inserted rowid (after insert in any table in database)
+	 * @return rowid if any insert was performed before call, 0 otherwise
+	 */
+	public long LastInsertRowID() {
+		long result = 0;
+
+		if ( isConnected()){
+			Statement stat = null;
+			ResultSet rs = null;
+			
+			try {
+				stat = conn.createStatement();
+				rs = stat.executeQuery("select last_insert_rowid()");
+				
+				rs.next();
+				result = rs.getLong(1);
+				
+			} catch (Exception e) {
+			} finally {
+				
+				Cleanup(stat, rs);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Gets underlying database connection. 
+	 * @return Valid underlying database connection, null if connection isn't opened
+	 */
+	public Connection getConnection() {
+		Connection result = null;
+		if (isConnected()){
+			result = conn;
+		}else{
+			result = null;
+		}
+		return result;
+	}
+	
+	/**
+	 * Closes java.sql.Statement and java.sql.ResultSet. Any can be null.
+	 * 
+	 * @param stat
+	 *            Statement to be closed
+	 * @param rs
+	 *            ResultSet to be closed
+	 */
+	public void Cleanup(Statement stat, ResultSet rs) {
+		if (stat != null) {
+			try {
+				stat.close();
+			} catch (Exception e) {
+			}
+		}
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (Exception e) {
+			}
+		}
+	}
+
+	/**
+	 * Closes java.sql.Statement. It can be null.
+	 * 
+	 * @param stat
+	 *            Statement to be closed
+	 */
+	public void Cleanup(Statement stat) {
+		if (stat != null) {
+			try {
+				stat.close();
+			} catch (Exception e) {
+			}
+		}
+	}
+	
+	/**
+	 * Setter for isConnected()
+	 * @param value
+	 */
+	private void setConnected(boolean value){
+		connected = value;
+	}
+	
+	/**
+	 * Initializes sqlite database connection.
+	 * 
+	 * @return valid connection to database if succeded, null otherwise
+	 */
+	private Connection createConnection(){
+		Connection result = null;
+
+		try {
+			Class.forName("org.sqlite.JDBC");
+			result = DriverManager.getConnection("jdbc:sqlite:" + fileName);
+		} catch (Exception e) {
+			result = null;
+		}
+
+		return result;
+	}
+	
+	/**
+	 * Counts tables in database. Sends fast select query. Used mainly to detect
+	 * whether database responds in connect()/disconnect() methods in order
+	 * to validate connection status
+	 * @return Value greater or equal then zero if succeeded, -1 otherwise
+	 */
+	private int countTables(){
+		int result = -1;
+		
+		Statement stat = null;
+		ResultSet rs = null;
+		try {
+			stat = conn.createStatement();
+			
+			rs = stat.executeQuery("SELECT count(1) FROM sqlite_master where name not like '%sequence%'");
+			
+			if ( rs.next()){
+				int count = rs.getInt(1);
+				
+				if (count > 0){
+					result = count;
+				}
+			}
+		} catch (Exception e) {
+		}
+		finally{
+			Cleanup(stat, rs);
+		}
+		
+		return result;
+	}
+
+	
+	
+	
+	
+	
+	//TODO: refactor those into userMapper
 	public boolean insertUser(String realName, String JID,
 			AccessLevel accessLevel) {
 		boolean result = false;
@@ -181,14 +346,14 @@ public class Database {
 							if (jidList.size() > 0){
 								String jid = jidList.get(0);
 								User usr = new User(real_name, jid, new AccessLevel(access_level));
-								usr.setID(id);
+								usr.mapperSetID(id);
 
 								//add additional jids if they exist
 								for (int i = 1; i < jidList.size(); ++i){
 									usr.addJID(jidList.get(i));
 								}
 								
-								usr.setPersistence(true);
+								usr.mapperSetPersistence(true);
 								
 								result.add(usr);
 							}
@@ -230,7 +395,7 @@ public class Database {
 				int rows_affected = prep.executeUpdate();
 				
 				if ( rows_affected == 1 ){
-					user.setPersistence(true);
+					user.mapperSetPersistence(true);
 					result = true;
 				}
 				
@@ -317,7 +482,7 @@ public class Database {
 					int users_deleted = prep.executeUpdate();
 					
 					if (users_deleted == 1){
-						user.setPersistence(false); // mark user as non persistent
+						user.mapperSetPersistence(false); // mark user as non persistent
 						result = true;
 					}
 				}
@@ -333,95 +498,12 @@ public class Database {
 	}
 	
 	/**
-	 * Returns last inserted rowid (after insert in any table in database)
-	 * @return rowid if any insert was performed before call, 0 otherwise
-	 */
-	public long LastInsertRowID() {
-		long result = 0;
-
-		Statement stat = null;
-		ResultSet rs = null;
-
-		try {
-			stat = conn.createStatement();
-			rs = stat.executeQuery("select last_insert_rowid()");
-
-			rs.next();
-			result = rs.getLong(1);
-
-		} catch (Exception e) {
-		} finally {
-
-			Cleanup(stat, rs);
-		}
-
-		return result;
-	}
-
-	/**
-	 * Initializes sqlite database connection.
-	 * 
-	 * @return valid connection to database if succeded, null otherwise
-	 */
-	public Connection getConnection() {
-		Connection result = null;
-
-		try {
-			Class.forName("org.sqlite.JDBC");
-			result = DriverManager.getConnection("jdbc:sqlite:" + fileName);
-		} catch (Exception e) {
-			result = null;
-		}
-
-		return result;
-	}
-
-	/**
-	 * Closes java.sql.Statement and java.sql.ResultSet. Any can be null.
-	 * 
-	 * @param stat
-	 *            Statement to be closed
-	 * @param rs
-	 *            ResultSet to be closed
-	 */
-	protected void Cleanup(Statement stat, ResultSet rs) {
-		if (stat != null) {
-			try {
-				stat.close();
-			} catch (Exception e) {
-			}
-		}
-		if (rs != null) {
-			try {
-				rs.close();
-			} catch (Exception e) {
-			}
-		}
-	}
-
-	/**
-	 * Closes java.sql.Statement. It can be null.
-	 * 
-	 * @param stat
-	 *            Statement to be closed
-	 */
-	public void Cleanup(Statement stat) {
-		if (stat != null) {
-			try {
-				stat.close();
-			} catch (Exception e) {
-			}
-		}
-	}
-
-	
-	/**
 	 * Retrieves all records from 'jids' database table and creates mapping
 	 * between userID and it's jids collection.
 	 * We use jids collection because user can have multiple jids
 	 * @return Mapping between userID and it's jids collection
 	 */
-	protected HashMap<Long, ArrayList<String>> getUsersJids() {
+	private HashMap<Long, ArrayList<String>> getUsersJids() {
 		HashMap<Long, ArrayList<String>> result = null;
 
 		Statement stat = null;
@@ -466,7 +548,7 @@ public class Database {
 
 		return result;
 	}
-
+	
 	/**
 	 * Gets sum of elements in array
 	 * @param ar Array which elements will be summed
@@ -486,33 +568,5 @@ public class Database {
 		return result;
 	}
 	
-	/**
-	 * Counts tables in database. Method only for unit testing
-	 * @return
-	 */
-	public int countTables(){
-		int result = -1;
-		
-		Statement stat = null;
-		ResultSet rs = null;
-		try {
-			stat = conn.createStatement();
-			
-			rs = stat.executeQuery("SELECT count(1) FROM sqlite_master where name not like '%sequence%'");
-			
-			if ( rs.next()){
-				int count = rs.getInt(1);
-				
-				if (count > 0){
-					result = count;
-				}
-			}
-		} catch (Exception e) {
-		}
-		finally{
-			Cleanup(stat, rs);
-		}
-		
-		return result;
-	}
+
 }

@@ -14,25 +14,6 @@ public class DomainObject {
 	}
 	
 	/**
-	 * Sets domain object id. Normally you mustn't change id manually. 
-	 * Use Database class to insert domain object in database in order to make it persistent
-	 * and assign valid id.
-	 * @param ID New domain object id
-	 */
-	public void setID(long ID){
-		this.id = ID;
-	}
-
-	/**
-	 * Sets persistence of domain object. Normally you must not use this method.
-	 * Call Database class methods to obtain domain objects from database, insert, update or delete
-	 * @param value
-	 */
-	public void setPersistence(boolean value) {
-		isPersistent = value;
-	}
-	
-	/**
 	 * Gets value indicating that domain object persists in database (e.g. is persistent)
 	 * If object is persistent, then it has valid ID, greater then zero
 	 * @return True if domain object is persistent, false otherwise
@@ -40,5 +21,23 @@ public class DomainObject {
 	 */
 	public boolean isPersistent() {
 		return isPersistent;
+	}
+	
+	/**
+	 * Sets domain object id. You must not change id directly,
+	 * use instead corresponding database mapper to insert, update or delete domain object.
+	 * @param ID New domain object's id
+	 */
+	public void mapperSetID(long ID){
+		this.id = ID;
+	}
+
+	/**
+	 * Sets persistence of domain object. You must not use this method directly,
+	 * use instead corresponding database mapper to insert, update or delete domain object.
+	 * @param value New domain object's persistence value
+	 */
+	public void mapperSetPersistence(boolean value) {
+		isPersistent = value;
 	}
 }

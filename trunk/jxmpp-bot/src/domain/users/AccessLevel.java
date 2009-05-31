@@ -1,4 +1,4 @@
-package domain;
+package domain.users;
 
 public class AccessLevel {
     public static final int Min = 0;

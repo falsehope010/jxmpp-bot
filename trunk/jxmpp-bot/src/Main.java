@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import org.jivesoftware.smack.*;
 import database.*;
 import domain.*;
+import domain.users.AccessLevel;
+import domain.users.User;
 
 public class Main {
 

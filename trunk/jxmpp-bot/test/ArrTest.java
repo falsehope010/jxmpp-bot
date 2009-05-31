@@ -5,7 +5,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import database.*;
-import domain.*;
+import domain.users.AccessLevel;
+import domain.users.User;
 
 public class ArrTest extends TestCase {
 	public static final String testDbName = "test/test_db";
@@ -41,17 +42,9 @@ public class ArrTest extends TestCase {
 		
 		assertEquals(db.isConnected(), true);
 		
-		assertNotSame(db.countTables(), -1);
-		
 		db.disconnect();
 		
 		assertEquals(db.isConnected(), false);
-		
-		assertEquals(db.countTables(), -1);
-		
-		//send test query to sqlite database
-		
-		//Statement
 	}
 
 	public void testLoadAllUsers() throws NullPointerException, FileNotFoundException{
@@ -86,9 +79,9 @@ public class ArrTest extends TestCase {
 			assertNotSame(usr.getID(), 0); // check persistence by db_id
 		}
 		
-		usr.setID(usersDb.get(0).getID());
-		usr2.setID(usersDb.get(1).getID());
-		usr3.setID(usersDb.get(2).getID());
+		usr.mapperSetID(usersDb.get(0).getID());
+		usr2.mapperSetID(usersDb.get(1).getID());
+		usr3.mapperSetID(usersDb.get(2).getID());
 		
 		assertEquals(usr.equals(usersDb.get(0)), true );
 		assertEquals(usr2.equals(usersDb.get(1)), true );
