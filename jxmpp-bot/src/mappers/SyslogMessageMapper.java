@@ -75,20 +75,25 @@ public class SyslogMessageMapper extends AbstractMapper {
 		ArrayList<MessageAttribute> result = null;
 		
 		String tableName = null;
+		Class recordType = null;
 		
 		switch (tp){
 		case Cathegory:
 			tableName = "syslog_categories";
+			recordType = MessageCategory.class;
 			break;
 		case Sender:
 			tableName = "syslog_senders";
+			recordType = MessageSender.class;
 			break;
 		case Type:
 			tableName = "syslog_types";
+			recordType = MessageType.class;
 			break;
 		}
 		
 		if (tableName != null){
+			Object c = recordType.new
 			//TODO:
 		}
 		
