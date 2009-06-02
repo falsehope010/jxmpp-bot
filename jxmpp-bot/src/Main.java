@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 
+import mappers.SyslogMessageMapper;
+
 import org.jivesoftware.smack.*;
 import database.*;
 import domain.*;
@@ -17,12 +19,18 @@ public class Main {
 	    	try {
 	    	    Database db = new Database("test_db");
 	    	    db.connect();
+	    	    if (db.isConnected()){
+	    	    	SyslogMessageMapper mapper = new SyslogMessageMapper();
+	    	    	if ( mapper.Initialize(db) ){
+	    	    		System.out.print("Initialized\n");
+	    	    	}
+	    	    }
 	    	    //User usr = new User("tillias", "123", new AccessLevel(1));
 	    	    //db.insertUser("tillias", "123", new AccessLevel(1));
 	    	    
 	    	    //db.InsertUserJid(usrID, "tillias@jabber");
 	    	    
-	    	    ArrayList<User> users = db.loadAllUsers();
+/*	    	    ArrayList<User> users = db.loadAllUsers();
 	    	    
 	    	    User first = users.get(0);
 	    	    first.setRealName("tillias_changed");
@@ -36,7 +44,7 @@ public class Main {
 	    	    
 	    	    db.deleteUser(first);
 	    	    
-	    	    System.out.print(first.isPersistent());
+	    	    System.out.print(first.isPersistent());*/
 	    	    
 /*	    	    int[] ar1 = null;
 	    	    int[] ar2 = new int[] {1,2,2,3};

@@ -6,29 +6,12 @@ import domain.DomainObject;
 public abstract class AbstractMapper {
 	
 	/**
-	 * Initializes mapper using given database object. When overridden, don't forget to call 
-	 * super class method to perform database validation and assignment. Database will be shared
-	 * among all mappers due to jxmpp-bot architecture (sqlite, local database)
+	 * Initializes mapper using given database object. Performs actions if needed during
+	 * initialization (e.g. caches initialization)
 	 * @param db Database which will be used by mapper to perform its actions
-	 * @return true if database is valid and connected, false otherwise
+	 * @return true if initialization was successful, false otherwise
 	 */
-	public boolean Initialize(Database db) {
-		boolean result = false;
-
-		if (AbstractMapper.db != null) {
-			result = true;
-		} else {
-			if (db != null && db.isConnected()) {
-				try {
-					AbstractMapper.db = db;
-				} catch (Exception e) {
-				}
-			}
-
-		}
-
-		return result;
-	}
+	public abstract boolean Initialize(Database db);
 	
 	/**
 	 * Performs saving of domain object into database. Domain object can be either persistent or not.
@@ -45,6 +28,4 @@ public abstract class AbstractMapper {
 	 * @return true if succeded, false otherwise
 	 */
 	public abstract boolean Delete(DomainObject obj);
-	
-	protected static Database db;
 }
