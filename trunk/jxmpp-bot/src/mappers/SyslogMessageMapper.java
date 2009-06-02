@@ -1,12 +1,12 @@
 package mappers;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.HashMap;
 
 import database.Database;
 import domain.DomainObject;
-import domain.syslog.MessageAttribute;
 import domain.syslog.MessageCategory;
 import domain.syslog.MessageSender;
 import domain.syslog.MessageType;
@@ -24,11 +24,29 @@ public class SyslogMessageMapper extends AbstractMapper {
 	@Override
 	public boolean Initialize(Database db) {
 		
-		boolean result = super.Initialize(db);
+		boolean result = false;
 		
-		if( result ){
-			ClearCaches();
-			//TODO: Fill all caches from database
+		if (db != null && db.isConnected()) {
+			SyslogMessageMapper.db = db;
+
+			if (categories_cache != null) {
+				categories_cache.clear();
+			}
+
+			categories_cache = LoadCategories();
+			
+			if (types_cache != null){
+				types_cache.clear();
+			}
+			
+			types_cache = LoadTypes();
+			
+			if (senders_cache != null)
+				senders_cache.clear();
+			
+			senders_cache = LoadSenders();
+			
+			result = true;
 		}
 		
 		return result;
@@ -59,42 +77,118 @@ public class SyslogMessageMapper extends AbstractMapper {
 		return false;
 	}
 	
-	private void ClearCaches(){
-		categories_cache.clear();
-		senders_cache.clear();
-		types_cache.clear();
-	}
+	private HashMap<String,MessageCategory> LoadCategories(){
+		HashMap<String, MessageCategory> result = new HashMap<String, MessageCategory>();
+		
+		ResultSet rs = null;
+		Statement st = null;
+		
+		try {
+			Connection conn = db.getConnection();
+			st = conn.createStatement();
+			
+			rs = st.executeQuery("select id,name,description from " + "syslog_categories;");
+			
+			long recordID;
+			String recordName = null;
+			String recordDescription = null;
+			
+			while (rs.next()){
+				recordID = rs.getLong(1);
+				recordName = rs.getString(2);
+				recordDescription = rs.getString(3);
+				
+				if (!result.containsKey(recordName)) {
+					MessageCategory record = new MessageCategory(recordName,
+							recordDescription);
+					record.mapperSetID(recordID);
+					record.mapperSetPersistence(true);
 
-	/**
-	 * Loads all categories or types or senders from corresponding database table.
-	 * Table name is deduced using tp parameter as well as type of items in resulting records set.
-	 * @param tp
-	 * @return
-	 */
-	private ArrayList<MessageAttribute> LoadAttributes(MessageAttributeType tp){
-		ArrayList<MessageAttribute> result = null;
-		
-		String tableName = null;
-		Class recordType = null;
-		
-		switch (tp){
-		case Cathegory:
-			tableName = "syslog_categories";
-			recordType = MessageCategory.class;
-			break;
-		case Sender:
-			tableName = "syslog_senders";
-			recordType = MessageSender.class;
-			break;
-		case Type:
-			tableName = "syslog_types";
-			recordType = MessageType.class;
-			break;
+					result.put(recordName, record);
+				}
+			}
+		} catch (Exception e) {
+		}
+		finally{
+			db.Cleanup(st, rs);
 		}
 		
-		if (tableName != null){
-			Object c = recordType.new
-			//TODO:
+		return result;
+	}
+	
+	private HashMap<String,MessageType> LoadTypes(){
+		HashMap<String, MessageType> result = new HashMap<String, MessageType>();
+		
+		ResultSet rs = null;
+		Statement st = null;
+		
+		try {
+			Connection conn = db.getConnection();
+			st = conn.createStatement();
+			
+			rs = st.executeQuery("select id,name,description from " + "syslog_types;");
+			
+			long recordID;
+			String recordName = null;
+			String recordDescription = null;
+			
+			while (rs.next()){
+				recordID = rs.getLong(1);
+				recordName = rs.getString(2);
+				recordDescription = rs.getString(3);
+				
+				if (!result.containsKey(recordName)) {
+					MessageType record = new MessageType(recordName,
+							recordDescription);
+					record.mapperSetID(recordID);
+					record.mapperSetPersistence(true);
+
+					result.put(recordName, record);
+				}
+			}
+		} catch (Exception e) {
+		}
+		finally{
+			db.Cleanup(st, rs);
+		}
+		
+		return result;
+	}
+	
+	private HashMap<String,MessageSender> LoadSenders(){
+		HashMap<String, MessageSender> result = new HashMap<String, MessageSender>();
+		
+		ResultSet rs = null;
+		Statement st = null;
+		
+		try {
+			Connection conn = db.getConnection();
+			st = conn.createStatement();
+			
+			rs = st.executeQuery("select id,name,description from " + "syslog_senders;");
+			
+			long recordID;
+			String recordName = null;
+			String recordDescription = null;
+			
+			while (rs.next()){
+				recordID = rs.getLong(1);
+				recordName = rs.getString(2);
+				recordDescription = rs.getString(3);
+				
+				if (!result.containsKey(recordName)) {
+					MessageSender record = new MessageSender(recordName,
+							recordDescription);
+					record.mapperSetID(recordID);
+					record.mapperSetPersistence(true);
+
+					result.put(recordName, record);
+				}
+			}
+		} catch (Exception e) {
+		}
+		finally{
+			db.Cleanup(st, rs);
 		}
 		
 		return result;
@@ -105,18 +199,11 @@ public class SyslogMessageMapper extends AbstractMapper {
 	 * This means that there can't be two senders (types,categories) 
 	 * with the same name
 	 */
-	static HashMap<String,MessageCategory> categories_cache = 
-		new HashMap<String, MessageCategory>();
+	static HashMap<String,MessageCategory> categories_cache = null;
 	
-	static HashMap<String, MessageSender> senders_cache = 
-		new HashMap<String, MessageSender>();
+	static HashMap<String, MessageSender> senders_cache = null; 
 	
-	static HashMap<String, MessageType> types_cache = 
-		new HashMap<String, MessageType>();
-}
-
-enum MessageAttributeType{
-	Cathegory,
-	Sender,
-	Type
+	static HashMap<String, MessageType> types_cache = null; 
+	
+	protected static Database db;
 }
