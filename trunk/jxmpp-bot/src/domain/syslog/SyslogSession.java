@@ -14,31 +14,51 @@ import domain.DomainObject;
  *
  */
 public class SyslogSession extends DomainObject {
-	Date start;
-	Date end;
+
 	
-	public SyslogSession(Date startDate, Date endDate){
-		this.start = startDate;
-		this.end = endDate;
+	/**
+	 * Creates new instance and sets it's start date as the date when instance was created.
+	 * SyslogSession becomes opened (e.g. it has no end date). You can close session 
+	 * using close() method
+	 */
+	public SyslogSession(){
+		start = new Date();
 	}
 	
+	/**
+	 * Gets session start date (e.g. date when it was created)
+	 * @return Session start date. Return value can't be null
+	 */
 	public Date getStartDate(){
 		return start;
 	}
 	
-	public void setStartDate(Date startDate){
-		this.start = startDate;
-		
-		mapperSetPersistence(false);
-	}
-	
+	/**
+	 * Gets session end date (e.g. date when it was closed).
+	 * @return Session end date (if it was closed ) or null-reference if it was never closed
+	 */
 	public Date getEndDate(){
 		return end;
 	}
 	
-	public void setEndDate(Date endDate){
-		this.end = endDate;
-		
-		mapperSetPersistence(false);
+	/**
+	 * Gets value indicating whether session was closed (e.g. it has valid end date)
+	 * @return True if session is closed, false otherwise
+	 */
+	public boolean isClosed(){
+		return closed;
 	}
+	
+	/**
+	 * Closes session, sets it's end date with the date of closing and marks
+	 * session as closed
+	 */
+	public void close(){
+		end = new Date();
+		closed = true;
+	}
+	
+	Date start;
+	Date end;
+	boolean closed;
 }
