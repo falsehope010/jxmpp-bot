@@ -51,7 +51,7 @@ public class SysLog {
 	
 	private void closeSession(SyslogSession session){
 		if (session != null){
-			session.setEndDate(new Date());
+			//session.close();
 			
 			//TODO: save session into db using mapper
 		}

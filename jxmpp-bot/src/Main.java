@@ -1,12 +1,8 @@
-import java.util.ArrayList;
-
 import mappers.SyslogMessageMapper;
 
 import org.jivesoftware.smack.*;
 import database.*;
-import domain.*;
-import domain.users.AccessLevel;
-import domain.users.User;
+
 
 public class Main {
 
@@ -23,6 +19,7 @@ public class Main {
 	    	    	SyslogMessageMapper mapper = new SyslogMessageMapper();
 	    	    	if ( mapper.Initialize(db) ){
 	    	    		System.out.print("Initialized\n");
+	    	    		//MessageCategory cat = mapper.getCategory("System");
 	    	    	}
 	    	    }
 	    	    //User usr = new User("tillias", "123", new AccessLevel(1));

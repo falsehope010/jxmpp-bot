@@ -11,7 +11,16 @@ public abstract class AbstractMapper {
 	 * @param db Database which will be used by mapper to perform its actions
 	 * @return true if initialization was successful, false otherwise
 	 */
-	public abstract boolean Initialize(Database db);
+	public boolean Initialize(Database db){
+		boolean result = false;
+		
+		if (db != null && db.isConnected()) {
+			SyslogMessageMapper.db = db;
+			result = true;
+		}
+		
+		return result;
+	}
 	
 	/**
 	 * Performs saving of domain object into database. Domain object can be either persistent or not.
@@ -28,4 +37,6 @@ public abstract class AbstractMapper {
 	 * @return true if succeded, false otherwise
 	 */
 	public abstract boolean Delete(DomainObject obj);
+	
+	protected static Database db;
 }

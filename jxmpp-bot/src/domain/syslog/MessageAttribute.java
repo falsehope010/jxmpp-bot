@@ -27,8 +27,6 @@ public class MessageAttribute extends DomainObject {
 	
 	public void setName(String Name){
 		this.name = Name;
-		
-		mapperSetPersistence(false);
 	}
 	
 	public String getDescription(){
@@ -37,7 +35,5 @@ public class MessageAttribute extends DomainObject {
 	
 	public void setDescription(String Description){
 		this.description = Description;
-		
-		mapperSetPersistence(false);
 	}
 }
