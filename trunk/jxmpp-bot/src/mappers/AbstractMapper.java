@@ -11,7 +11,7 @@ public abstract class AbstractMapper {
 	 * @param db Database which will be used by mapper to perform its actions
 	 * @return true if initialization was successful, false otherwise
 	 */
-	public boolean Initialize(Database db){
+	public boolean initialize(Database db){
 		boolean result = false;
 		
 		if (db != null && db.isConnected()) {
@@ -28,7 +28,7 @@ public abstract class AbstractMapper {
 	 * @param obj Domain object to be saved. Can be either persistent, or not
 	 * @return true if succeeded, false otherwise
 	 */
-	public abstract boolean Save(DomainObject obj);
+	public abstract boolean save(DomainObject obj);
 	
 	/**
 	 * Performs deletion of domain object from database. Domain object must be persistent.
@@ -36,7 +36,7 @@ public abstract class AbstractMapper {
 	 * @param obj Domain object to be deleted from database. Must be persistent. 
 	 * @return true if succeded, false otherwise
 	 */
-	public abstract boolean Delete(DomainObject obj);
+	public abstract boolean delete(DomainObject obj);
 	
 	protected static Database db;
 }

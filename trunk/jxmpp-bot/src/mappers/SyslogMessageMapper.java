@@ -23,11 +23,11 @@ public class SyslogMessageMapper extends AbstractMapper {
 	}
 
 	@Override
-	public boolean Initialize(Database db) {
+	public boolean initialize(Database db) {
 		
 		boolean result = false;
 		
-		if (super.Initialize(db)){
+		if (super.initialize(db)){
 			if (categories_cache != null) {
 				categories_cache.clear();
 			}
@@ -52,7 +52,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 	}
 
 	@Override
-	public boolean Save(DomainObject obj) {
+	public boolean save(DomainObject obj) {
 		boolean result = false;
 		
 		if ( !obj.isPersistent()){
@@ -67,7 +67,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 	}
 	
 	@Override
-	public boolean Delete(DomainObject obj) {
+	public boolean delete(DomainObject obj) {
 		// TODO Auto-generated method stub
 		return false;
 	}
