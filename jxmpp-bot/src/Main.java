@@ -1,7 +1,9 @@
 import mappers.SyslogMessageMapper;
+import mappers.SyslogSessionMapper;
 
 import org.jivesoftware.smack.*;
 import database.*;
+import domain.syslog.SyslogSession;
 
 
 public class Main {
@@ -17,11 +19,18 @@ public class Main {
 	    	    db.connect();
 	    	    if (db.isConnected()){
 	    	    	SyslogMessageMapper mapper = new SyslogMessageMapper();
-	    	    	if ( mapper.Initialize(db) ){
+	    	    	if ( mapper.initialize(db) ){
 	    	    		System.out.print("Initialized\n");
 	    	    		//MessageCategory cat = mapper.getCategory("System");
 	    	    	}
 	    	    }
+	    	    
+	    	    SyslogSession session = new SyslogSession();
+	    	    SyslogSessionMapper mapper2 = new SyslogSessionMapper();
+	    	    mapper2.initialize(db);
+	    	    
+	    	    mapper2.save(session);
+	    	    
 	    	    //User usr = new User("tillias", "123", new AccessLevel(1));
 	    	    //db.insertUser("tillias", "123", new AccessLevel(1));
 	    	    

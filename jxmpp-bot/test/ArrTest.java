@@ -1,15 +1,12 @@
-import junit.framework.TestCase;
 import java.io.*;
-import java.sql.Connection;
-import java.sql.Statement;
 import java.util.ArrayList;
 
 import database.*;
 import domain.users.AccessLevel;
 import domain.users.User;
 
-public class ArrTest extends TestCase {
-	public static final String testDbName = "test/test_db";
+public class ArrTest extends DatabaseBaseTest {
+	
 
 	public void testGetSumElements() throws NullPointerException, FileNotFoundException {
 		
@@ -35,21 +32,17 @@ public class ArrTest extends TestCase {
 			assertEquals(db.getSumElements(source), -1);
 	}
 	
-	public void testConnect() throws NullPointerException, FileNotFoundException{
-		Database db = new Database(testDbName);
-		
-		db.connect();
-		
-		assertEquals(db.isConnected(), true);
-		
-		db.disconnect();
-		
-		assertEquals(db.isConnected(), false);
-	}
+
 
 	public void testLoadAllUsers() throws NullPointerException, FileNotFoundException{
 
-		Database db = PrepareDatabase();
+		Database db = prepareDatabase();
+		
+		assertEquals( truncateTable(db, "users"), true);
+		assertEquals( truncateTable(db, "jids"), true);
+		
+		assertEquals(countRecords(db, "users"), 0);
+		assertEquals(countRecords(db, "jids"), 0);
 		
 		//create several test users
 		String jid1 = "user1@jabber.org";
@@ -91,36 +84,5 @@ public class ArrTest extends TestCase {
 		db.disconnect();
 	}
 	
-	/**
-	 * Creates Database instance using test_db file, opens connection and clears all data
-	 * from database tables
-	 * @return Valid, clear and ready-to-use database if succeded
-	 * @throws NullPointerException If test_database name is invalid
-	 * @throws FileNotFoundException If test_database file not found
-	 */
-	protected Database PrepareDatabase() throws NullPointerException, FileNotFoundException{
-		// Connect to test database, clear all users and jids manually,
-		Database db = new Database(testDbName);
-		
-		db.connect();
-		
-		Statement stat = null;
-		Connection conn = db.getConnection();
-		
-		try {
-			stat = conn.createStatement();
-			stat.executeUpdate("delete from users where id > 0");
-			
-			stat = conn.createStatement();
-			stat.executeUpdate("delete from jids where id_user > 0");
-			
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
-		finally{
-			db.Cleanup(stat);
-		}
-		
-		return db;
-	}
+
 }

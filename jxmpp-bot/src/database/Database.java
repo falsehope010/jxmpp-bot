@@ -162,6 +162,59 @@ public class Database {
 	}
 	
 	/**
+	 * Truncates table in database (e.g. deletes all records)
+	 * @param tableName Table name 
+	 * @return true if succeded, false otherwise
+	 */
+	public boolean truncateTable(String tableName){
+		boolean result = false;
+		
+		Statement st = null;
+		try {
+			Connection conn = getConnection();
+			st = conn.createStatement();
+			
+			st.execute("delete from " + tableName + ";");
+			
+			result = true;
+		} catch (Exception e) {
+		}
+		finally{
+			Cleanup(st);
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Retrieves total number of records in database table
+	 * @param tableName Table name
+	 * @return value greater (or equal) then zero if succeeded, -1 otherwise
+	 */
+	public long countRecords(String tableName){
+		long result = -1;
+		
+		Statement st = null;
+		ResultSet rs = null;
+		try {
+			Connection conn = getConnection();
+			st = conn.createStatement();
+			
+			rs = st.executeQuery("select count(1) from " + tableName + ";");
+			
+			if (rs.next()){
+				result = rs.getLong(1);
+			}
+		} catch (Exception e) {
+		}
+		finally{
+			Cleanup(st,rs);
+		}
+		
+		return result;
+	}
+	
+	/**
 	 * Setter for isConnected()
 	 * @param value
 	 */
