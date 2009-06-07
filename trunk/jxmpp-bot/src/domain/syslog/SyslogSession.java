@@ -55,7 +55,27 @@ public class SyslogSession extends DomainObject {
 	 */
 	public void close(){
 		end = new Date();
-		closed = true;
+		setClosed(true);
+	}
+	
+	/**
+	 * You mustn't use this method directly. For internal mapping domain object from/to db
+	 * @param startDate Start date of session
+	 */
+	public void mapperSetStartDate(Date startDate){
+		this.start = startDate;
+	}
+	
+	/**
+	 * You mustn't use this method directly. For internal mapping domain object from/to db
+	 * @param endDate End date of session
+	 */
+	public void mapperSetEndDate(Date endDate){
+		this.end = endDate;
+	}
+	
+	protected void setClosed(boolean value){
+		closed = value;
 	}
 	
 	Date start;

@@ -3,6 +3,8 @@ package mappers;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 import database.Database;
@@ -10,6 +12,8 @@ import domain.DomainObject;
 import domain.syslog.SyslogSession;
 
 public class SyslogSessionMapper extends AbstractMapper {
+	
+	static final String tableName = "syslog_sessions";
 
 	@Override
 	public boolean initialize(Database db) {
@@ -30,8 +34,8 @@ public class SyslogSessionMapper extends AbstractMapper {
 				try {
 					Connection conn = db.getConnection();
 
-					pr = conn
-							.prepareStatement("delete from syslog_sessions where id=?;");
+					pr = conn.prepareStatement("delete from " + tableName
+							+ " where id=?;");
 					pr.setLong(1, recordID);
 
 					int rows_affected = pr.executeUpdate();
@@ -69,14 +73,91 @@ public class SyslogSessionMapper extends AbstractMapper {
 		return result;
 	}
 	
-	//TODO: implement SQL: select max(id) and get record by this id
+	/**
+	 * Retrieves most recent syslog session from database. By "latest" we mean session with 
+	 * most recent start date.
+	 * @return 
+	 */
 	public SyslogSession getLatestSession(){
-		return null;
+		SyslogSession result = null;
+		
+		Statement st = null;
+		ResultSet rs = null;
+		
+		try {
+			Connection conn = db.getConnection();
+			st = conn.createStatement();
+			
+			rs = st.executeQuery("select id,max(start_date),end_date from " + tableName + ";");
+			
+			if (rs.next()){
+				long recordID = rs.getLong(1);
+				
+				if (recordID > 0){
+					Date startDate = rs.getDate(2);
+					Date endDate = rs.getDate(3);
+					
+					result = new SyslogSession();
+					
+					result.mapperSetID(recordID);
+					result.mapperSetStartDate(startDate);
+					
+					if (endDate != null){
+						result.close();
+						result.mapperSetEndDate(endDate);
+					}
+					
+					result.mapperSetPersistence(true);
+				}
+			}
+		} catch (Exception e) {
+		}
+		finally{
+			db.Cleanup(st,rs);
+		}
+		
+		return result;
 	}
 	
-	//TODO: implement
+	/**
+	 * Retrieves all syslog sessions from database
+	 * @return ArrayList with sessions if succeded, null-reference otherwise
+	 */
 	public ArrayList<SyslogSession> getSessions(){
 		ArrayList<SyslogSession> result = null;
+		
+		Statement st = null;
+		ResultSet rs = null;
+		
+		try {
+			Connection conn = db.getConnection();
+			st = conn.createStatement();
+			
+			rs = st.executeQuery("select id,start_date,end_date from "
+					+ tableName + ";");
+			
+			result = new ArrayList<SyslogSession>();
+			
+			while (rs.next()){
+				long recordID = rs.getLong(1);
+				Date startDate = rs.getDate(2);
+				Date endDate = rs.getDate(3);
+				
+				SyslogSession session = new SyslogSession();
+				session.mapperSetID(recordID);
+				session.mapperSetStartDate(startDate);
+				session.mapperSetEndDate(endDate);
+				session.mapperSetPersistence(true);
+				
+				result.add(session);
+			}
+			
+		} catch (Exception e) {
+			result = null;
+		}
+		finally{
+			db.Cleanup(st, rs);
+		}
 		
 		return result;
 	}
@@ -97,7 +178,8 @@ public class SyslogSessionMapper extends AbstractMapper {
 			
 			try {
 				Connection conn = db.getConnection();
-				pr = conn.prepareStatement("insert into syslog_sessions(start_date,end_date) values(?,?);" );
+				pr = conn.prepareStatement("insert into " + tableName
+						+ "(start_date,end_date) values(?,?);");
 
 				Date startDate = Convert(session.getStartDate());
 				Date endDate = null;
@@ -147,9 +229,8 @@ public class SyslogSessionMapper extends AbstractMapper {
 			try {
 				Connection conn = db.getConnection();
 				
-				pr = conn.prepareStatement(
-						"update syslog_sessions set start_date=?, end_date=? where id=?;"
-						);
+				pr = conn.prepareStatement("update " + tableName
+						+ " set start_date=?, end_date=? where id=?;");
 				Date startDate = Convert(session.getStartDate());
 				Date endDate = null;
 				if (session.isClosed()){
