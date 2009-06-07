@@ -1,52 +1,112 @@
 import java.io.FileNotFoundException;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+
 
 import mappers.SyslogSessionMapper;
 
 import database.Database;
+import domain.syslog.Message;
 import domain.syslog.SyslogSession;
 
 
 public class SyslogSessionMapperTest extends DatabaseBaseTest {
 
-	static final String syslogTableName = "syslog_sessions";
+	static final String tableName = "syslog_sessions";
+	static final int recordsCount = 5;
 	
-	public void testSave() {
-		fail("Not yet implemented"); // TODO
+	public void testSave() throws NullPointerException, FileNotFoundException, InterruptedException {
+		testInsertSession();
+		testUpdateSession();
+	}
+	
+	public void testGetSessions() throws NullPointerException,
+			FileNotFoundException, SQLException, InterruptedException {
+
+		Database db = initDb();
+		SyslogSessionMapper mapper = initMapper(db);
+		Connection conn = db.getConnection();
+
+		/*
+		 * 1. Clear all records in sessions table 
+		 * 2. Create array of opened sessions. 
+		 * 3. Map them into db. 
+		 * 4. Load all records from db and compare with original array of opened sessions. 
+		 * 5. Clear all records in sessions table
+		 */
+		ArrayList<SyslogSession> testSessions = createArray(false, recordsCount);
+
+		for (int i = 0; i < recordsCount; ++i) {
+			SyslogSession session = testSessions.get(i);
+			sqlInsert(conn, session);
+		}
+
+		ArrayList<SyslogSession> mappedSessions = mapper.getSessions();
+
+		compareArrays(testSessions, mappedSessions);
+		
+		truncateTable(db);
+
+		/*
+		 * 6. Create array of closed sessions and map them into db 
+		 * 7. Load all records and compare with original array 
+		 * 8. Clear all records in sessions table
+		 */
+
+		// now test closed sessions mapping
+		for (int i = 0; i < recordsCount; ++i) {
+			SyslogSession session = testSessions.get(i);
+			session.close();
+
+			assertEquals(session.getEndDate() != null, true);
+
+			sqlInsert(conn, session);
+		}
+
+		mappedSessions = mapper.getSessions();
+
+		compareArrays(testSessions, mappedSessions);
+
+		truncateTable(db);
+
+		db.disconnect();
+
 	}
 
-	public void testInsertSession() throws NullPointerException, FileNotFoundException {
+	public void testInsertSession() throws NullPointerException, FileNotFoundException, InterruptedException {
 		
 		/*
-		 * 1. Clear all records from sessions table
+		 * 1. Clear all records in sessions table
 		 * 2. Insert several records
 		 * 3. Check whether those records has been inserted
 		 * 4. Clear all records from sessions table
 		 */
 		
-		Database db = prepareDatabase();
-		
-		assertEquals(truncateTable(db, syslogTableName), true);
-		assertEquals(countRecords(db, syslogTableName), 0);
-		
-		SyslogSessionMapper mapper = new SyslogSessionMapper();
-		assertEquals(mapper.initialize(db), true);
-		
-		int recordsCount = 5;
+		Database db = initDb();
+		SyslogSessionMapper mapper = initMapper(db);
+
+		ArrayList<SyslogSession> testSessions = createArray(false, recordsCount);
 		
 		for ( int i = 0; i < recordsCount; ++i){
-			SyslogSession session = new SyslogSession();
-			assertEquals(mapper.save(session), true);
-			
-			assertEquals(session.isPersistent(), true);
-			assertEquals(session.getID() > 0, true);
+			SyslogSession session = testSessions.get(i);
+			assertTrue(mapper.save(session));
 		}
 		
-		assertEquals(countRecords(db, syslogTableName), recordsCount);
+		ArrayList<SyslogSession> mappedSessions = mapper.getSessions();
 		
-		assertEquals(truncateTable(db, syslogTableName), true);
+		compareArrays(testSessions, mappedSessions);
+		
+		truncateTable(db);
+		
+		db.disconnect();
+		
 	}
 
-	public void testUpdateSession() {
+	public void testUpdateSession() throws NullPointerException, FileNotFoundException {
 		
 		/*
 		 * 1. Clear all records from sessions table
@@ -55,10 +115,306 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 		 * 4. Close sessions (domain objects)
 		 * 5. Save them into db again
 		 * 6. Check that changes has been propagated into db table
-		 * 	(compare values in database to in-memory domain objects' fields)
+		 * 	  (compare values in database to in-memory domain objects' fields)
 		 * 7. Clear all records from sessions table
 		 */
-		fail("Not yet implemented"); // TODO
+			Database db = initDb();
+		SyslogSessionMapper mapper = initMapper(db);
+
+		int recordsCount = 5;
+
+		ArrayList<SyslogSession> sessions = new ArrayList<SyslogSession>();
+
+		for (int i = 0; i < recordsCount; ++i) {
+			SyslogSession session = new SyslogSession();
+			assertTrue(mapper.save(session));
+		}
+
+		ArrayList<SyslogSession> mappedSessions = mapper.getSessions();
+
+		compareArrays(sessions, mappedSessions);
+
+		for (int i = 0; i < recordsCount; ++i) {
+			SyslogSession session = mappedSessions.get(i);
+			session.close();
+
+			assertTrue(mapper.save(session));
+		}
+
+		ArrayList<SyslogSession> updatedSessions = mapper.getSessions();
+
+		compareArrays(mappedSessions, updatedSessions);
+
+		truncateTable(db);
+
+		db.disconnect();
+	}
+	
+	public void testInsert10Records() throws NullPointerException, FileNotFoundException, SQLException{
+		Database db = initDb();
+		SyslogSessionMapper mapper = new SyslogSessionMapper();
+		assertTrue(mapper.initialize(db));
+		
+		truncateTable(db);
+		
+		for (int i = 0; i < 10; ++i){
+			SyslogSession session = new SyslogSession();
+			session.close();
+			
+			assertTrue(mapper.save(session));
+		}
+		
+		
+		truncateTable(db);
+	}
+	
+	public void testGetLatestSession() throws NullPointerException, FileNotFoundException{
+		Database db = initDb();
+		
+		SyslogSessionMapper mapper = initMapper(db);
+		
+		/*
+		 * 1. Truncate table and get latest session using mapper. Session must be null
+		 * 2. Create several sessions and map them into db. 
+		 * 3. Find session with latest start date
+		 * 4. Retieved latest session from db using mapper
+		 * 5. Compare retrieved record and stored in memory 
+		 */
+		 SyslogSession latestSession = mapper.getLatestSession();
+		 
+		 assertNull(latestSession);
+		
+		 ArrayList<SyslogSession> testSessions = new ArrayList<SyslogSession>();
+		 
+		 java.util.Date now = new java.util.Date();
+		 long now_ms = now.getTime();
+		 
+		 for (int i = 0; i <recordsCount; ++i){
+			 SyslogSession s = new SyslogSession();
+			 s.mapperSetStartDate(new Date(now_ms + 100*i));
+			 testSessions.add(s);
+		 }
+		 
+		 //find max by startDate
+		 latestSession = testSessions.get(0);
+		 
+		 assertNotNull(latestSession);
+		 
+		 for (SyslogSession s : testSessions){
+			 if (s.getStartDate().after(latestSession.getStartDate())){
+				 latestSession = s;
+			 }
+		 }
+		 
+		 assertNotNull(latestSession);
+		 
+		 //map records into database
+		 for (SyslogSession s : testSessions){
+			 assertTrue(mapper.save(s));
+			 assertTrue(s.isPersistent());
+		 }
+		 
+		 SyslogSession testSession = mapper.getLatestSession();
+		 
+		 assertNotNull(testSession);
+		 
+		 assertEquals(testSession.getID(), latestSession.getID());
+	}
+	
+	public void testDelete() throws NullPointerException, FileNotFoundException{
+		Database db = initDb();
+		SyslogSessionMapper mapper = new SyslogSessionMapper();
+		
+		assertTrue(mapper.initialize(db));
+		assertTrue( db.truncateTable("syslog"));
+		assertTrue(db.countRecords("syslog") == 0);
+		
+		SyslogSession session = new SyslogSession();
+		session.close();
+		
+		assertTrue(mapper.save(session));
+		
+		int relatedMessagesCount = sqlInsertMessages(session, db);
+		
+		assertTrue(relatedMessagesCount > 0);
+		assertTrue(db.countRecords("syslog") == relatedMessagesCount);
+		
+		//deletion
+		assertTrue(mapper.delete(session));
+		
+		assertTrue(db.countRecords("syslog") == 0);
+		assertTrue(db.countRecords("syslog_sessions") == 0);
+	}
+	
+	public void testEnd(){
+		assertTrue(true);
+	}
+	
+	/**
+	 * Initializes and checks database. Removes all records from syslog sessions table
+	 * @return 
+	 * @throws NullPointerException
+	 * @throws FileNotFoundException
+	 */
+	private Database initDb() throws NullPointerException, FileNotFoundException{
+		Database db = prepareDatabase();
+		
+		assertTrue(truncateTable(db, tableName));
+		assertEquals(countRecords(db, tableName), 0);
+		
+		return db;
+	}
+	
+	/**
+	 * Inits SyslogSessionMapper using given database
+	 * @param db Database which will be used by mapper
+	 * @return 
+	 */
+	private SyslogSessionMapper initMapper(Database db){
+		SyslogSessionMapper mapper = new SyslogSessionMapper();
+		assertEquals(mapper.initialize(db), true);
+		
+		return mapper;
 	}
 
+	/**
+	 * Removes all records from syslog sessions table
+	 * @param db
+	 */
+	private void truncateTable(Database db){
+		assertEquals(truncateTable(db, tableName), true);
+	}
+
+	/**
+	 * Creates array of non-persistent SyslogSessions
+	 * @param areClosedSessions Controls whether sessions will be closed
+	 * @param recordsCount Total number of records in array
+	 * @return Array of non-persistent SyslogSessions
+	 */
+	private ArrayList<SyslogSession> createArray(boolean areClosedSessions, int recordsCount){
+		ArrayList<SyslogSession> result = new ArrayList<SyslogSession>(recordsCount);
+		
+		for (int i =0; i < recordsCount; ++i){
+			SyslogSession session = new SyslogSession();
+			
+			if (areClosedSessions)
+				session.close();
+			
+			result.add(session);
+		}
+		
+		return result;
+	}
+
+	/**
+	 * Performs manual insertion of syslog session into dabase.
+	 * @param conn Database connection
+	 * @param session Session object
+	 * @throws SQLException
+	 */
+	private void sqlInsert(Connection conn, SyslogSession session) throws SQLException{
+		PreparedStatement pr = null;
+		try {
+			pr = conn.prepareStatement("insert into " + tableName
+					+ "(start_date,end_date) values(?,?);");
+			pr.setDate(1, Convert(session.getStartDate()));
+			pr.setDate(2, Convert(session.getEndDate()));
+			
+			int rows_affected = pr.executeUpdate();
+			
+			assertEquals(rows_affected, 1);
+		} catch (Exception e) {
+			System.out.print(e.getMessage());
+		}
+		finally {
+			if (pr != null)
+				pr.close();
+		}
+	}
+	
+	private java.sql.Date Convert(java.util.Date date){
+		java.sql.Date result = null;
+		
+		if ( date != null){
+			result = new Date(date.getTime());
+		}
+		
+		return result;
+	}
+
+	private void compareArrays(ArrayList<SyslogSession> testArray,
+			ArrayList<SyslogSession> persistentArray) {
+		if (testArray != null && testArray.size() > 0) {
+			assertNotNull(persistentArray);
+
+			assertEquals(testArray.size() == persistentArray.size(), true);
+
+			for (int i = 0; i < recordsCount; ++i) {
+				SyslogSession lhs = testArray.get(i);
+				SyslogSession rhs = persistentArray.get(i);
+
+				assertEquals(rhs.isPersistent(), true);
+				assertEquals(rhs.getID() > 0, true);
+
+				assertEquals(lhs.getStartDate().equals(rhs.getStartDate()),
+						true);
+
+				if (lhs.isClosed()) {
+					assertEquals(rhs.getEndDate() != null, true);
+					assertEquals(lhs.getEndDate().equals(rhs.getEndDate()),
+							true);
+				} else { // end date is null
+					assertEquals(lhs.getEndDate() == rhs.getEndDate(), true);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Inserts test messages into database using given parent session.
+	 * @param parentSession
+	 * @param db
+	 * @return number of inserted records (greater then zero if succeded)
+	 */
+	private int sqlInsertMessages(SyslogSession parentSession, Database db){
+		int result = 0;
+		
+		assertNotNull(parentSession);
+		assertTrue(parentSession.isPersistent());
+		
+		PreparedStatement pr = null;
+		try {
+			long sessionID = parentSession.getID();
+			
+			assertTrue(sessionID > 0);
+			
+			Connection conn = db.getConnection();
+			
+			pr = conn
+					.prepareStatement("insert into syslog(timestamp,text,session_id,category_id,type_id,sender_id)"
+							+ "values(?,?,?,1,1,1)");
+			
+			conn.setAutoCommit(false);
+			
+			for (int i = 0; i < 10; ++i){
+				pr.setDate(1, Convert(new java.util.Date()));
+				pr.setString(2, "unitTestMessage");
+				pr.setLong(3, sessionID);
+				
+				result += pr.executeUpdate();
+			}
+			
+			conn.commit();
+			conn.setAutoCommit(true);
+			
+		} catch (Exception e) {
+			result = 0;
+			fail(e.getMessage());
+		}
+		finally{
+			db.Cleanup(pr);
+		}
+		
+		return result;
+	}
 }
