@@ -11,6 +11,7 @@ import java.io.*;
 
 import domain.users.AccessLevel;
 import domain.users.User;
+import exceptions.DatabaseSequenceNotFoundException;
 
 public class Database {
 
@@ -215,6 +216,154 @@ public class Database {
 	}
 	
 	/**
+	 * Gets database file size. Database must be initialized (e.g. isConnected())
+	 * @return Database file size in bytes (greater then zero if succeeded) or -1 if failed
+	 */
+	public long getDbFileSize(){
+		long result = -1;
+
+		try {
+			File dbFile = new File(fileName);
+			if (dbFile.exists()){
+				result = dbFile.length();
+			}
+		} catch (Exception e) {
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Performs vacuum procedure on sqlite database
+	 * @return True if succeeded, false otherwise
+	 */
+	public boolean vacuum(){
+		boolean result = false;
+		
+		Statement st = null;
+		try {
+			Connection conn = getConnection();
+
+			st = conn.createStatement();
+			st.execute("vacuum;");
+		} catch (Exception e) {
+		}
+		finally{
+			Cleanup(st);
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Checks whether there exists sequence with given name.
+	 * @param sequenceName
+	 * @return
+	 */
+	public boolean sequenceExists(String sequenceName){
+		boolean result = false;
+		
+		PreparedStatement pr = null;
+		ResultSet rs = null;
+		
+		try {
+			Connection conn = getConnection();
+			pr = conn.prepareStatement("select count(1) from sqlite_sequence where name=?;");
+			pr.setString(1, sequenceName);
+			
+			rs = pr.executeQuery();
+			
+			if (rs.next()){
+				long seqCount = rs.getInt(1);
+				
+				if(seqCount == 1){
+					result = true;
+				}
+			}
+			
+		} catch (Exception e) {
+		}
+		finally{
+			Cleanup(pr, rs);
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Gets sequence current value by it's name.
+	 * @param sequenceName Name of sequence
+	 * @return Value greater or equal to zero if succeded, -1 otherwise (e.g. sequence not exists)
+	 */
+	public long getSequenceValue(String sequenceName){
+		long result = -1;
+		
+		if (sequenceExists(sequenceName)){
+			PreparedStatement pr = null;
+			ResultSet rs = null;
+			
+			try {
+				Connection conn = getConnection();
+				pr = conn.prepareStatement("select seq from sqlite_sequence where name=?;");
+				pr.setString(1, sequenceName);
+				
+				rs = pr.executeQuery();
+				
+				if (rs.next()){
+					result = rs.getLong(1);
+				}
+			} catch (Exception e) {
+			}
+			finally{
+				Cleanup(pr,rs);
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Attempts to set new sequence value. 
+	 * Note: if there are any records in table with autoincrement field whose values are generated
+	 * by sequence and new sequence value is smaller then autoincrement field value of any existing record
+	 * then sqlite will ignore new sequence value and set up it in order to match ascending order.
+	 * @param newValue New sequence value
+	 * @return True if succeded, false otherwise
+	 * @throws DatabaseSequenceNotFoundException If sequence with given name doesn't exist
+	 */
+	public boolean setSequenceValue(String sequenceName, long newValue)
+			throws DatabaseSequenceNotFoundException {
+		boolean result = false;
+		long currentValue = getSequenceValue(sequenceName);
+
+		if (currentValue == -1)
+			throw new DatabaseSequenceNotFoundException();
+		else {
+			// all is ok, propagate changes into db
+			PreparedStatement pr = null;
+			try {
+				Connection conn = getConnection();
+				pr = conn
+						.prepareStatement("update sqlite_sequence set seq=? where name=?;");
+				pr.setLong(1, newValue);
+				pr.setString(2, sequenceName);
+
+				int rows_affected = pr.executeUpdate();
+
+				if (rows_affected == 1) {
+					result = true;
+				}
+
+			} catch (Exception e) {
+			} finally {
+				Cleanup(pr);
+			}
+		}
+
+		return result;
+	}
+	
+	/**
 	 * Setter for isConnected()
 	 * @param value
 	 */
@@ -272,8 +421,7 @@ public class Database {
 		return result;
 	}
 
-	
-	
+
 	
 	
 	

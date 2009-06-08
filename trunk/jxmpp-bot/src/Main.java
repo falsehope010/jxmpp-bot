@@ -15,52 +15,20 @@ public class Main {
 	public static void main(String[] args) {
 			
 	    	try {
-	    	    Database db = new Database("test_db");
-	    	    db.connect();
-	    	    if (db.isConnected()){
-	    	    	SyslogMessageMapper mapper = new SyslogMessageMapper();
-	    	    	if ( mapper.initialize(db) ){
-	    	    		System.out.print("Initialized\n");
-	    	    		//MessageCategory cat = mapper.getCategory("System");
-	    	    	}
-	    	    }
-	    	    
-	    	    SyslogSession session = new SyslogSession();
-	    	    SyslogSessionMapper mapper2 = new SyslogSessionMapper();
-	    	    mapper2.initialize(db);
-	    	    
-	    	    mapper2.save(session);
-	    	    
-	    	    //User usr = new User("tillias", "123", new AccessLevel(1));
-	    	    //db.insertUser("tillias", "123", new AccessLevel(1));
-	    	    
-	    	    //db.InsertUserJid(usrID, "tillias@jabber");
-	    	    
-/*	    	    ArrayList<User> users = db.loadAllUsers();
-	    	    
-	    	    User first = users.get(0);
-	    	    first.setRealName("tillias_changed");
-	    	    first.setAccessLevel(new AccessLevel(333));
-	    	    first.getJidCollection().clear();
-	    	    first.addJID("new_jid_333@org");
-	    	    db.updateUser(first);
-	    	    db.updateUserJidCollection(first);
-	    	    
-	    	    first.DebugPrint();
-	    	    
-	    	    db.deleteUser(first);
-	    	    
-	    	    System.out.print(first.isPersistent());*/
-	    	    
-/*	    	    int[] ar1 = null;
-	    	    int[] ar2 = new int[] {1,2,2,3};
-	    	    int[] ar3 = new int[]{};*/
-	    	    
-	    	    
-	    	    db.disconnect();
-	    	    //System.out.print(usrID);
+			Database db = new Database("test_db");
+			db.connect();
+			if (db.isConnected()) {
+
+				SyslogSessionMapper mapper = new SyslogSessionMapper();
+				mapper.initialize(db);
+				
+				db.setSequenceValue("syslog_sessions", 0);
+			}
+
+			db.disconnect();
+			// System.out.print(usrID);
 		} catch (Exception e) {
-		    System.out.print(e.getMessage());
+			System.out.print(e.getMessage());
 		}
 		
 		//db.Connect();
