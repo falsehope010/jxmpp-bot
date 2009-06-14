@@ -3,7 +3,6 @@ package domain.syslog;
 import java.util.Date;
 
 import domain.DomainObject;
-import exceptions.InvalidSyslogSessionException;
 
 /**
  * Represents syslog message. Stores text description and additional information about any system event.

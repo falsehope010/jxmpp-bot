@@ -1,6 +1,5 @@
 import domain.syslog.Message;
 import domain.syslog.SyslogSession;
-import exceptions.InvalidSyslogSessionException;
 import junit.framework.TestCase;
 
 
@@ -11,7 +10,6 @@ public class SyslogMessageTest extends TestCase {
 		String category = "testCategory";
 		String type = "testType";
 		String sender = "testSender";
-		SyslogSession nonPersistentSession = new SyslogSession();
 		SyslogSession persistentSession = new SyslogSession();
 		persistentSession.mapperSetPersistence(true);
 		

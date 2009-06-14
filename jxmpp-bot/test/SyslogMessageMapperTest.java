@@ -4,12 +4,13 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import com.sun.org.apache.xml.internal.utils.StopParseException;
+
 import mappers.SyslogMessageMapper;
 import mappers.SyslogSessionMapper;
 import database.Database;
 import domain.syslog.Message;
 import domain.syslog.SyslogSession;
-import exceptions.InvalidSyslogSessionException;
 import exceptions.MapperNotInitializedException;
 
 

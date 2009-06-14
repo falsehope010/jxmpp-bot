@@ -15,10 +15,6 @@ import exceptions.DatabaseSequenceNotFoundException;
 
 public class Database {
 
-	String fileName;
-	Connection conn;
-	boolean connected;
-
 	public Database(String fileName) throws NullPointerException,
 			FileNotFoundException {
 
@@ -421,9 +417,6 @@ public class Database {
 		return result;
 	}
 
-
-	
-	
 	
 	//TODO: refactor those into userMapper
 	public boolean insertUser(String realName, String JID,
@@ -770,4 +763,8 @@ public class Database {
 	}
 	
 
+	String fileName;
+	Connection conn;
+	boolean connected;
+	boolean isAutoCommitEnabled;
 }
