@@ -1,10 +1,14 @@
 package mappers;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+
+import utils.DateConverter;
 
 import database.Database;
 import domain.DomainObject;
@@ -12,6 +16,8 @@ import domain.syslog.MessageCategory;
 import domain.syslog.MessageSender;
 import domain.syslog.MessageType;
 import domain.syslog.Message;
+import domain.syslog.SyslogSession;
+import exceptions.MapperNotInitializedException;
 
 /**
  * @author tillias_work
@@ -19,15 +25,32 @@ import domain.syslog.Message;
  */
 public class SyslogMessageMapper extends AbstractMapper {
 	
-	public SyslogMessageMapper(){
+
+	/**
+	 * Creates new instance of mapper.
+	 * @throws MapperNotInitializedException Thrown if attempted to create new instance of mapper
+	 * without initializing it first
+	 * @see SyslogMessageMapper#initialize
+	 */
+	public SyslogMessageMapper() throws MapperNotInitializedException{
+		if (!isInitialized){
+			throw new MapperNotInitializedException();
+		}
 	}
 
-	@Override
-	public boolean initialize(Database db) {
+	/**
+	 * Static initializer. Assigns database to all mappers of this type and performs
+	 * additional operations, so you can create and use class instances
+	 * @param db Database which will be used by mappers
+	 * @return true if succeeded, false otherwise
+	 */
+	public static boolean initialize(Database db) {
 		
 		boolean result = false;
 		
-		if (super.initialize(db)){
+		if (db != null && db.isConnected()){
+			SyslogMessageMapper.db = db;
+			
 			if (categories_cache != null) {
 				categories_cache.clear();
 			}
@@ -45,6 +68,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 			
 			senders_cache = LoadSenders();
 			
+			isInitialized = true;
 			result = true;
 		}
 
@@ -56,24 +80,285 @@ public class SyslogMessageMapper extends AbstractMapper {
 		boolean result = false;
 		
 		if ( !obj.isPersistent()){
-			result = Insert(obj);
+			result = insertMessage(obj);
 		}
 		else{
-			if ( obj instanceof Message){
-				Message msg = (Message) obj;
-			}
+			/*
+			 * Current architecture doesn't allow to update syslog messages
+			 */
 		}
 		return result;
 	}
 	
 	@Override
 	public boolean delete(DomainObject obj) {
-		// TODO Auto-generated method stub
-		return false;
+		boolean result = false;
+
+		if (obj != null && obj instanceof Message) {
+			Message msg = (Message) obj;
+
+			if (msg.isPersistent()) {
+				PreparedStatement pr = null;
+				try {
+					Connection conn = db.getConnection();
+					pr = conn.prepareStatement("delete from syslog where id=?;");
+					pr.setLong(1, msg.getID());
+					
+					int rows_affected = pr.executeUpdate();
+					
+					if (rows_affected == 1){
+						msg.mapperSetID(0);
+						msg.mapperSetPersistence(false);
+						
+						result = true;
+					}
+				} catch (Exception e) {
+				} finally {
+					db.Cleanup(pr);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Loads all syslog messages from database
+	 * @return All syslog messages from database
+	 */
+	public ArrayList<Message> getMessages(){
+		ArrayList<Message> result = null;
+		
+		/*
+		select a.id, a.timestamp, a.text, 
+		a.session_id, b.start_date, b.end_date,
+		a.category_id, c.name,
+		a.type_id, d.name,
+		a.sender_id, e.name
+		from syslog as a, syslog_sessions as b, syslog_categories as c, syslog_types as d, syslog_senders as e
+		where a.session_id = b.id and a.category_id = c.id and a.type_id = d.id and a.sender_id = e.id
+		*/
+		StringBuilder sb = new StringBuilder();
+		sb.append("select a.id, a.timestamp, a.text, ");
+		sb.append("a.session_id, ");
+		sb.append("c.name, ");
+		sb.append("d.name, ");
+		sb.append("e.name ");
+		sb.append("from syslog as a, syslog_sessions as b, syslog_categories as c,");
+		sb.append("syslog_types as d, syslog_senders as e ");
+		sb.append("where a.session_id = b.id and a.category_id = c.id ");
+		sb.append("and a.type_id = d.id and a.sender_id = e.id;");
+
+		String sql = sb.toString();
+		
+		Statement st = null;
+		ResultSet rs = null;
+		
+		try {
+			Connection conn = db.getConnection();
+			st = conn.createStatement();
+			
+			rs = st.executeQuery(sql);
+			
+			result = new ArrayList<Message>();
+			
+			while (rs.next()){
+				long messageID = rs.getLong(1);
+				Date timestamp = rs.getDate(2);
+				String text = rs.getString(3);
+				long sessionID = rs.getLong(4);
+				
+				SyslogSession session = SyslogSessionMapper.getByID(sessionID);
+				
+				String categoryName = rs.getString(5);
+				MessageCategory category = getCategory(categoryName);
+				
+				String typeName = rs.getString(6);
+				MessageType type = getType(typeName);
+				
+				String senderName = rs.getString(7);
+				MessageSender sender = getSender(senderName);
+				
+				Message msg = new Message(text,categoryName,typeName,senderName,session);
+				msg.mapperSetID(messageID);
+				msg.mapperSetTimestamp(timestamp);
+				msg.mapperSetCategory(category);
+				msg.mapperSetType(type);
+				msg.mapperSetSender(sender);
+				msg.mapperSetPersistence(true);
+				
+				result.add(msg);
+				
+			}
+		} catch (Exception e) {
+			result = null;
+		}
+		finally{
+			db.Cleanup(st,rs);
+		}
+		
+		return result;
 	}
 	
-	protected boolean Insert(DomainObject obj){
-		return false;
+	private boolean insertMessage(DomainObject obj) {
+		boolean result = false;
+
+		if (obj != null && obj instanceof Message) {
+			Message msg = (Message) obj;
+			if (mapAttributes(msg)) {
+				PreparedStatement pr = null;
+				try {
+					Connection conn = db.getConnection();
+					
+					String sql = "insert into syslog(timestamp,text,session_id,category_id,type_id,sender_id)"
+							+ " values(?,?,?,?,?,?);";
+					
+					pr = conn.prepareStatement(sql);
+					
+					pr.setDate(1, DateConverter.Convert( msg.getTimestamp()));
+					pr.setString(2,msg.getText());
+					pr.setLong(3, msg.getSession().getID());
+					pr.setLong(4, msg.getCategory().getID());
+					pr.setLong(5, msg.getMessageType().getID());
+					pr.setLong(6, msg.getSender().getID());
+					
+					int rows_affected = pr.executeUpdate();
+					
+					if (rows_affected == 1){
+						long recordID = db.LastInsertRowID();
+						
+						if (recordID > 0){
+							msg.mapperSetID(recordID);
+							msg.mapperSetPersistence(true);
+							result = true;
+						}
+					}
+				} catch (Exception e) {
+				}
+				finally{
+					db.Cleanup(pr);
+				}
+			}
+		}
+
+		return result;
+	}
+	
+	/**
+	 * Maps message attributes (category,sender,type) so they become persistent
+	 * @param msg Message which attributes should be mapped
+	 * @return true if succeeded, false otherwise
+	 */
+	private boolean mapAttributes(Message msg){
+		boolean result = false;
+		if (msg != null){
+			if (mapCategory(msg) && mapType(msg) && mapSender(msg)
+					&& mapSession(msg)) {
+				result = true;
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Maps given category to it's database representation
+	 * @param msg Syslog message
+	 * @return true if succeeded, false otherwise
+	 */
+	private boolean mapCategory(Message msg) {
+		boolean result = false;
+
+		if (msg != null && msg.getCategory() != null) {
+			// get current message category
+			MessageCategory msgCategory = msg.getCategory();
+			
+			// get persistent category
+			MessageCategory persistentCategory = getCategory(msgCategory.getName());
+
+			if (persistentCategory != null && persistentCategory.isPersistent()) {
+				//replace message category with persistent one
+				msg.mapperSetCategory(persistentCategory);
+				result = true;
+			}
+		}
+
+		return result;
+	}
+	
+	/**
+	 * Maps given category to it's database representation
+	 * @param msg Syslog message
+	 * @return true if succeeded, false otherwise
+	 */
+	private boolean mapType(Message msg){
+		boolean result = false;
+		
+		if (msg != null && msg.getMessageType() != null){
+			//get current message type
+			MessageType msgType = msg.getMessageType();
+			
+			//get persistent type
+			MessageType persistentType = getType(msgType.getName());
+			
+			if (persistentType != null && persistentType.isPersistent()){
+				//replace message type with persistent one
+				msg.mapperSetType(persistentType);
+				result = true;
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Maps given sender to it's database representation
+	 * @param s Sender to be mapped
+	 * @return true if succeeded, false otherwise
+	 */
+	private boolean mapSender(Message msg){
+		boolean result = false;
+		
+		if(msg != null && msg.getSender() != null){
+			//get current message sender
+			MessageSender msgSender = msg.getSender();
+			
+			//get persistent sender
+			MessageSender persistentSender = getSender(msgSender.getName());
+			
+			if (persistentSender != null && persistentSender.isPersistent()){
+				//replace message sender with persistent one
+				msg.mapperSetSender(persistentSender);
+				result = true;
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Maps given syslog session into database. Session can be either persistent or not.
+	 * @param msg
+	 * @return true if succeeded, false otherwise
+	 */
+	private boolean mapSession(Message msg){
+		boolean result = false;
+		
+		if (msg != null && msg.getSession() != null)
+		try {
+			SyslogSession msgSession = msg.getSession();
+			
+			if (!msgSession.isPersistent()){ // insert session into database
+				SyslogSessionMapper mapper = new SyslogSessionMapper();
+				if (mapper.save(msgSession) ){
+					result = true;
+				}
+			}
+			else
+				result = true;
+			
+		} catch (Exception e) {
+		}
+		
+		return result;
 	}
 	
 	/*
@@ -83,7 +368,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 	 * No code duplicating is in mind.
 	 */
 	
-	private HashMap<String,MessageCategory> LoadCategories(){
+	private static HashMap<String,MessageCategory> LoadCategories(){
 		HashMap<String, MessageCategory> result = new HashMap<String, MessageCategory>();
 		
 		ResultSet rs = null;
@@ -123,7 +408,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 		return result;
 	}
 	
-	private HashMap<String,MessageType> LoadTypes(){
+	private static HashMap<String,MessageType> LoadTypes(){
 		HashMap<String, MessageType> result = new HashMap<String, MessageType>();
 		
 		ResultSet rs = null;
@@ -162,7 +447,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 		return result;
 	}
 	
-	private HashMap<String,MessageSender> LoadSenders(){
+	private static HashMap<String,MessageSender> LoadSenders(){
 		HashMap<String, MessageSender> result = new HashMap<String, MessageSender>();
 		
 		ResultSet rs = null;
@@ -201,6 +486,12 @@ public class SyslogMessageMapper extends AbstractMapper {
 		return result;
 	}
 	
+	/**
+	 * Attempts to get category with given name from cache or creates new one
+	 * (if no such category in cache) and inserts it into database
+	 * @param Name Category name
+	 * @return Persistent message category if succeded, null-reference otherwise
+	 */
 	private MessageCategory getCategory(String Name){
 		MessageCategory result = null;
 		
@@ -228,6 +519,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 					}
 				}
 			} catch (Exception e) {
+				result = null;
 			}
 			finally{
 				db.Cleanup(pr);
@@ -315,7 +607,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 		return result;
 	}
 	
-	private void cacheCategory(MessageCategory category){
+	private static void cacheCategory(MessageCategory category){
 		if (category != null && category.isPersistent() ){
 			String name = category.getName();
 			if(!categories_cache.containsKey(name)){
@@ -324,7 +616,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 		}
 	}
 	
-	private void cacheType(MessageType type){
+	private static void cacheType(MessageType type){
 		if (type != null && type.isPersistent() ){
 			String name = type.getName();
 			if(!types_cache.containsKey(name)){
@@ -333,7 +625,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 		}
 	}
 	
-	private void cacheSender(MessageSender sender){
+	private static void cacheSender(MessageSender sender){
 		if (sender != null && sender.isPersistent() ){
 			String name = sender.getName();
 			if(!senders_cache.containsKey(name)){
@@ -348,9 +640,9 @@ public class SyslogMessageMapper extends AbstractMapper {
 	 * with the same name
 	 */
 	static HashMap<String,MessageCategory> categories_cache = new HashMap<String, MessageCategory>();
-	
 	static HashMap<String, MessageSender> senders_cache = new HashMap<String, MessageSender>(); 
-	
 	static HashMap<String, MessageType> types_cache = new HashMap<String, MessageType>(); 
 	
+	static Database db = null;
+	static boolean isInitialized = false;
 }

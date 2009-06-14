@@ -1,7 +1,5 @@
 package syslog;
 
-import java.util.Date;
-
 import domain.syslog.Message;
 import domain.syslog.SyslogSession;
 

@@ -3,15 +3,16 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
+
+import utils.DateConverter;
 
 
 import mappers.SyslogSessionMapper;
 
 import database.Database;
-import domain.syslog.Message;
 import domain.syslog.SyslogSession;
+import exceptions.MapperNotInitializedException;
 
 
 public class SyslogSessionMapperTest extends DatabaseBaseTest {
@@ -19,13 +20,33 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 	static final String tableName = "syslog_sessions";
 	static final int recordsCount = 5;
 	
-	public void testSave() throws NullPointerException, FileNotFoundException, InterruptedException {
+	public void testSyslogSessionMapper() throws NullPointerException, FileNotFoundException, MapperNotInitializedException{
+		SyslogSessionMapper testMapper = null;
+		
+		//test creating new instances of mapper without initializing them
+		try {
+			testMapper = new SyslogSessionMapper();
+		} catch (Exception e) {
+			assertTrue(e instanceof MapperNotInitializedException);
+		}
+		
+		Database db = initDb();
+		
+		assertTrue( SyslogSessionMapper.initialize(db) );
+		
+		testMapper = new SyslogSessionMapper();
+		
+		assertNotNull(testMapper);
+
+	}
+	
+	public void testSave() throws NullPointerException, FileNotFoundException, InterruptedException, MapperNotInitializedException {
 		testInsertSession();
 		testUpdateSession();
 	}
 	
 	public void testGetSessions() throws NullPointerException,
-			FileNotFoundException, SQLException, InterruptedException {
+			FileNotFoundException, SQLException, InterruptedException, MapperNotInitializedException {
 
 		Database db = initDb();
 		SyslogSessionMapper mapper = initMapper(db);
@@ -77,7 +98,7 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 
 	}
 
-	public void testInsertSession() throws NullPointerException, FileNotFoundException, InterruptedException {
+	public void testInsertSession() throws NullPointerException, FileNotFoundException, InterruptedException, MapperNotInitializedException {
 		
 		/*
 		 * 1. Clear all records in sessions table
@@ -106,7 +127,7 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 		
 	}
 
-	public void testUpdateSession() throws NullPointerException, FileNotFoundException {
+	public void testUpdateSession() throws NullPointerException, FileNotFoundException, MapperNotInitializedException {
 		
 		/*
 		 * 1. Clear all records from sessions table
@@ -150,10 +171,10 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 		db.disconnect();
 	}
 	
-	public void testInsert10Records() throws NullPointerException, FileNotFoundException, SQLException{
+	public void testInsert10Records() throws NullPointerException, FileNotFoundException, SQLException, MapperNotInitializedException{
 		Database db = initDb();
 		SyslogSessionMapper mapper = new SyslogSessionMapper();
-		assertTrue(mapper.initialize(db));
+		assertTrue(SyslogSessionMapper.initialize(db));
 		
 		truncateTable(db);
 		
@@ -168,7 +189,7 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 		truncateTable(db);
 	}
 	
-	public void testGetLatestSession() throws NullPointerException, FileNotFoundException{
+	public void testGetLatestSession() throws NullPointerException, FileNotFoundException, MapperNotInitializedException{
 		Database db = initDb();
 		
 		SyslogSessionMapper mapper = initMapper(db);
@@ -221,11 +242,11 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 		 assertEquals(testSession.getID(), latestSession.getID());
 	}
 	
-	public void testDelete() throws NullPointerException, FileNotFoundException{
+	public void testDelete() throws NullPointerException, FileNotFoundException, MapperNotInitializedException{
 		Database db = initDb();
 		SyslogSessionMapper mapper = new SyslogSessionMapper();
 		
-		assertTrue(mapper.initialize(db));
+		assertTrue(SyslogSessionMapper.initialize(db));
 		assertTrue( db.truncateTable("syslog"));
 		assertTrue(db.countRecords("syslog") == 0);
 		
@@ -269,10 +290,12 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 	 * Inits SyslogSessionMapper using given database
 	 * @param db Database which will be used by mapper
 	 * @return 
+	 * @throws MapperNotInitializedException 
 	 */
-	private SyslogSessionMapper initMapper(Database db){
+	private SyslogSessionMapper initMapper(Database db) throws MapperNotInitializedException{
+		assertEquals(SyslogSessionMapper.initialize(db), true);
+		
 		SyslogSessionMapper mapper = new SyslogSessionMapper();
-		assertEquals(mapper.initialize(db), true);
 		
 		return mapper;
 	}
@@ -317,8 +340,8 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 		try {
 			pr = conn.prepareStatement("insert into " + tableName
 					+ "(start_date,end_date) values(?,?);");
-			pr.setDate(1, Convert(session.getStartDate()));
-			pr.setDate(2, Convert(session.getEndDate()));
+			pr.setDate(1, DateConverter.Convert(session.getStartDate()));
+			pr.setDate(2, DateConverter.Convert(session.getEndDate()));
 			
 			int rows_affected = pr.executeUpdate();
 			
@@ -332,16 +355,6 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 		}
 	}
 	
-	private java.sql.Date Convert(java.util.Date date){
-		java.sql.Date result = null;
-		
-		if ( date != null){
-			result = new Date(date.getTime());
-		}
-		
-		return result;
-	}
-
 	private void compareArrays(ArrayList<SyslogSession> testArray,
 			ArrayList<SyslogSession> persistentArray) {
 		if (testArray != null && testArray.size() > 0) {
@@ -397,7 +410,7 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 			conn.setAutoCommit(false);
 			
 			for (int i = 0; i < 10; ++i){
-				pr.setDate(1, Convert(new java.util.Date()));
+				pr.setDate(1, DateConverter.Convert(new java.util.Date()));
 				pr.setString(2, "unitTestMessage");
 				pr.setLong(3, sessionID);
 				

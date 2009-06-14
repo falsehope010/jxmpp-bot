@@ -22,13 +22,13 @@ public class Message extends DomainObject {
 	 * @param messageType Message type. Can't be null or empty string
 	 * @param sender Message sender. Can't be null or empty string
 	 * @param session Message session. Must be valid persistent session. 
-	 * @throws NullPointerException If any parameters passed to constructor are null-reference 
+	 * @throws NullPointerException If any parameter passed to constructor is null-reference 
 	 * @throws IllegalArgumentException If any text-parameters passed to constructor are empty strings
 	 * @throws InvalidSyslogSessionException If SyslogSession is null or non-persistent
 	 */
 	public Message(String messageText, String category, String messageType,
 			String sender, SyslogSession session) throws NullPointerException,
-			IllegalArgumentException, InvalidSyslogSessionException {
+			IllegalArgumentException {
 
 		//check all arguments first
 		checkParamNotNull(messageText);
@@ -41,10 +41,9 @@ public class Message extends DomainObject {
 		timestamp = new Date();
 		this.text = messageText;
 		this.session = session;
-		this.category = category;
-		this.type = messageType;
-		this.sender = sender;
-		
+		this.category = new MessageCategory(category);
+		this.type = new MessageType(messageType);
+		this.sender = new MessageSender(sender);
 	}
 	
 	/**
@@ -64,10 +63,34 @@ public class Message extends DomainObject {
 	}
 	
 	/**
+	 * Gets message category name
+	 * @return
+	 */
+	public String getCategoryName(){
+		return category.getName();
+	}
+	
+	/**
+	 * Gets message type name
+	 * @return
+	 */
+	public String getMessageTypeName(){
+		return type.getName();
+	}
+	
+	/**
+	 * Gets message sender name
+	 * @return
+	 */
+	public String getSenderName(){
+		return sender.getName();
+	}
+	
+	/**
 	 * Gets message category
 	 * @return
 	 */
-	public String getCategory(){
+	public MessageCategory getCategory(){
 		return category;
 	}
 	
@@ -75,7 +98,7 @@ public class Message extends DomainObject {
 	 * Gets message type
 	 * @return
 	 */
-	public String getType(){
+	public MessageType getMessageType(){
 		return type;
 	}
 	
@@ -83,7 +106,7 @@ public class Message extends DomainObject {
 	 * Gets message sender
 	 * @return
 	 */
-	public String getSender(){
+	public MessageSender getSender(){
 		return sender;
 	}
 	
@@ -95,6 +118,56 @@ public class Message extends DomainObject {
 		return session;
 	}
 	
+	/**
+	 * You mustn't use this method directly. For internal mapping domain object from/to db
+	 * @param timestamp Message timestamp
+	 */
+	public void mapperSetTimestamp(Date timestamp){
+		if (timestamp != null){
+			this.timestamp = timestamp;
+		}
+	}
+	
+	/**
+	 * You mustn't use this method directly. For internal mapping domain object from/to db
+	 * @param c Message category
+	 */
+	public void mapperSetCategory(MessageCategory c){
+		if (c != null && c.isPersistent()){
+			category = c;
+		}
+	}
+	
+	/**
+	 * You mustn't use this method directly. For internal mapping domain object from/to db
+	 * @param t Message type
+	 */
+	public void mapperSetType(MessageType t){
+		if (t != null && t.isPersistent()){
+			type = t;
+		}
+	}
+	
+	/**
+	 * You mustn't use this method directly. For internal mapping domain object from/to db
+	 * @param s Message sender
+	 */
+	public void mapperSetSender(MessageSender s){
+		if (s != null && s.isPersistent()){
+			sender = s;
+		}
+	}
+	
+	/**
+	 * You mustn't use this method directly. For internal mapping domain object from/to db
+	 * @param session Message's syslog session
+	 */
+	public void mapperSetSession(SyslogSession session){
+		if (session != null && session.isPersistent()){
+			this.session = session;
+		}
+	}
+	
 	private void checkParamNotNull(String str) throws NullPointerException,
 			IllegalArgumentException {
 		if (str == null)
@@ -104,17 +177,15 @@ public class Message extends DomainObject {
 			throw new IllegalArgumentException("Argument is empty string.");
 	}
 	
-	private void checkSession(SyslogSession session) throws InvalidSyslogSessionException{
+	private void checkSession(SyslogSession session) throws NullPointerException{
 		if (session == null )
-			throw new InvalidSyslogSessionException();
-		if (!session.isPersistent())
-			throw new InvalidSyslogSessionException();
+			throw new NullPointerException();
 	}
 
 	Date timestamp;
 	String text;
 	SyslogSession session;
-	String category;
-	String type;
-	String sender;
+	MessageCategory category;
+	MessageType type;
+	MessageSender sender;
 }

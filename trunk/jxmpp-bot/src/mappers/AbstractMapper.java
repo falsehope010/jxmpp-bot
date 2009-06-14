@@ -1,27 +1,14 @@
 package mappers;
 
-import database.Database;
 import domain.DomainObject;
 
+/**
+ * Base class for all database mappers. Default behavior is to initialize all needed
+ * @author tillias_work
+ *
+ */
 public abstract class AbstractMapper {
-	
-	/**
-	 * Initializes mapper using given database object. Performs actions if needed during
-	 * initialization (e.g. caches initialization)
-	 * @param db Database which will be used by mapper to perform its actions
-	 * @return true if initialization was successful, false otherwise
-	 */
-	public boolean initialize(Database db){
-		boolean result = false;
-		
-		if (db != null && db.isConnected()) {
-			SyslogMessageMapper.db = db;
-			result = true;
-		}
-		
-		return result;
-	}
-	
+
 	/**
 	 * Performs saving of domain object into database. Domain object can be either persistent or not.
 	 * If operation is succeeded, method must mark domain object as persistent.
@@ -37,6 +24,4 @@ public abstract class AbstractMapper {
 	 * @return true if succeded, false otherwise
 	 */
 	public abstract boolean delete(DomainObject obj);
-	
-	protected static Database db;
 }
