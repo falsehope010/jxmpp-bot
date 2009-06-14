@@ -8,8 +8,6 @@ import domain.DomainObject;
  *
  */
 public class MessageAttribute extends DomainObject {
-	String name;
-	String description;
 	
 	/**
 	 * Creates new non-persistent message attribute. 
@@ -36,4 +34,7 @@ public class MessageAttribute extends DomainObject {
 	public void setDescription(String Description){
 		this.description = Description;
 	}
+	
+	String name;
+	String description;
 }

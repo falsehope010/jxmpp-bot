@@ -6,7 +6,6 @@ public class XmppMessageListener implements MessageListener {
 
 	@Override
 	public void processMessage(Chat chat, Message message) {
-		// TODO Auto-generated method stub
 		System.out.print( '[' + message.getType().toString() + "]  " + message.getBody() + '\n');
 	}
 

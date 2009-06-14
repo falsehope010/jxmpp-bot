@@ -1,9 +1,7 @@
-import mappers.SyslogMessageMapper;
 import mappers.SyslogSessionMapper;
 
 import org.jivesoftware.smack.*;
 import database.*;
-import domain.syslog.SyslogSession;
 
 
 public class Main {
@@ -20,7 +18,7 @@ public class Main {
 			if (db.isConnected()) {
 
 				SyslogSessionMapper mapper = new SyslogSessionMapper();
-				mapper.initialize(db);
+				SyslogSessionMapper.initialize(db);
 				
 				db.setSequenceValue("syslog_sessions", 0);
 			}
@@ -70,7 +68,6 @@ public class Main {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

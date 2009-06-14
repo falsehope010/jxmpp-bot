@@ -6,18 +6,62 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import utils.DateConverter;
 
 import database.Database;
 import domain.DomainObject;
 import domain.syslog.SyslogSession;
+import exceptions.MapperNotInitializedException;
 
 public class SyslogSessionMapper extends AbstractMapper {
 	
-	static final String tableName = "syslog_sessions";
-
-	@Override
-	public boolean initialize(Database db) {
-		return super.initialize(db);
+	/**
+	 * Creates new instance of mapper.
+	 * @throws MapperNotInitializedException Thrown if attempted to create new instance of mapper
+	 * without initializing it first
+	 * @see SyslogSessionMapper#initialize
+	 */
+	public SyslogSessionMapper() throws MapperNotInitializedException{
+		if (!isInitialized)
+			throw new MapperNotInitializedException();
+	}
+	
+	/**
+	 * Static initializer. Assigns database to all mappers of this type and performs
+	 * additional operations, so you can create and use class instances
+	 * @param db Database which will be used by mappers
+	 * @return true if succeeded, false otherwise
+	 */
+	public static boolean initialize(Database db){
+		boolean result = false;
+		
+		if (db != null && db.isConnected()) {
+			SyslogSessionMapper.db = db;
+			
+			cache = loadSessions();
+			
+			isInitialized = true;
+			result = true;
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Gets syslog session by it's id.
+	 * @param sessionID Session id
+	 * @return Valid, persistent syslog session if succeded, null-reference otherwise
+	 */
+	public static SyslogSession getByID(long sessionID){
+		SyslogSession result = null;
+		
+		if (cache.containsKey(sessionID)){
+			result = cache.get(sessionID);
+		}
+		
+		return result;
 	}
 	
 	@Override
@@ -44,6 +88,8 @@ public class SyslogSessionMapper extends AbstractMapper {
 						session.mapperSetPersistence(false);
 						session.mapperSetID(0);
 
+						uncacheSession(session);
+						
 						result = true;
 					}
 				} catch (Exception e) {
@@ -91,23 +137,30 @@ public class SyslogSessionMapper extends AbstractMapper {
 			rs = st.executeQuery("select id,max(start_date),end_date from " + tableName + ";");
 			
 			if (rs.next()){
-				long recordID = rs.getLong(1);
+				Long recordID = rs.getLong(1);
 				
 				if (recordID > 0){
-					Date startDate = rs.getDate(2);
-					Date endDate = rs.getDate(3);
-					
-					result = new SyslogSession();
-					
-					result.mapperSetID(recordID);
-					result.mapperSetStartDate(startDate);
-					
-					if (endDate != null){
-						result.close();
-						result.mapperSetEndDate(endDate);
+					if (cache.containsKey(recordID)){
+						result = cache.get(recordID);
 					}
-					
-					result.mapperSetPersistence(true);
+					else{
+						Date startDate = rs.getDate(2);
+						Date endDate = rs.getDate(3);
+						
+						result = new SyslogSession();
+						
+						result.mapperSetID(recordID);
+						result.mapperSetStartDate(startDate);
+						
+						if (endDate != null){
+							result.close();
+							result.mapperSetEndDate(endDate);
+						}
+						
+						result.mapperSetPersistence(true);
+						
+						cacheSession(result);
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -181,11 +234,11 @@ public class SyslogSessionMapper extends AbstractMapper {
 				pr = conn.prepareStatement("insert into " + tableName
 						+ "(start_date,end_date) values(?,?);");
 
-				Date startDate = Convert(session.getStartDate());
+				Date startDate = DateConverter.Convert(session.getStartDate());
 				Date endDate = null;
 				
 				if(session.isClosed()){
-					endDate = Convert(session.getEndDate());
+					endDate = DateConverter.Convert(session.getEndDate());
 				}
 				
 				pr.setDate(1, startDate);
@@ -200,12 +253,14 @@ public class SyslogSessionMapper extends AbstractMapper {
 					if (rowID > 0){
 						session.mapperSetPersistence(true);
 						session.mapperSetID(rowID);
+						
+						cacheSession(session);
+						
 						result = true;
 					}
 				}
 				
 			} catch (Exception e) {
-				System.out.print(e.getMessage());
 			}
 			finally{
 				db.Cleanup(pr);
@@ -231,10 +286,10 @@ public class SyslogSessionMapper extends AbstractMapper {
 				
 				pr = conn.prepareStatement("update " + tableName
 						+ " set start_date=?, end_date=? where id=?;");
-				Date startDate = Convert(session.getStartDate());
+				Date startDate = DateConverter.Convert(session.getStartDate());
 				Date endDate = null;
 				if (session.isClosed()){
-					endDate = Convert(session.getEndDate());
+					endDate = DateConverter.Convert(session.getEndDate());
 				}
 				
 				pr.setDate(1, startDate);
@@ -263,7 +318,7 @@ public class SyslogSessionMapper extends AbstractMapper {
 	 * @param session Valid syslog session. Must be persistent
 	 * @return true if succeded, false otherwise
 	 */
-	protected boolean deleteLinkedMessages(SyslogSession session){
+	private boolean deleteLinkedMessages(SyslogSession session){
 		boolean result = false;
 		
 		if ( session != null && session.isPersistent()){
@@ -287,13 +342,70 @@ public class SyslogSessionMapper extends AbstractMapper {
 		return result;
 	}
 	
-	private java.sql.Date Convert(java.util.Date date){
-		java.sql.Date result = null;
+	private static HashMap<Long,SyslogSession> loadSessions(){
+		HashMap<Long, SyslogSession> result = new HashMap<Long, SyslogSession>();
 		
-		if ( date != null){
-			result = new Date(date.getTime());
+		Statement st = null;
+		ResultSet rs = null;
+		
+		try {
+			Connection conn = db.getConnection();
+			st = conn.createStatement();
+			
+			rs = st.executeQuery("select id, start_date, end_date from syslog_sessions;");
+			
+			while (rs.next()){
+				long sessionID = rs.getLong(1);
+				
+				if (sessionID > 0){
+					Date startDate = rs.getDate(2);
+					Date endDate = rs.getDate(3);
+					
+					SyslogSession session = new SyslogSession();
+					session.mapperSetID(sessionID);
+					session.mapperSetStartDate(DateConverter.Convert(startDate));
+					
+					if (endDate != null){
+						session.close();
+						session.mapperSetEndDate(DateConverter.Convert(endDate));
+					}
+					
+					session.mapperSetPersistence(true);
+					
+					cacheSession(session);
+				}
+			}
+		} catch (Exception e) {
+			System.out.print(e.getMessage());
+		}
+		finally{
+			db.Cleanup(st, rs);
 		}
 		
 		return result;
 	}
+	
+	private static void cacheSession(SyslogSession session){
+		if (session != null && session.isPersistent()){
+			long sessionID = session.getID();
+			
+			if (!cache.containsKey(sessionID)){
+				cache.put(sessionID, session);
+			}
+		}
+	}
+	
+	private static void uncacheSession(SyslogSession session){
+		if (session != null && session.isPersistent()){
+			Long sessionID = session.getID();
+			if (cache.containsKey(sessionID))
+				cache.remove(sessionID);
+		}
+	}
+	
+	static final String tableName = "syslog_sessions";
+	static Database db = null;
+	static boolean isInitialized = false;
+	
+	static HashMap<Long, SyslogSession> cache = new HashMap<Long, SyslogSession>();
 }
