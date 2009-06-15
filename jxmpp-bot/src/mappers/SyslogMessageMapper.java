@@ -37,11 +37,11 @@ public class SyslogMessageMapper extends AbstractMapper {
 		super(db);
 		
 		if (categories_cache == null)
-			categories_cache = LoadCategories();
+			LoadCategories();
 		if (types_cache == null)
-			types_cache = LoadTypes();
+			LoadTypes();
 		if (senders_cache==null)
-			senders_cache = LoadSenders();
+			LoadSenders();
 	}
 
 	@Override
@@ -337,8 +337,8 @@ public class SyslogMessageMapper extends AbstractMapper {
 	 * No code duplicating is in mind.
 	 */
 	
-	private HashMap<String,MessageCategory> LoadCategories(){
-		HashMap<String, MessageCategory> result = new HashMap<String, MessageCategory>();
+	private void LoadCategories(){
+		categories_cache = new HashMap<String, MessageCategory>();
 		
 		ResultSet rs = null;
 		Statement st = null;
@@ -358,7 +358,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 				recordName = rs.getString(2);
 				recordDescription = rs.getString(3);
 				
-				if (!result.containsKey(recordName)) {
+				if (!categories_cache.containsKey(recordName)) {
 					MessageCategory record = new MessageCategory(recordName,
 							recordDescription);
 					record.mapperSetID(recordID);
@@ -368,17 +368,14 @@ public class SyslogMessageMapper extends AbstractMapper {
 				}
 			}
 		} catch (Exception e) {
-			System.out.print(e.getMessage());
 		}
 		finally{
 			db.Cleanup(st, rs);
 		}
-		
-		return result;
 	}
 	
-	private HashMap<String,MessageType> LoadTypes(){
-		HashMap<String, MessageType> result = new HashMap<String, MessageType>();
+	private void LoadTypes(){
+		types_cache = new HashMap<String, MessageType>();
 		
 		ResultSet rs = null;
 		Statement st = null;
@@ -398,7 +395,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 				recordName = rs.getString(2);
 				recordDescription = rs.getString(3);
 				
-				if (!result.containsKey(recordName)) {
+				if (!types_cache.containsKey(recordName)) {
 					MessageType record = new MessageType(recordName,
 							recordDescription);
 					record.mapperSetID(recordID);
@@ -412,12 +409,10 @@ public class SyslogMessageMapper extends AbstractMapper {
 		finally{
 			db.Cleanup(st, rs);
 		}
-		
-		return result;
 	}
 	
-	private HashMap<String,MessageSender> LoadSenders(){
-		HashMap<String, MessageSender> result = new HashMap<String, MessageSender>();
+	private void LoadSenders(){
+		senders_cache = new HashMap<String, MessageSender>();
 		
 		ResultSet rs = null;
 		Statement st = null;
@@ -437,7 +432,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 				recordName = rs.getString(2);
 				recordDescription = rs.getString(3);
 				
-				if (!result.containsKey(recordName)) {
+				if (!senders_cache.containsKey(recordName)) {
 					MessageSender record = new MessageSender(recordName,
 							recordDescription);
 					record.mapperSetID(recordID);
@@ -451,8 +446,6 @@ public class SyslogMessageMapper extends AbstractMapper {
 		finally{
 			db.Cleanup(st, rs);
 		}
-		
-		return result;
 	}
 	
 	/**
