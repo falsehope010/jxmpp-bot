@@ -1,3 +1,4 @@
+package base.tests;
 import java.io.FileNotFoundException;
 
 import junit.framework.TestCase;

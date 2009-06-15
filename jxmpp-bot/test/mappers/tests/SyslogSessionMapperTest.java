@@ -1,9 +1,14 @@
+package mappers.tests;
+
+
 import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import base.tests.DatabaseBaseTest;
 
 import utils.DateConverter;
 
@@ -12,7 +17,7 @@ import mappers.SyslogSessionMapper;
 
 import database.Database;
 import domain.syslog.SyslogSession;
-import exceptions.MapperNotInitializedException;
+import exceptions.DatabaseNotConnectedException;
 
 
 public class SyslogSessionMapperTest extends DatabaseBaseTest {
@@ -20,33 +25,43 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 	static final String tableName = "syslog_sessions";
 	static final int recordsCount = 5;
 	
-	public void testSyslogSessionMapper() throws NullPointerException, FileNotFoundException, MapperNotInitializedException{
+	public void testSyslogSessionMapper() throws NullPointerException, FileNotFoundException, DatabaseNotConnectedException{
 		SyslogSessionMapper testMapper = null;
 		
 		//test creating new instances of mapper without initializing them
 		try {
-			testMapper = new SyslogSessionMapper();
+			testMapper = new SyslogSessionMapper(null);
 		} catch (Exception e) {
-			assertTrue(e instanceof MapperNotInitializedException);
+			assertTrue(e instanceof NullPointerException);
 		}
 		
 		Database db = initDb();
 		
-		assertTrue( SyslogSessionMapper.initialize(db) );
+		db.disconnect();
 		
-		testMapper = new SyslogSessionMapper();
+		try{
+			testMapper = new SyslogSessionMapper(db);
+		}
+		catch (Exception e) {
+			assertTrue(e instanceof DatabaseNotConnectedException);
+		}
+		
+		db.connect();
+		
+		testMapper = new SyslogSessionMapper(db);
 		
 		assertNotNull(testMapper);
 
+		db.disconnect();
 	}
 	
-	public void testSave() throws NullPointerException, FileNotFoundException, InterruptedException, MapperNotInitializedException {
+	public void testSave() throws NullPointerException, FileNotFoundException, InterruptedException, DatabaseNotConnectedException {
 		testInsertSession();
 		testUpdateSession();
 	}
 	
 	public void testGetSessions() throws NullPointerException,
-			FileNotFoundException, SQLException, InterruptedException, MapperNotInitializedException {
+			FileNotFoundException, SQLException, InterruptedException, DatabaseNotConnectedException {
 
 		Database db = initDb();
 		SyslogSessionMapper mapper = initMapper(db);
@@ -95,10 +110,9 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 		truncateTable(db);
 
 		db.disconnect();
-
 	}
 
-	public void testInsertSession() throws NullPointerException, FileNotFoundException, InterruptedException, MapperNotInitializedException {
+	public void testInsertSession() throws NullPointerException, FileNotFoundException, InterruptedException, DatabaseNotConnectedException {
 		
 		/*
 		 * 1. Clear all records in sessions table
@@ -124,10 +138,9 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 		truncateTable(db);
 		
 		db.disconnect();
-		
 	}
 
-	public void testUpdateSession() throws NullPointerException, FileNotFoundException, MapperNotInitializedException {
+	public void testUpdateSession() throws NullPointerException, FileNotFoundException, DatabaseNotConnectedException {
 		
 		/*
 		 * 1. Clear all records from sessions table
@@ -171,10 +184,9 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 		db.disconnect();
 	}
 	
-	public void testInsert10Records() throws NullPointerException, FileNotFoundException, SQLException, MapperNotInitializedException{
+	public void testInsert10Records() throws NullPointerException, FileNotFoundException, SQLException, DatabaseNotConnectedException {
 		Database db = initDb();
-		SyslogSessionMapper mapper = new SyslogSessionMapper();
-		assertTrue(SyslogSessionMapper.initialize(db));
+		SyslogSessionMapper mapper = new SyslogSessionMapper(db);
 		
 		truncateTable(db);
 		
@@ -187,9 +199,11 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 		
 		
 		truncateTable(db);
+		
+		db.disconnect();
 	}
 	
-	public void testGetLatestSession() throws NullPointerException, FileNotFoundException, MapperNotInitializedException{
+	public void testGetLatestSession() throws NullPointerException, FileNotFoundException, DatabaseNotConnectedException {
 		Database db = initDb();
 		
 		SyslogSessionMapper mapper = initMapper(db);
@@ -240,13 +254,14 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 		 assertNotNull(testSession);
 		 
 		 assertEquals(testSession.getID(), latestSession.getID());
+		 
+		 db.disconnect();
 	}
 	
-	public void testDelete() throws NullPointerException, FileNotFoundException, MapperNotInitializedException{
+	public void testDelete() throws NullPointerException, FileNotFoundException, DatabaseNotConnectedException {
 		Database db = initDb();
-		SyslogSessionMapper mapper = new SyslogSessionMapper();
+		SyslogSessionMapper mapper = new SyslogSessionMapper(db);
 		
-		assertTrue(SyslogSessionMapper.initialize(db));
 		assertTrue( db.truncateTable("syslog"));
 		assertTrue(db.countRecords("syslog") == 0);
 		
@@ -265,6 +280,8 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 		
 		assertTrue(db.countRecords("syslog") == 0);
 		assertTrue(db.countRecords("syslog_sessions") == 0);
+		
+		db.disconnect();
 	}
 	
 	public void testEnd(){
@@ -290,12 +307,13 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 	 * Inits SyslogSessionMapper using given database
 	 * @param db Database which will be used by mapper
 	 * @return 
+	 * @throws DatabaseNotConnectedException 
+	 * @throws NullPointerException 
 	 * @throws MapperNotInitializedException 
 	 */
-	private SyslogSessionMapper initMapper(Database db) throws MapperNotInitializedException{
-		assertEquals(SyslogSessionMapper.initialize(db), true);
+	private SyslogSessionMapper initMapper(Database db) throws NullPointerException, DatabaseNotConnectedException {
 		
-		SyslogSessionMapper mapper = new SyslogSessionMapper();
+		SyslogSessionMapper mapper = new SyslogSessionMapper(db);
 		
 		return mapper;
 	}

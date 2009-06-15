@@ -1,41 +1,41 @@
+package mappers.tests;
+
+
 import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import com.sun.org.apache.xml.internal.utils.StopParseException;
+import base.tests.DatabaseBaseTest;
 
 import mappers.SyslogMessageMapper;
 import mappers.SyslogSessionMapper;
 import database.Database;
 import domain.syslog.Message;
 import domain.syslog.SyslogSession;
-import exceptions.MapperNotInitializedException;
+import exceptions.DatabaseNotConnectedException;
 
 
 public class SyslogMessageMapperTest extends DatabaseBaseTest {
 
 	static final String tableName = "syslog";
 	
-	public void testSave() throws NullPointerException, FileNotFoundException, IllegalArgumentException, MapperNotInitializedException {
+	public void testSave() throws NullPointerException, FileNotFoundException, IllegalArgumentException, DatabaseNotConnectedException {
 		
 		Database db = initDb();
 		
 		String text = "testText", category = "testCategory", type = "testType", sender = "testSender";
 		
 		//init session
-		assertTrue(SyslogSessionMapper.initialize(db));
-		SyslogSessionMapper mapperS = new SyslogSessionMapper();
+		SyslogSessionMapper mapperS = new SyslogSessionMapper(db);
 		
 		SyslogSession session = new SyslogSession();
 		
 		assertTrue(mapperS.save(session));
 		
 		//1. insert message using persistent session
-		assertTrue(SyslogMessageMapper.initialize(db));
-		
-		SyslogMessageMapper mapper = new SyslogMessageMapper();
+		SyslogMessageMapper mapper = new SyslogMessageMapper(db);
 		
 		assertNotNull(mapper);
 		
@@ -112,16 +112,15 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 		
 		truncateTable(db, "syslog");
 		clearDependentTables(db);
+		
+		db.disconnect();
 	}
 
-	public void testDelete() throws NullPointerException, FileNotFoundException, IllegalArgumentException, MapperNotInitializedException{
+	public void testDelete() throws NullPointerException, FileNotFoundException, IllegalArgumentException, DatabaseNotConnectedException {
 		//1. insert several records into db
 		Database db = initDb();
 		
-		assertTrue(SyslogMessageMapper.initialize(db));
-		assertTrue(SyslogSessionMapper.initialize(db));
-		
-		SyslogMessageMapper mapper = new SyslogMessageMapper();
+		SyslogMessageMapper mapper = new SyslogMessageMapper(db);
 		
 		int recordsCount = 5;
 		
@@ -149,34 +148,43 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 		}
 		
 		assertTrue(db.countRecords(tableName) == 0);
+		
+		db.disconnect();
 	}
 
-	public void testSyslogMessageMapper() throws NullPointerException, FileNotFoundException, MapperNotInitializedException, IllegalArgumentException {
+	public void testSyslogMessageMapper() throws NullPointerException, FileNotFoundException, IllegalArgumentException, DatabaseNotConnectedException {
 		SyslogMessageMapper testMapper = null;
 		
 		//test creating new instances of mapper without initializing them
 		try {
-			testMapper = new SyslogMessageMapper();
+			testMapper = new SyslogMessageMapper(null);
 		} catch (Exception e) {
-			assertTrue(e instanceof MapperNotInitializedException);
+			assertTrue(e instanceof NullPointerException);
 		}
 		
 		Database db = initDb();
 		
-		assertTrue( SyslogMessageMapper.initialize(db) );
+		db.disconnect();
 		
-		testMapper = new SyslogMessageMapper();
+		try {
+			testMapper = new SyslogMessageMapper(db);
+		} catch (Exception e) {
+			assertTrue(e instanceof DatabaseNotConnectedException);
+		}
+		
+		db.connect();
+		
+		testMapper = new SyslogMessageMapper(db);
 		
 		assertNotNull(testMapper);
 		
 		clearDependentTables(db);
+		
+		db.disconnect();
 	}
 
-	public void testGetMessages() throws NullPointerException, FileNotFoundException, IllegalArgumentException, MapperNotInitializedException, InterruptedException{
+	public void testGetMessages() throws NullPointerException, FileNotFoundException, IllegalArgumentException, InterruptedException, DatabaseNotConnectedException{
 		Database db = initDb();
-		
-		assertTrue(SyslogMessageMapper.initialize(db));
-		assertTrue(SyslogSessionMapper.initialize(db));
 		
 		//1. insert several records into db
 
@@ -193,7 +201,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 		}
 		
 		ArrayList<Message> messages = new ArrayList<Message>();
-		SyslogMessageMapper mapper = new SyslogMessageMapper();
+		SyslogMessageMapper mapper = new SyslogMessageMapper(db);
 		for (int i = 0; i < recordsCount; ++i){
 			Message msg = new Message(msgTexts[i],msgCategories[i],msgTypes[i],msgSenders[i],msgSessions[i]);
 			assertNotNull(msg);
@@ -229,6 +237,8 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 		}
 	
 		clearDependentTables(db);
+		
+		db.disconnect();
 	}
 	
 	public void testEnd(){
@@ -246,7 +256,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	 * @throws IllegalArgumentException 
 	 */
 	private Database initDb() throws NullPointerException,
-			 FileNotFoundException, MapperNotInitializedException,
+			 FileNotFoundException,
 			 IllegalArgumentException {
 		Database db = prepareDatabase();
 		
@@ -284,7 +294,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	 * @throws MapperNotInitializedException 
 	 * @throws IllegalArgumentException 
 	 */
-	private ArrayList<String> sqlGetRecords(Database db, String tableName) throws NullPointerException, FileNotFoundException, IllegalArgumentException, MapperNotInitializedException {
+	private ArrayList<String> sqlGetRecords(Database db, String tableName) throws NullPointerException, FileNotFoundException, IllegalArgumentException {
 		
 		assertNotNull(db);
 		assertTrue(db.isConnected());
