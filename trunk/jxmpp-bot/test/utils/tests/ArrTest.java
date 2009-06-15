@@ -1,7 +1,10 @@
+package utils.tests;
 import java.io.*;
 import java.util.ArrayList;
 
-import database.*;
+import base.tests.DatabaseBaseTest;
+
+import database.Database;
 import domain.users.AccessLevel;
 import domain.users.User;
 
