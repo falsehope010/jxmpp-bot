@@ -17,7 +17,7 @@ import domain.syslog.MessageSender;
 import domain.syslog.MessageType;
 import domain.syslog.Message;
 import domain.syslog.SyslogSession;
-import exceptions.MapperNotInitializedException;
+import exceptions.DatabaseNotConnectedException;
 
 /**
  * @author tillias_work
@@ -27,52 +27,21 @@ public class SyslogMessageMapper extends AbstractMapper {
 	
 
 	/**
-	 * Creates new instance of mapper.
-	 * @throws MapperNotInitializedException Thrown if attempted to create new instance of mapper
-	 * without initializing it first
-	 * @see SyslogMessageMapper#initialize
+	 * Creates new instance of mapper using given database.
+	 * @param db Database which will be used by mapper.
+	 * @throws NullPointerException Thrown if database is null-reference
+	 * @throws DatabaseNotConnectedException Thrown if database is in disconnected state. 
+	 * 		   You must call {@link Database#connect()} before passing database into mapper's constructor
 	 */
-	public SyslogMessageMapper() throws MapperNotInitializedException{
-		if (!isInitialized){
-			throw new MapperNotInitializedException();
-		}
-	}
-
-	/**
-	 * Static initializer. Assigns database to all mappers of this type and performs
-	 * additional operations, so you can create and use class instances
-	 * @param db Database which will be used by mappers
-	 * @return true if succeeded, false otherwise
-	 */
-	public static boolean initialize(Database db) {
+	public SyslogMessageMapper(Database db) throws NullPointerException, DatabaseNotConnectedException{
+		super(db);
 		
-		boolean result = false;
-		
-		if (db != null && db.isConnected()){
-			SyslogMessageMapper.db = db;
-			
-			if (categories_cache != null) {
-				categories_cache.clear();
-			}
-
+		if (categories_cache == null)
 			categories_cache = LoadCategories();
-			
-			if (types_cache != null){
-				types_cache.clear();
-			}
-			
+		if (types_cache == null)
 			types_cache = LoadTypes();
-			
-			if (senders_cache != null)
-				senders_cache.clear();
-			
+		if (senders_cache==null)
 			senders_cache = LoadSenders();
-			
-			isInitialized = true;
-			result = true;
-		}
-
-		return result;
 	}
 
 	@Override
@@ -347,7 +316,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 			SyslogSession msgSession = msg.getSession();
 			
 			if (!msgSession.isPersistent()){ // insert session into database
-				SyslogSessionMapper mapper = new SyslogSessionMapper();
+				SyslogSessionMapper mapper = new SyslogSessionMapper(db);
 				if (mapper.save(msgSession) ){
 					result = true;
 				}
@@ -368,7 +337,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 	 * No code duplicating is in mind.
 	 */
 	
-	private static HashMap<String,MessageCategory> LoadCategories(){
+	private HashMap<String,MessageCategory> LoadCategories(){
 		HashMap<String, MessageCategory> result = new HashMap<String, MessageCategory>();
 		
 		ResultSet rs = null;
@@ -408,7 +377,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 		return result;
 	}
 	
-	private static HashMap<String,MessageType> LoadTypes(){
+	private HashMap<String,MessageType> LoadTypes(){
 		HashMap<String, MessageType> result = new HashMap<String, MessageType>();
 		
 		ResultSet rs = null;
@@ -447,7 +416,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 		return result;
 	}
 	
-	private static HashMap<String,MessageSender> LoadSenders(){
+	private HashMap<String,MessageSender> LoadSenders(){
 		HashMap<String, MessageSender> result = new HashMap<String, MessageSender>();
 		
 		ResultSet rs = null;
@@ -639,10 +608,7 @@ public class SyslogMessageMapper extends AbstractMapper {
 	 * This means that there can't be two senders (types,categories) 
 	 * with the same name
 	 */
-	static HashMap<String,MessageCategory> categories_cache = new HashMap<String, MessageCategory>();
-	static HashMap<String, MessageSender> senders_cache = new HashMap<String, MessageSender>(); 
-	static HashMap<String, MessageType> types_cache = new HashMap<String, MessageType>(); 
-	
-	static Database db = null;
-	static boolean isInitialized = false;
+	static HashMap<String,MessageCategory> categories_cache = null;
+	static HashMap<String, MessageSender> senders_cache = null; 
+	static HashMap<String, MessageType> types_cache = null;
 }

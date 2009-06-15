@@ -1,7 +1,9 @@
 import mappers.SyslogSessionMapper;
 
 import org.jivesoftware.smack.*;
-import database.*;
+
+import database.Database;
+import database.tests.*;
 
 
 public class Main {
@@ -17,8 +19,7 @@ public class Main {
 			db.connect();
 			if (db.isConnected()) {
 
-				SyslogSessionMapper mapper = new SyslogSessionMapper();
-				SyslogSessionMapper.initialize(db);
+				//SyslogSessionMapper mapper = new SyslogSessionMapper(db);
 				
 				db.setSequenceValue("syslog_sessions", 0);
 			}
