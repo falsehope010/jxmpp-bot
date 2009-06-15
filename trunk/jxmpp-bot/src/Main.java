@@ -1,8 +1,10 @@
+import mappers.SyslogMessageMapper;
 import mappers.SyslogSessionMapper;
 
 import org.jivesoftware.smack.*;
 
 import database.Database;
+import database.DatabaseFactory;
 import database.tests.*;
 
 
@@ -15,23 +17,16 @@ public class Main {
 	public static void main(String[] args) {
 			
 	    	try {
-			Database db = new Database("test_db");
+	    	
+			DatabaseFactory factory = new DatabaseFactory("test_db");
+			Database db = factory.createDatabase();
 			db.connect();
-			if (db.isConnected()) {
-
-				//SyslogSessionMapper mapper = new SyslogSessionMapper(db);
-				
-				db.setSequenceValue("syslog_sessions", 0);
-			}
-
+			SyslogMessageMapper mapper = new SyslogMessageMapper(db);
+			//...do any work with mapper
 			db.disconnect();
-			// System.out.print(usrID);
 		} catch (Exception e) {
-			System.out.print(e.getMessage());
 		}
-		
-		//db.Connect();
-		//System.out.print( System.getProperty("user.dir") );
+
 	}
 	
 	protected static void XmppConnect(){

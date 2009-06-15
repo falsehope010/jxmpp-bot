@@ -19,7 +19,7 @@ public abstract class AbstractMapper {
 	 */
 	protected AbstractMapper(Database db) throws DatabaseNotConnectedException, NullPointerException{
 		if (db == null)
-			throw new NullPointerException();
+			throw new NullPointerException("Database passed to mapper is null-reference");
 		if (!db.isConnected())
 			throw new DatabaseNotConnectedException(); 
 		
