@@ -1,6 +1,8 @@
 package mappers;
 
+import database.Database;
 import domain.DomainObject;
+import exceptions.DatabaseNotConnectedException;
 
 /**
  * Base class for all database mappers. Default behavior is to initialize all needed
@@ -9,6 +11,20 @@ import domain.DomainObject;
  */
 public abstract class AbstractMapper {
 
+	/**
+	 * Creates new ins
+	 * @param db
+	 * @throws DatabaseNotConnectedException
+	 * @throws NullPointerException
+	 */
+	protected AbstractMapper(Database db) throws DatabaseNotConnectedException, NullPointerException{
+		if (db == null)
+			throw new NullPointerException();
+		if (!db.isConnected())
+			throw new DatabaseNotConnectedException(); 
+		
+		this.db = db;
+	}
 	/**
 	 * Performs saving of domain object into database. Domain object can be either persistent or not.
 	 * If operation is succeeded, method must mark domain object as persistent.
@@ -24,4 +40,6 @@ public abstract class AbstractMapper {
 	 * @return true if succeded, false otherwise
 	 */
 	public abstract boolean delete(DomainObject obj);
+	
+	protected Database db;
 }

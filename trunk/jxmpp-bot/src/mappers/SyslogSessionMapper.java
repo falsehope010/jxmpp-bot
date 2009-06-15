@@ -13,40 +13,23 @@ import utils.DateConverter;
 import database.Database;
 import domain.DomainObject;
 import domain.syslog.SyslogSession;
-import exceptions.MapperNotInitializedException;
+import exceptions.DatabaseNotConnectedException;
 
 public class SyslogSessionMapper extends AbstractMapper {
 	
 	/**
-	 * Creates new instance of mapper.
-	 * @throws MapperNotInitializedException Thrown if attempted to create new instance of mapper
-	 * without initializing it first
-	 * @see SyslogSessionMapper#initialize
+	 * Creates new instance of mapper using given database.
+	 * @param db Database which will be used by mapper.
+	 * @throws DatabaseNotConnectedException Thrown if database is in disconnected state. 
+	 * 		   You must call {@link Database#connect()} before passing database into mapper's constructor
+	 * @throws NullPointerException Thrown if database is null-reference
 	 */
-	public SyslogSessionMapper() throws MapperNotInitializedException{
-		if (!isInitialized)
-			throw new MapperNotInitializedException();
-	}
-	
-	/**
-	 * Static initializer. Assigns database to all mappers of this type and performs
-	 * additional operations, so you can create and use class instances
-	 * @param db Database which will be used by mappers
-	 * @return true if succeeded, false otherwise
-	 */
-	public static boolean initialize(Database db){
-		boolean result = false;
+	public SyslogSessionMapper(Database db) throws NullPointerException, DatabaseNotConnectedException{
+		super(db);
 		
-		if (db != null && db.isConnected()) {
-			SyslogSessionMapper.db = db;
-			
+		if (cache == null) {
 			cache = loadSessions();
-			
-			isInitialized = true;
-			result = true;
 		}
-		
-		return result;
 	}
 	
 	/**
@@ -342,7 +325,7 @@ public class SyslogSessionMapper extends AbstractMapper {
 		return result;
 	}
 	
-	private static HashMap<Long,SyslogSession> loadSessions(){
+	private HashMap<Long,SyslogSession> loadSessions(){
 		HashMap<Long, SyslogSession> result = new HashMap<Long, SyslogSession>();
 		
 		Statement st = null;
@@ -404,8 +387,6 @@ public class SyslogSessionMapper extends AbstractMapper {
 	}
 	
 	static final String tableName = "syslog_sessions";
-	static Database db = null;
-	static boolean isInitialized = false;
 	
-	static HashMap<Long, SyslogSession> cache = new HashMap<Long, SyslogSession>();
+	static HashMap<Long, SyslogSession> cache = null;
 }
