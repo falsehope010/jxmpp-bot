@@ -28,7 +28,7 @@ public class SyslogSessionMapper extends AbstractMapper {
 		super(db);
 		
 		if (cache == null) {
-			cache = loadSessions();
+			loadSessions();
 		}
 	}
 	
@@ -325,8 +325,8 @@ public class SyslogSessionMapper extends AbstractMapper {
 		return result;
 	}
 	
-	private HashMap<Long,SyslogSession> loadSessions(){
-		HashMap<Long, SyslogSession> result = new HashMap<Long, SyslogSession>();
+	private void loadSessions(){
+		cache = new HashMap<Long, SyslogSession>();
 		
 		Statement st = null;
 		ResultSet rs = null;
@@ -359,13 +359,11 @@ public class SyslogSessionMapper extends AbstractMapper {
 				}
 			}
 		} catch (Exception e) {
-			System.out.print(e.getMessage());
+			e.printStackTrace();
 		}
 		finally{
 			db.Cleanup(st, rs);
 		}
-		
-		return result;
 	}
 	
 	private static void cacheSession(SyslogSession session){

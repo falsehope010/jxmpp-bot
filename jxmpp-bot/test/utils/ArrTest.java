@@ -1,8 +1,8 @@
-package utils.tests;
+package utils;
 import java.io.*;
 import java.util.ArrayList;
 
-import base.tests.DatabaseBaseTest;
+import base.DatabaseBaseTest;
 
 import database.Database;
 import domain.users.AccessLevel;

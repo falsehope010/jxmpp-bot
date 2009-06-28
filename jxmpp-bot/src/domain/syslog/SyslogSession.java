@@ -8,7 +8,7 @@ import domain.DomainObject;
  * Session is constructed and stored by Syslog instance. Normally when application
  * starts it creates Syslog instance and calls Syslog.startSession() to create log session.
  * When application is about to close, it calls Syslog.endSession()
- * @see syslog.SysLog#startSession()
+ * @see syslog.SysLog#startNewSession()
  * @see syslog.SysLog#endSession()
  * @author tillias_work
  *

@@ -1,4 +1,4 @@
-package domain.syslog.tests;
+package domain.syslog;
 import domain.syslog.Message;
 import domain.syslog.SyslogSession;
 import junit.framework.TestCase;

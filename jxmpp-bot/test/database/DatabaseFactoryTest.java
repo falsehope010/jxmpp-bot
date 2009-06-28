@@ -1,4 +1,4 @@
-package database.tests;
+package database;
 import java.io.FileNotFoundException;
 
 import utils.RandomUtils;
