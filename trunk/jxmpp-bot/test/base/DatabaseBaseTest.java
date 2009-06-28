@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import junit.framework.TestCase;
 
 import database.Database;
+import database.DatabaseFactory;
 
 
 public class DatabaseBaseTest extends TestCase {
@@ -11,15 +12,16 @@ public class DatabaseBaseTest extends TestCase {
 	public static final String testDbName = "test/test_db";
 	
 	/**
-	 * Creates Database instance using test_db file, opens connection and clears all data
-	 * from database tables
+	 * Creates Database instance using test_db file and opens connection 
 	 * @return Valid, clear and ready-to-use database if succeded
 	 * @throws NullPointerException If test_database name is invalid
 	 * @throws FileNotFoundException If test_database file not found
 	 */
 	protected Database prepareDatabase() throws NullPointerException, FileNotFoundException{
 		// Connect to test database, clear all users and jids manually,
-		Database db = new Database(testDbName);
+		DatabaseFactory factory = new DatabaseFactory(testDbName);
+		
+		Database db = factory.createDatabase();//new Database(testDbName);
 		
 		db.connect();
 		
