@@ -1,4 +1,4 @@
-package mappers.tests;
+package mappers;
 
 
 import java.io.FileNotFoundException;
@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import base.tests.DatabaseBaseTest;
+import base.DatabaseBaseTest;
 
 import utils.DateConverter;
 

@@ -3,9 +3,10 @@ import mappers.SyslogSessionMapper;
 
 import org.jivesoftware.smack.*;
 
-import database.Database;
-import database.DatabaseFactory;
-import database.tests.*;
+import syslog.SysLog;
+import syslog.rotate.LogRotateBaseStrategy;
+
+import database.*;
 
 
 public class Main {
@@ -18,13 +19,26 @@ public class Main {
 			
 	    	try {
 	    	
-			DatabaseFactory factory = new DatabaseFactory("test_db");
+/*			DatabaseFactory factory = new DatabaseFactory("test_db");
 			Database db = factory.createDatabase();
 			db.connect();
 			SyslogMessageMapper mapper = new SyslogMessageMapper(db);
 			//...do any work with mapper
-			db.disconnect();
+			db.disconnect();*/
+			
+	    	DatabaseFactory factory = new DatabaseFactory("test_db");
+			Database db = factory.createDatabase();
+			db.connect();
+			
+			LogRotateBaseStrategy lgs = new LogRotateBaseStrategy();
+			
+			SysLog sg = new SysLog(db,lgs, 10000,250000);
+			sg.start();
+			Thread.sleep(25000);
+			sg.stop();
+			
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 	}

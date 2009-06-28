@@ -1,4 +1,4 @@
-package mappers.tests;
+package mappers;
 
 
 import java.io.FileNotFoundException;
@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import base.tests.DatabaseBaseTest;
+import base.DatabaseBaseTest;
 
 import mappers.SyslogMessageMapper;
 import mappers.SyslogSessionMapper;
