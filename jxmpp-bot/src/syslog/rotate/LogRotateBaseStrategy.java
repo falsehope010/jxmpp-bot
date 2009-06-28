@@ -7,7 +7,7 @@ import java.util.Date;
  * @author tillias_work
  *
  */
-public class LogRotateBaseStrategy {
+public class LogRotateBaseStrategy implements ILogRotateStrategy{
 	
 	/**
 	 * Gets latest date when log rotation procedure was performed

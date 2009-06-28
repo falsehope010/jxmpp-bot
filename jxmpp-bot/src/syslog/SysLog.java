@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import mappers.SyslogSessionMapper;
 
 import stopwatch.BoundedStopWatch;
-import syslog.rotate.LogRotateBaseStrategy;
+import syslog.rotate.ILogRotateStrategy;
 
 import database.Database;
 import domain.syslog.Message;
@@ -34,7 +34,7 @@ public class SysLog implements Runnable {
 	 * Creates new syslog instance. Call {@link #start()} in order to begin logging 
 	 * system events, messages etc.
 	 * @param db Database which will be used to store system logs
-	 * @param logRotateStrategy Strategy which will be used to rotate system logs
+	 * @param strategy Strategy which will be used to rotate system logs
 	 * @param saveLogsTimeout Specifies interval in milliseconds after which syslog will save all syslog messages
 	 * 		from it's internal buffer into database
 	 * @param logRotateTimeout Specifies interval in milliseconds after which syslog will perform log rotate
@@ -43,25 +43,26 @@ public class SysLog implements Runnable {
 	 * @throws DatabaseNotConnectedException Thrown if database passed to constructor isn't connected to datasource
 	 * @throws NullPointerException Thrown if database or log rotation strategy is null-reference
 	 */
-	public SysLog(Database db, LogRotateBaseStrategy logRotateStrategy,
-			int saveLogsTimeout, int logRotateTimeout)
+	public SysLog(Database db, ILogRotateStrategy strategy,
+			long saveLogsTimeout, long logRotateTimeout)
 			throws IllegalArgumentException, DatabaseNotConnectedException,
 			NullPointerException {
 
-		if (saveLogsTimeout <= 0 || logRotateTimeout <= 0)
-			throw new IllegalArgumentException("Invalid syslog timeout(s)");
-
-		if (db == null || logRotateStrategy == null)
+		if (db == null || strategy == null)
 			throw new NullPointerException(
 					"Null-reference database or logRotateStrategy");
 
 		if (!db.isConnected())
 			throw new DatabaseNotConnectedException();
+		
+		if (saveLogsTimeout <= 0 || logRotateTimeout <= 0)
+			throw new IllegalArgumentException("Invalid syslog timeout(s)");
 
 		internalQueue = new ConcurrentLinkedQueue<Message>();
 		saveLogsWatch = new BoundedStopWatch(saveLogsTimeout);
 		logRotateWatch = new BoundedStopWatch(logRotateTimeout);
-
+		logRotateStrategy = strategy;
+		
 		this.db = db;
 	}	
 	
@@ -125,7 +126,7 @@ public class SysLog implements Runnable {
 	 */
 	
 	/**
-	 * Gets current syslog session.
+	 * Gets current syslog session. If syslog is in unstarted state, returns null
 	 * @return Current session
 	 */
 	public SyslogSession getCurrentSession(){
@@ -166,40 +167,80 @@ public class SysLog implements Runnable {
 		logRotateWatch.start();
 		
 		while (!terminate) {
-			if (saveLogsWatch.breaksBound()){
-				System.out.println("running " + saveLogsWatch.getElapsedTime() );
-			}
-			else{
-				System.out.println("log save hit!");
-				saveLogsWatch.restart();
-			}
 			try {
+				if (saveLogsWatch.breaksBound()) {
+					System.out.println("running "
+							+ saveLogsWatch.getElapsedTime());
+				} else {
+					System.out.println("log save hit!");
+					saveLogsWatch.restart();
+				}
 				Thread.sleep(250);
-			} catch (InterruptedException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
+				
+				//TODO: Put syslog message with stacktrace as text
 			}
 		}
 		
-		System.out.println("stopped");
+		setRunning(false); // thread finishes it's work here and exits
 	}
 	
-	public boolean start(){
+	/**
+	 * Starts syslog. It will be able to save messages into database and perform logs cleanup.
+	 * <p>During startup syslog creates new session and saves it into database. All messages
+	 * will be written into db using this session.
+	 * If syslog is already running does nothing.
+	 * @return
+	 * @see #isRunning()
+	 * @see #stop()
+	 */
+	public boolean start() {
 		boolean result = false;
-		
-		if (thread == null){
-			thread = new Thread(this);
-			thread.start();
-			
-			startNewSession();
-			
-			result = true;
+
+		if (!isRunning()) {
+			if (thread == null) {	//starting syslog first time
+				
+				thread = new Thread(this);
+				setTerminate(false); // otherwise thread will exit immediately
+				thread.start();
+
+				if (startNewSession()){
+					result = true;
+					
+					setRunning(true);
+					
+				}
+			}
+			else{	
+				/*
+				 * We are restarting syslog.
+				 * Since isRunning is false, thread has finished it's work and exited.
+				 * So we can close current session (e.g. call startNewSession),
+				 * create new thread and start it
+				 */
+				startNewSession();
+				
+				//TODO: compare to previous section and if possible merge them together
+			}
 		}
-		
+
 		return result;
 	}
 	
-	public void stop(){
+	public void stop(){ //TODO: add comment
+		setTerminate(true);
 		terminate = true;
+	}
+	
+	/**
+	 * Gets value indicating whether Syslog is currently running.
+	 * @see #start()
+	 * @see #stop()
+	 * @return
+	 */
+	public boolean isRunning(){
+		return running;
 	}
 	
 	/*
@@ -281,6 +322,14 @@ public class SysLog implements Runnable {
 		}
 	}
 	
+	private void setRunning(boolean value){
+		running = value;
+	}
+	
+	private void setTerminate(boolean value){
+		terminate = value;
+	}
+	
 	/*
 	 * Data fields
 	 */
@@ -306,10 +355,11 @@ public class SysLog implements Runnable {
 	
 	Thread thread;
 	boolean terminate;
+	boolean running;
 	Database db;
 	
 	BoundedStopWatch saveLogsWatch;
 	BoundedStopWatch logRotateWatch;
 	
-	LogRotateBaseStrategy logRotateStrategy;
+	ILogRotateStrategy logRotateStrategy;
 }
