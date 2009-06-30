@@ -1,6 +1,9 @@
 package syslog;
 
 import java.io.FileNotFoundException;
+import java.lang.Thread.State;
+import java.sql.ResultSet;
+import java.util.Date;
 import java.util.List;
 
 import syslog.moc.LogRotateStrategyMoc;
@@ -100,7 +103,7 @@ public class SysLogTest extends DatabaseBaseTest {
 	public void testGetCurrentSession() throws NullPointerException, FileNotFoundException {
 		Database db = prepareDatabase();
 		
-		cleanupSyslogTables(db);
+		assertTrue(cleanupSyslogTables(db));
 		
 		SysLog log = prepareSyslog(db);
 		
@@ -122,7 +125,7 @@ public class SysLogTest extends DatabaseBaseTest {
 		Database db = prepareDatabase();
 		SysLog log = prepareSyslog(db);
 		
-		cleanupSyslogTables(db);
+		assertTrue(cleanupSyslogTables(db));
 		
 		assertNotNull(log);
 		
@@ -164,7 +167,7 @@ public class SysLogTest extends DatabaseBaseTest {
 		assertNotNull(log);
 		assertNull("Must return null, since no thread has been created yet", log.getThreadState());
 		
-		cleanupSyslogTables(db);
+		assertTrue(cleanupSyslogTables(db));
 		
 		log.start();
 		
@@ -185,12 +188,82 @@ public class SysLogTest extends DatabaseBaseTest {
 		db.disconnect();
 	}
 	
-	public void testStop(){
-		fail("Not implemented");
+	public void testStop() throws NullPointerException, FileNotFoundException, InterruptedException{
+		Database db = prepareDatabase();
+		
+		assertTrue(cleanupSyslogTables(db));
+		
+		SysLog log = prepareSyslog(db);
+		
+		assertNotNull(log);
+		assertNull("Must return null, since no thread has been created yet", log.getThreadState());
+		
+		log.start();
+		
+		Thread.sleep(500);
+		
+		assertNotNull(log.getThreadState());
+		assertNotSame(log.getThreadState(), Thread.State.TERMINATED);
+		
+		assertTrue("Syslog should be running", log.isRunning());
+		assertFalse("Terminate must be set to false", log.getTerminate());
+		
+		Thread.sleep(500);
+		
+		assertTrue(verifySessionInserted(db));
+		
+		log.stop();
+		
+		assertTrue(log.getTerminate());
+		
+		Thread.sleep(1000);
+		
+		assertFalse(log.isRunning());
+		assertTrue(log.getThreadState() == State.TERMINATED);
+		
+		//verify last session was closed
+		SyslogSession session = log.getCurrentSession();
+		
+		assertNotNull(session);
+		assertTrue("Session must be closed, since we've stopped syslog", session.isClosed());
+		assertEquals(db.countRecords("syslog_sessions") == 1, true);
+		assertTrue(verifySessionClosedDb(db, session));
+		
+		db.disconnect();
 	}
 	
-	public void testRestart(){
-		fail("Not yet implemented");
+	public void testRestart() throws NullPointerException, FileNotFoundException, InterruptedException{
+		//start-stop 5-10 times and verify sessions mapping
+		
+		final int iterations = 5;
+		
+		Database db = prepareDatabase();
+		SysLog log = prepareSyslog(db);
+		
+		assertTrue(cleanupSyslogTables(db));
+		
+		for (int i = 0; i < iterations; ++i){
+			assertTrue(log.start());
+			
+			Thread.sleep(200);
+			
+			assertTrue(log.isRunning());
+			assertNotNull(log.getThreadState());
+			assertNotSame(log.getThreadState(), Thread.State.TERMINATED);
+			
+			log.stop();
+			
+			Thread.sleep(1000);
+			
+			assertFalse(log.isRunning());
+			assertTrue(log.getThreadState() == State.TERMINATED);
+		}
+		
+		//verify sessions count and that they all are closed
+		assertEquals(db.countRecords("syslog_sessions"), iterations);
+		assertTrue(verifyAllSessionsClosed(db));
+		
+		db.disconnect();
 	}
 	
 	public void testDequeueAllMessages() {
@@ -199,16 +272,14 @@ public class SysLogTest extends DatabaseBaseTest {
 	
 	public void testPutMessage(){
 		fail("Not yet implemented");
+		
+		//TODO: Pay special attention to null attributes passed to
 	}
 	
 	public void testFlushCache(){
 		fail("Not yet implemented");
 	}
 	
-	public void testEnd(){
-		assertTrue(true);
-	}
-
 	private SysLog prepareSyslog(Database db){
 		SysLog log = null;
 		try {
@@ -235,6 +306,8 @@ public class SysLogTest extends DatabaseBaseTest {
 			assertTrue( truncateTable(db, "syslog_categories") );
 			assertTrue( truncateTable(db, "syslog_types") );
 			assertTrue( truncateTable(db, "syslog_senders") );
+			
+			result = true;
 		} catch (Exception e) {
 			fail(StackTraceUtil.toString(e));
 		}
@@ -288,8 +361,48 @@ public class SysLogTest extends DatabaseBaseTest {
 				}
 				
 				if (found){
-					//verify end date
+					assertFalse(foundRecord.isNull("start_date"));
+					Date startDate = foundRecord.getDate("start_date");
+					
+					if (!foundRecord.isNull("end_date")){
+						Date endDate = foundRecord.getDate("end_date");
+						assertTrue(endDate.after(startDate));
+						
+						result = true;
+					}
 				}
+			}
+		} catch (Exception e) {
+			fail(StackTraceUtil.toString(e));
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Checks whether all sessions in database are closed. If no sessions in database considers that
+	 * all sessions are closed
+	 * @param db
+	 * @return True if all sessions are closed, false otherwise
+	 */
+	private boolean verifyAllSessionsClosed(Database db){
+		boolean result = false;
+		
+		try {
+			List<DatabaseRecord> allSessions = db.getRecords("syslog_sessions");
+			assertNotNull(allSessions);
+			
+			if (allSessions.size() == 0){
+				result = true; // no sessions to verify
+			}else{
+				boolean ok = true;
+				for (DatabaseRecord r : allSessions){
+					if (r.isNull("end_date")){
+						ok = false;
+						break;
+					}
+				}
+				result = ok;
 			}
 		} catch (Exception e) {
 			fail(StackTraceUtil.toString(e));

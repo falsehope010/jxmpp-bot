@@ -168,7 +168,7 @@ public class SysLog implements Runnable {
 	 * will be written into db using this session.
 	 * If syslog is already running does nothing.
 	 * <p>This is synchronous operation.
-	 * @return
+	 * @return True if succeded, false otherwise
 	 * @see #isRunning()
 	 * @see #stop()
 	 */
@@ -196,8 +196,11 @@ public class SysLog implements Runnable {
 	 * underlying thread. You can detect that syslog has stopped it's thread by checking 
 	 * {@link #isRunning()}
 	 */
-	public void stop(){ 
-		setTerminate(true);
+	public void stop() {
+		if (isRunning()) {
+			setTerminate(true);
+			closeSession(currentSession); // is running guarantees that session isn't null
+		}
 	}
 	
 	/**
@@ -235,14 +238,20 @@ public class SysLog implements Runnable {
 		boolean result = false;
 
 		try {
-			closeSession(getCurrentSession());
+			boolean session_closed = true;
+			
+			if (currentSession != null){
+				session_closed = closeSession(currentSession);
+			}
+			
+			if (session_closed){
+				currentSession = createSession();
 
-			currentSession = createSession();
-
-			if (currentSession != null && currentSession.isPersistent())
-				result = true;
-			else
-				currentSession = null; // if session isn't persistent set it to null
+				if (currentSession != null && currentSession.isPersistent())
+					result = true;
+				else
+					currentSession = null; // if session isn't persistent set it to null
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -304,7 +313,7 @@ public class SysLog implements Runnable {
 	
 	/**
 	 * Creates new syslog session and saves it into database (endDate is null, since 
-	 * session isn't closed
+	 * session isn't closed)
 	 * @return Persistent syslog session if succeeded, null-reference otherwise
 	 */
 	private SyslogSession createSession(){
@@ -330,16 +339,21 @@ public class SysLog implements Runnable {
 	private boolean closeSession(SyslogSession session){
 		boolean result = false;
 		if (session != null) {
-			session.close();
+			if (!session.isClosed()){
+				session.close();
 
-			try {
-				SyslogSessionMapper mapper = new SyslogSessionMapper(db);
+				try {
+					SyslogSessionMapper mapper = new SyslogSessionMapper(db);
 
-				if (mapper.save(session)) {
-					result = true;
+					if (mapper.save(session)) {
+						result = true;
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
+			}else{
+				//session is already closed
+				result = true;
 			}
 		}
 		return result;
