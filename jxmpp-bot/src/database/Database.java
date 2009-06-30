@@ -1,13 +1,17 @@
 package database;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.io.*;
+
+import utils.StackTraceUtil;
 
 import domain.users.AccessLevel;
 import domain.users.User;
@@ -356,6 +360,115 @@ public class Database {
 			}
 		}
 
+		return result;
+	}
+	
+	/**
+	 * Get all attribute names (e.g. column names) for given table
+	 * @param tableName Database table name
+	 * @return List of all attribute names if succeded, null-reference if table 
+	 * 	doesn't exist
+	 */
+	public List<String> getAttributeNames(String tableName){
+		ArrayList<String> result = new ArrayList<String>();
+		
+		Statement stat = null;
+		ResultSet rs = null;
+		
+		try {
+			Connection conn = getConnection();
+			
+			stat = conn.createStatement();
+			
+			rs = stat.executeQuery("PRAGMA table_info('" + tableName + "');");
+			
+			while (rs.next()){
+				String attributeName = rs.getString("name");
+				
+				if (attributeName != null && attributeName.length() > 0){
+					result.add(attributeName);
+				}
+			}
+			
+		} catch (Exception e) {
+			System.out.print(StackTraceUtil.toString(e));
+		}
+		finally{
+			Cleanup(stat, rs);
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Retrieves all records from database table.
+	 * <p>You don't need to provide table schema, since it will be retrieved automatically.
+	 * Each record from table will be in the universal format of {@link DatabaseRecord}.
+	 * @param tableName Table name which records should be retrieved
+	 * @return List of all records from given database table
+	 * @throws IllegalArgumentException Thrown if database table with given name doesn't exist
+	 * @see DatabaseRecord
+	 * @see DatabaseRecordField
+	 */
+	public List<DatabaseRecord> getRecords(String tableName) throws IllegalArgumentException{
+		ArrayList<DatabaseRecord> result = new ArrayList<DatabaseRecord>();
+		
+		List<String> attributeNames = getAttributeNames(tableName);
+		
+		if (attributeNames != null){
+			
+			if (attributeNames.size() > 0){ // we do have any columns to read
+				
+				//convert attribute names into string
+				StringBuilder sb = new StringBuilder();
+				sb.append("select ");
+				
+				for (String s : attributeNames){
+					sb.append(s);
+					sb.append(',');
+				}
+				
+				sb.setLength(sb.length()-1); //remove last ','
+				sb.append(" from ");
+				sb.append(tableName);
+
+				Statement st = null;
+				ResultSet rs = null;
+				try {
+					Connection conn = getConnection();
+					st = conn.createStatement();
+					
+					rs = st.executeQuery(sb.toString());
+					
+					int attributesCount = attributeNames.size() + 1;
+					Object fieldValue = null;
+					String fieldName = null;
+					
+					while (rs.next()){
+						DatabaseRecord record = new DatabaseRecord();
+						
+						for (int i = 1; i < attributesCount; ++i ){
+							fieldValue = rs.getObject(i);
+							fieldName = attributeNames.get(i-1);
+							record.setFieldValue(fieldName, fieldValue);
+						}
+						
+						result.add(record);
+					}
+				} catch (Exception e) {
+					System.out.print(StackTraceUtil.toString(e));
+					
+					result.clear();
+				}
+				finally{
+					Cleanup(st, rs);
+				}
+				
+			}
+		}
+		else
+			throw new IllegalArgumentException("Database table " + tableName + " doesn't exist");
+		
 		return result;
 	}
 	
