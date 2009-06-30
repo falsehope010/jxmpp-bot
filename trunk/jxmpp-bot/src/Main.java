@@ -47,6 +47,8 @@ public class Main {
 			 * SysLog sg = new SysLog(db,lgs, 10000,250000); sg.start();
 			 * Thread.sleep(25000); sg.stop();
 			 */
+			
+			throw new Exception();
 
 		} catch (Exception e) {
 			e.printStackTrace();

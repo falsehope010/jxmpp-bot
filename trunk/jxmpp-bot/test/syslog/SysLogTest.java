@@ -2,7 +2,6 @@ package syslog;
 
 import java.io.FileNotFoundException;
 import java.lang.Thread.State;
-import java.sql.ResultSet;
 import java.util.Date;
 import java.util.List;
 
