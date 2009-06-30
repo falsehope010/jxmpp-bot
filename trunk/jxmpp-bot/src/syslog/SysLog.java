@@ -1,12 +1,15 @@
 package syslog;
 
+import java.lang.Thread.State;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import mappers.SyslogSessionMapper;
 
 import stopwatch.BoundedStopWatch;
+import sun.awt.windows.ThemeReader;
 import syslog.rotate.ILogRotateStrategy;
+import utils.StackTraceUtil;
 
 import database.Database;
 import domain.syslog.Message;
@@ -69,23 +72,36 @@ public class SysLog implements Runnable {
 	
 	/**
 	 * Puts text message with given attributes (sender,category and type) into system log.
+	 * Attributes must not be null or empty strings, otherwise method will fail without
+	 * throwing any exception
+	 * <p>This is asynchronous operation. It may take some time while syslog will flush it's 
+	 * internal cache and actually put message into database
 	 * @param text Message text
 	 * @param sender Sender of message
 	 * @param category Message Category
 	 * @param type Message Type
-	 * @return
-	 * @throws SessionNotStartedException
+	 * @return True if succeded, false otherwise
+	 * @throws SessionNotStartedException Thrown if you attempted to put message without starting syslog
+	 * @see #start()
+	 * @see #isRunning()
+	 * @see #getSaveLogsTimeout()
 	 */
-	public Message putMessage(String text, String sender, String category,
+	public boolean putMessage(String text, String sender, String category,
 			String type) throws SessionNotStartedException {
-		Message result = null;
+		boolean result = false;
 		SyslogSession currentSession = getCurrentSession();
 
 		if (currentSession == null) {
 			throw new SessionNotStartedException(); // session must be started
 		} else {
-			result = new Message(text, category, type, sender, currentSession);
-			enqueueMessage(result); // put into internal queue
+			try {
+				Message msg = new Message(text, category, type, sender, currentSession);
+				enqueueMessage(msg); // put into internal queue
+				result = true;
+			} catch (Exception e) {
+				System.out.print(StackTraceUtil.toString(e));
+			}
+
 		}
 
 		return result;
@@ -110,51 +126,11 @@ public class SysLog implements Runnable {
 	
 	
 	/**
-	 * Saves all messages from internal messages cache into database
-	 * @return
-	 */
-	public boolean saveMessages(){
-		boolean result = false;
-		
-		//AtomicLong
-		
-		return result;
-	}
-	
-	/*
-	 * Session management
-	 */
-	
-	/**
 	 * Gets current syslog session. If syslog is in unstarted state, returns null
 	 * @return Current session
 	 */
 	public SyslogSession getCurrentSession(){
 		return currentSession;
-	}
-	
-	/**
-	 * Starts new syslog session and maps it into db. If there is already session started,
-	 * closes it before creating and starting new one.
-	 * @return true if succeded, false otherwise
-	 */
-	public boolean startNewSession() {
-		boolean result = false;
-
-		try {
-			closeSession(getCurrentSession());
-
-			currentSession = createSession();
-
-			if (currentSession != null && currentSession.isPersistent())
-				result = true;
-			else
-				currentSession = null; // if session isn't persistent set it to null
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return result;
 	}
 	
 	/*
@@ -191,6 +167,7 @@ public class SysLog implements Runnable {
 	 * <p>During startup syslog creates new session and saves it into database. All messages
 	 * will be written into db using this session.
 	 * If syslog is already running does nothing.
+	 * <p>This is synchronous operation.
 	 * @return
 	 * @see #isRunning()
 	 * @see #stop()
@@ -199,38 +176,28 @@ public class SysLog implements Runnable {
 		boolean result = false;
 
 		if (!isRunning()) {
-			if (thread == null) {	//starting syslog first time
-				
-				thread = new Thread(this);
-				setTerminate(false); // otherwise thread will exit immediately
-				thread.start();
 
-				if (startNewSession()){
-					result = true;
-					
-					setRunning(true);
-					
-				}
-			}
-			else{	
-				/*
-				 * We are restarting syslog.
-				 * Since isRunning is false, thread has finished it's work and exited.
-				 * So we can close current session (e.g. call startNewSession),
-				 * create new thread and start it
-				 */
-				startNewSession();
-				
-				//TODO: compare to previous section and if possible merge them together
+			thread = new Thread(this);
+			setTerminate(false); // otherwise thread will exit immediately
+			thread.start();
+
+			if (startNewSession()) {
+				result = true;
+
+				setRunning(true);
 			}
 		}
-
 		return result;
 	}
 	
-	public void stop(){ //TODO: add comment
+	/**
+	 * Stops syslog. If syslog is already stopped does nothing.
+	 * <p>This is asynchronous operation and it can take a while until syslog actually stops it's 
+	 * underlying thread. You can detect that syslog has stopped it's thread by checking 
+	 * {@link #isRunning()}
+	 */
+	public void stop(){ 
 		setTerminate(true);
-		terminate = true;
 	}
 	
 	/**
@@ -248,27 +215,89 @@ public class SysLog implements Runnable {
 	 */
 	
 	/**
+	 * Saves all messages from internal messages cache into database. 
+	 * @return True if succeded, false otherwise
+	 */
+	protected boolean flushCache(){ //TODO
+		boolean result = false;
+		
+		//AtomicLong
+		
+		return result;
+	}
+	
+	/**
+	 * Starts new syslog session and maps it into db. If there is already session started,
+	 * closes it before creating and starting new one.
+	 * @return true if succeded, false otherwise
+	 */
+	protected boolean startNewSession() {
+		boolean result = false;
+
+		try {
+			closeSession(getCurrentSession());
+
+			currentSession = createSession();
+
+			if (currentSession != null && currentSession.isPersistent())
+				result = true;
+			else
+				currentSession = null; // if session isn't persistent set it to null
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return result;
+	}
+	
+	/**
 	 * Dequeues maximum maxItems from given queue. Actual count of dequeued items may be smaller
 	 * then count specified by <b>maxItems</b> parameter
 	 * @param queue Source queue which will supply items
 	 * @param maxItems Maximum number of items to be dequeued
 	 * @return Dequeued messages
 	 */
-	protected ArrayList<Message> dequeueAllMessages(ConcurrentLinkedQueue<Message> queue, int maxItems){ 
-		//TODO: unit testing
+	protected ArrayList<Message> dequeueAllMessages(
+			ConcurrentLinkedQueue<Message> queue, int maxItems) {
 		ArrayList<Message> result = new ArrayList<Message>();
-		
-		if (queue != null){
-			int i = 0;
-			Message msg = internalQueue.poll();
-			
-			while (msg != null && i < maxDequeueItems){
-				result.add(msg);
-				
-				msg = internalQueue.poll();
-				++i;
+
+		try {
+			if (queue != null) {
+				int i = 0;
+				Message msg = internalQueue.poll();
+
+				while (msg != null && i < maxDequeueItems) {
+					result.add(msg);
+
+					msg = internalQueue.poll();
+					++i;
+				}
 			}
+		} catch (Exception e) {
+			System.out.print(StackTraceUtil.toString(e));
 		}
+
+		return result;
+	}
+	
+	/**
+	 * Gets value indicating whether syslog thread should terminate
+	 * @return True if syslog thread should terminate false otherwise
+	 */
+	protected boolean getTerminate(){
+		return terminate;
+	}
+	
+	/**
+	 * Gets underlying thread state. If syslog was never started returns null.
+	 * If syslog has ever been started returns valid {@link Thread.State}
+	 * @return Underlying thread state.
+	 */
+	protected State getThreadState(){
+		State result = null;
+		
+		if ( thread != null)
+			result = thread.getState();
 		
 		return result;
 	}

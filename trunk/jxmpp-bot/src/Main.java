@@ -1,3 +1,5 @@
+import java.util.List;
+
 import mappers.SyslogMessageMapper;
 import mappers.SyslogSessionMapper;
 
@@ -7,6 +9,7 @@ import syslog.SysLog;
 import syslog.rotate.LogRotateBaseStrategy;
 
 import database.*;
+import domain.syslog.SyslogSession;
 
 
 public class Main {
@@ -16,27 +19,35 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-			
-	    	try {
-	    	
-/*			DatabaseFactory factory = new DatabaseFactory("test_db");
+
+		try {
+
+			/*
+			 * DatabaseFactory factory = new DatabaseFactory("test_db");
+			 * Database db = factory.createDatabase(); db.connect();
+			 * SyslogMessageMapper mapper = new SyslogMessageMapper(db); //...do
+			 * any work with mapper db.disconnect();
+			 */
+
+			DatabaseFactory factory = new DatabaseFactory("test_db");
 			Database db = factory.createDatabase();
-			db.connect();
-			SyslogMessageMapper mapper = new SyslogMessageMapper(db);
-			//...do any work with mapper
-			db.disconnect();*/
 			
-	    	DatabaseFactory factory = new DatabaseFactory("test_db");
-			Database db = factory.createDatabase();
 			db.connect();
 			
-			LogRotateBaseStrategy lgs = new LogRotateBaseStrategy();
+			List<DatabaseRecord> sessions =	db.getRecords("syslog_sessions");
 			
-			SysLog sg = new SysLog(db,lgs, 10000,250000);
-			sg.start();
-			Thread.sleep(25000);
-			sg.stop();
+			System.out.print(sessions.size());
 			
+			db.disconnect();
+			/*
+			 * db.connect();
+			 * 
+			 * LogRotateBaseStrategy lgs = new LogRotateBaseStrategy();
+			 * 
+			 * SysLog sg = new SysLog(db,lgs, 10000,250000); sg.start();
+			 * Thread.sleep(25000); sg.stop();
+			 */
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
