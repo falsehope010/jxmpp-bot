@@ -3,6 +3,8 @@ package database;
 import java.util.ArrayList;
 import java.util.Date;
 
+import utils.DateConverter;
+
 /**
  * Universal database record. It can contains any number of {@link DatabaseRecordField}
  * <p>DatabaseRecord is heavily used by unit testing. You can get field values using 
@@ -44,6 +46,18 @@ public class DatabaseRecord {
 	}
 	
 	/**
+	 * Gets value indicating whether field with given name holds null-reference
+	 * @param fieldName Field name
+	 * @return True if field with given name holds null-reference, otherwise false
+	 * @throws IllegalArgumentException Thrown if field with given name doesn't exist
+	 */
+	public boolean isNull(String fieldName) throws IllegalArgumentException{
+		Object fieldValue = getObject(fieldName);
+		
+		return fieldValue == null;
+	}
+	
+	/**
 	 * Gets field value.
 	 * @param fieldName Field name
 	 * @return Field value if field with given name exists
@@ -69,27 +83,80 @@ public class DatabaseRecord {
 	 * @throws IllegalArgumentException Thrown if field with given name doesn't exist
 	 * @throws ClassCastException Thrown if field value can't be casted to Long
 	 */
-	public Long getLong(String fieldName) throws IllegalArgumentException, ClassCastException {
+	public Long getLong(String fieldName) throws IllegalArgumentException,
+			ClassCastException { // TODO test
 		Object fieldValue = getObject(fieldName);
 
-		if (fieldValue instanceof Long || fieldValue instanceof Integer) {
-			return new Long(fieldValue.toString()); //(Long) fieldValue;
-		} else {
-			throw new ClassCastException("Can't cast field value=["
-					+ fieldValue.toString() + "] to Long");
+		if (fieldValue instanceof Integer) {
+			Integer int_val = (Integer) fieldValue;
+			return new Long(int_val.longValue());
 		}
+
+		if (fieldValue instanceof Long) {
+			return (Long) fieldValue;
+		}
+
+		throw new ClassCastException("Can't cast field value=["
+				+ fieldValue.toString() + "] to Long");
 	}
 	
-	public Date getDate(String fieldName){
+	/**
+	 * Gets field value as {@link Date}
+	 * @param fieldName Field name
+	 * @return Field value as Date
+	 * @throws IllegalArgumentException Thrown if field with given name doesn't exist
+	 * @throws ClassCastException Thrown if field value can't be casted to Long
+	 */
+	public Date getDate(String fieldName) throws IllegalArgumentException,
+			ClassCastException {
 		Object fieldValue = getObject(fieldName);
 
-		/*
-		if (fieldValue instanceof Long || fieldValue instanceof Integer) {
-			return new Long(fieldValue.toString()); //(Long) fieldValue;
-		} else {
-			throw new ClassCastException("Can't cast field value=["
-					+ fieldValue.toString() + "] to Long");
-		}*/
+		if (fieldValue instanceof Long) {
+			Long long_val = (Long) fieldValue;
+			return new Date(long_val);
+		}
+
+		if (fieldValue instanceof Integer) {
+			Long long_val = ((Integer) fieldValue).longValue();
+			return new Date(long_val);
+		}
+
+		if (fieldValue instanceof Date) {
+			return (Date) fieldValue;
+		}
+		
+		if (fieldValue instanceof java.sql.Date){
+			return DateConverter.Convert((java.sql.Date)fieldValue);
+		}
+
+		if (fieldValue instanceof char[]) {
+			char[] char_val = (char[])fieldValue;
+			long long_val = -1;
+			try {
+				long_val = Long.parseLong(new String(char_val));
+			} catch (Exception e) {
+			}
+
+			if (long_val != -1) {
+				return new Date(long_val);
+			}
+		}
+		
+		if (fieldValue instanceof String){
+			String str_val = (String)fieldValue;
+			long long_val = -1;
+			try {
+				long_val = Long.parseLong(str_val);
+			} catch (Exception e) {
+			}
+
+			if (long_val != -1) {
+				return new Date(long_val);
+			}
+		}
+
+		throw new ClassCastException("Can't cast field value=["
+				+ fieldValue.toString() + "] to Date");
 	}
 	
 	/**
