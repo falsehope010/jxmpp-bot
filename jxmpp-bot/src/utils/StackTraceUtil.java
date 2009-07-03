@@ -6,16 +6,16 @@ import java.io.StringWriter;
 public class StackTraceUtil {
 	private StackTraceUtil() {
 	}
-	
-	public static String toString(Throwable t){
+
+	public static String toString(Throwable e) {
 		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw,false);
-		
-		if ( t != null){
-			t.printStackTrace(pw);
+		PrintWriter pw = new PrintWriter(sw, false);
+
+		if (e != null) {
+			e.printStackTrace(pw);
 			pw.flush();
 		}
-		
+
 		return sw.toString();
 	}
 }
