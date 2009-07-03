@@ -408,6 +408,10 @@ public class SysLogTest extends DatabaseBaseTest {
 		db.disconnect();
 	}
 
+	public void testPutMessageSmallPortions() {
+		fail("Not implemented");
+	}
+
 	public void testFlushCache() throws NullPointerException,
 			FileNotFoundException {
 		Database db = prepareDatabase();
@@ -435,6 +439,10 @@ public class SysLogTest extends DatabaseBaseTest {
 		}
 
 		db.disconnect();
+	}
+
+	public void testFlushCacheSmallPortions() {
+		fail("Not implemented");
 	}
 
 	private boolean fillCache(SysLog log, int itemsCount, String categoryName,

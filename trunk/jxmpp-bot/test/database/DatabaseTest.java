@@ -1,9 +1,15 @@
 package database;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import mappers.SyslogSessionMapper;
+import utils.RandomUtils;
 import utils.StackTraceUtil;
 import base.DatabaseBaseTest;
 import domain.syslog.SyslogSession;
@@ -186,6 +192,148 @@ public class DatabaseTest extends DatabaseBaseTest {
 		db2.disconnect();
 	}
 
+	public void testCountRecords() throws NullPointerException,
+			FileNotFoundException {
+		Database db = prepareDatabase();
+
+		assertTrue(createTestTable(db));
+
+		// insert several records
+		final int recordsCount = 10;
+
+		appendTestTable(db, recordsCount);
+
+		// now check how many records has been inserted into test database table
+		assertEquals(countRecordsSql(db, testTableName), recordsCount);
+
+		assertTrue(dropTestTable(db));
+
+		db.disconnect();
+	}
+
+	public void testTruncateTable() throws NullPointerException,
+			FileNotFoundException {
+		Database db = prepareDatabase();
+
+		assertTrue(createTestTable(db));
+
+		final int recordsCount = 10;
+
+		appendTestTable(db, recordsCount);
+
+		// now check how many records has been inserted into test database table
+		assertEquals(countRecordsSql(db, testTableName), recordsCount);
+
+		assertTrue(db.truncateTable(testTableName));
+
+		assertEquals("Table is truncated, no records", countRecordsSql(db,
+				testTableName), 0);
+
+		db.disconnect();
+	}
+
+	public void testConnect() {
+
+		// Also tests disconnect and isConnected()
+
+		String nullDbName = null;
+		String rndDbName = RandomUtils.getRandomString(1024);
+
+		Database db = null;
+
+		try {
+			db = new Database(nullDbName);
+		} catch (Exception e) {
+			assertTrue(e instanceof NullPointerException);
+		}
+
+		try {
+			db = new Database(rndDbName);
+		} catch (Exception e) {
+			assertTrue(e instanceof FileNotFoundException);
+		}
+
+		// create valid db
+		try {
+			db = new Database(testDbName);
+
+			assertNotNull(db);
+			assertFalse(db.isConnected());
+		} catch (Exception e) {
+			fail(StackTraceUtil.toString(e));
+		}
+
+		assertTrue(db.connect());
+		assertTrue(db.isConnected());
+
+		db.disconnect();
+
+		assertFalse(db.isConnected());
+	}
+
+	public void testConnectNonDbFile() {
+		File existingNonDbFile = findExistingNonDbFile();
+
+		assertNotNull(existingNonDbFile);
+		assertTrue(existingNonDbFile.exists());
+
+		Database db = null;
+
+		try {
+			db = new Database(existingNonDbFile.toString());
+			System.out.print(existingNonDbFile.toString());
+			assertNotNull(db);
+			assertFalse(db.isConnected());
+		} catch (Exception e) {
+			fail(StackTraceUtil.toString(e));
+		}
+
+		assertFalse(db.connected);
+	}
+
+	public void testLastInsertRowID() throws NullPointerException,
+			FileNotFoundException {
+		Database db = prepareDatabase();
+
+		assertEquals("Database not connected", db.LastInsertRowID(), 0);
+
+		db.disconnect();
+
+		fail("Not implemented yet");
+	}
+
+	public void testGetConnection() {
+		fail("Not implemented");
+	}
+
+	public void testGetDbFileSize() {
+		fail("Not implemented");
+	}
+
+	public void testVacuum() {
+		fail("Not implemented");
+	}
+
+	public void testSequenceExists() {
+		fail("Not implemented");
+	}
+
+	public void testGetSequenceValue() {
+		fail("Not implemented");
+	}
+
+	public void testSetSequenceValue() {
+		fail("Not implemented");
+	}
+
+	public void testGetAttributeNames() {
+		fail("Not implemented");
+	}
+
+	public void testGetRecords() {
+		fail("Not implemented");
+	}
+
 	private boolean getAutoCommit(Database db) {
 		boolean result = false;
 		try {
@@ -193,6 +341,120 @@ public class DatabaseTest extends DatabaseBaseTest {
 		} catch (Exception e) {
 			fail(StackTraceUtil.toString(e));
 		}
+		return result;
+	}
+
+	/**
+	 * Creates new table in database.
+	 * 
+	 * @return True if succeded, false otherwise
+	 */
+	private boolean createTestTable(Database db) {
+		boolean result = false;
+
+		String createTableSql = "CREATE TABLE IF NOT EXISTS \"" + testTableName
+				+ "\" (\"id\" INTEGER);";
+
+		Statement st = null;
+
+		try {
+			Connection conn = db.getConnection();
+			st = conn.createStatement();
+
+			st.execute(createTableSql);
+
+			result = true;
+		} catch (Exception e) {
+			fail(StackTraceUtil.toString(e));
+		} finally {
+			db.Cleanup(st);
+		}
+
+		return result;
+	}
+
+	/**
+	 * Drop test table with.
+	 * 
+	 * @param db
+	 * @return
+	 */
+	private boolean dropTestTable(Database db) {
+		boolean result = false;
+
+		String createTableSql = "DROP TABLE test_table;";
+
+		Statement st = null;
+
+		try {
+			Connection conn = db.getConnection();
+			st = conn.createStatement();
+
+			st.execute(createTableSql);
+
+			result = true;
+		} catch (Exception e) {
+			fail(StackTraceUtil.toString(e));
+		} finally {
+			db.Cleanup(st);
+		}
+
+		return result;
+	}
+
+	private boolean appendTestTable(Database db, int recordsCount) {
+		boolean result = false;
+
+		if (recordsCount >= 0) {
+			PreparedStatement pr = null;
+			try {
+				Connection conn = db.getConnection();
+				conn.setAutoCommit(false);
+				pr = conn.prepareStatement("insert into " + testTableName
+						+ "(id) values(?);");
+
+				for (int i = 0; i < recordsCount; ++i) {
+					pr.setInt(1, i);
+					pr.executeUpdate();
+				}
+
+				conn.commit();
+				conn.setAutoCommit(true);
+			} catch (Exception e) {
+				fail(StackTraceUtil.toString(e));
+			} finally {
+				db.Cleanup(pr);
+			}
+		}
+
+		return result;
+	}
+
+	private long countRecordsSql(Database db, String tableName) {
+		long result = -1;
+
+		Statement st = null;
+		ResultSet rs = null;
+
+		try {
+			Connection conn = db.getConnection();
+			st = conn.createStatement();
+
+			rs = st.executeQuery("select count(1) from " + testTableName + ";");
+
+			if (rs.next()) {
+				long tmpCnt = rs.getLong(1);
+
+				if (tmpCnt >= 0) {
+					result = tmpCnt;
+				}
+			}
+		} catch (Exception e) {
+			fail(StackTraceUtil.toString(e));
+		} finally {
+			db.Cleanup(st, rs);
+		}
+
 		return result;
 	}
 
@@ -210,5 +472,19 @@ public class DatabaseTest extends DatabaseBaseTest {
 		return result;
 	}
 
+	private File findExistingNonDbFile() {
+		File result = null;
+
+		try {
+			result = File.createTempFile("name", ".ext");
+			result.deleteOnExit();
+		} catch (Exception e) {
+			fail(StackTraceUtil.toString(e));
+		}
+
+		return result;
+	}
+
 	final String tableName = "syslog_sessions";
+	final String testTableName = "test_table";
 }

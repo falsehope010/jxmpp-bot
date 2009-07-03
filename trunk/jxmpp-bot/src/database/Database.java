@@ -92,7 +92,8 @@ public class Database {
 	/**
 	 * Returns last inserted rowid (after insert in any table in database)
 	 * 
-	 * @return rowid if any insert was performed before call, 0 otherwise
+	 * @return rowid if any insert was performed before call, 0 otherwise. Note:
+	 *         if there is no opened connection also returns 0
 	 */
 	public long LastInsertRowID() {
 		long result = 0;
