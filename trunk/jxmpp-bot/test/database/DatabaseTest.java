@@ -8,11 +8,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import mappers.SyslogMessageMapper;
 import mappers.SyslogSessionMapper;
 import utils.RandomUtils;
 import utils.StackTraceUtil;
 import base.DatabaseBaseTest;
+import domain.syslog.Message;
 import domain.syslog.SyslogSession;
+import exceptions.DatabaseNotConnectedException;
 
 public class DatabaseTest extends DatabaseBaseTest {
 
@@ -351,6 +354,52 @@ public class DatabaseTest extends DatabaseBaseTest {
 
     public void testGetRecords() {
 	fail("Not implemented");
+    }
+
+    public void testPerformance() throws NullPointerException,
+	    FileNotFoundException, DatabaseNotConnectedException {
+	Database db = prepareDatabase();
+
+	SyslogMessageMapper mapper = new SyslogMessageMapper(db);
+	SyslogSessionMapper s_mapper = new SyslogSessionMapper(db);
+	SyslogSession session = new SyslogSession();
+	assertTrue(s_mapper.save(session));
+
+	int[] recordsCount = new int[] { 500, 1000, 1500, 2000, 2500, 3000,
+		3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000,
+		8500, 9000, 9500, 10000 };
+
+	int[] recordsCount2 = new int[] { 10, 50, 75, 100, 125, 150, 200, 250,
+		300, 350, 400, 450, 500 };
+
+	final int msgLength = 128;
+	final int attributeLength = 16;
+
+	long startTime = System.currentTimeMillis();
+
+	for (int currentRecordsCount : recordsCount2) {
+	    db.truncateTable("syslog");
+	    db.vacuum();
+
+	    for (int i = 0; i < currentRecordsCount; ++i) {
+		Message msg = new Message(RandomUtils
+			.getRandomString(msgLength), RandomUtils
+			.getRandomString(attributeLength), RandomUtils
+			.getRandomString(attributeLength), RandomUtils
+			.getRandomString(attributeLength), session);
+		mapper.save(msg);
+	    }
+
+	    long endTime = System.currentTimeMillis();
+
+	    System.out.println();
+	    System.out.print("Messages count: ");
+	    System.out.println(currentRecordsCount);
+	    System.out.print("Total time (ns): ");
+	    System.out.println(endTime - startTime);
+	}
+
+	db.disconnect();
     }
 
     private boolean getAutoCommit(Database db) {
