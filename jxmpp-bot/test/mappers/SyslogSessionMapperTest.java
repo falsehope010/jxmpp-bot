@@ -1,11 +1,19 @@
 package mappers;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import org.junit.Test;
 
 import utils.DateConverter;
 import base.DatabaseBaseTest;
@@ -18,6 +26,7 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
     static final String tableName = "syslog_sessions";
     static final int recordsCount = 5;
 
+    @Test
     public void testSyslogSessionMapper() throws NullPointerException,
 	    FileNotFoundException, DatabaseNotConnectedException {
 	SyslogSessionMapper testMapper = null;
@@ -48,12 +57,14 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testSave() throws NullPointerException, FileNotFoundException,
 	    InterruptedException, DatabaseNotConnectedException {
 	testInsertSession();
 	testUpdateSession();
     }
 
+    @Test
     public void testGetSessions() throws NullPointerException,
 	    FileNotFoundException, SQLException, InterruptedException,
 	    DatabaseNotConnectedException {
@@ -106,6 +117,7 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testInsertSession() throws NullPointerException,
 	    FileNotFoundException, InterruptedException,
 	    DatabaseNotConnectedException {
@@ -135,6 +147,7 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testUpdateSession() throws NullPointerException,
 	    FileNotFoundException, DatabaseNotConnectedException {
 
@@ -175,6 +188,7 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testInsert10Records() throws NullPointerException,
 	    FileNotFoundException, SQLException, DatabaseNotConnectedException {
 	Database db = initDb();
@@ -194,6 +208,7 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testGetLatestSession() throws NullPointerException,
 	    FileNotFoundException, DatabaseNotConnectedException {
 	Database db = initDb();
@@ -249,6 +264,7 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testDelete() throws NullPointerException,
 	    FileNotFoundException, DatabaseNotConnectedException {
 	Database db = initDb();
@@ -274,10 +290,6 @@ public class SyslogSessionMapperTest extends DatabaseBaseTest {
 	assertTrue(db.countRecords("syslog_sessions") == 0);
 
 	db.disconnect();
-    }
-
-    public void testEnd() {
-	assertTrue(true);
     }
 
     /**

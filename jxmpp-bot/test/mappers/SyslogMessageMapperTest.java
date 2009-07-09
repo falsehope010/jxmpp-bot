@@ -1,13 +1,22 @@
 package mappers;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.FileNotFoundException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import utils.StackTraceUtil;
+import org.junit.Test;
+
 import base.DatabaseBaseTest;
 import database.Database;
 import database.DatabaseRecord;
@@ -19,6 +28,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 
     static final String tableName = "syslog";
 
+    @Test
     public void testSave() throws NullPointerException, FileNotFoundException,
 	    IllegalArgumentException, DatabaseNotConnectedException {
 
@@ -116,6 +126,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testSaveMany() throws NullPointerException,
 	    FileNotFoundException, DatabaseNotConnectedException {
 	Database db = prepareDatabase();
@@ -161,6 +172,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testDelete() throws NullPointerException,
 	    FileNotFoundException, IllegalArgumentException,
 	    DatabaseNotConnectedException {
@@ -199,6 +211,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testSyslogMessageMapper() throws NullPointerException,
 	    FileNotFoundException, IllegalArgumentException,
 	    DatabaseNotConnectedException {
@@ -232,6 +245,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testGetMessages() throws NullPointerException,
 	    FileNotFoundException, IllegalArgumentException,
 	    InterruptedException, DatabaseNotConnectedException {
@@ -294,6 +308,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     @SuppressWarnings("null")
     public void testDeleteBelow() throws NullPointerException,
 	    FileNotFoundException {
@@ -314,7 +329,9 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	final int recordsCount = 250;
 	final int leftCount = 100; // how many messages should be left in db
 
-	assertTrue(insertTestMessages(db, mapper, recordsCount));
+	assertTrue(insertTestSyslogMessages(db, mapper, recordsCount));
+
+	assertEquals(countRecords(db, "syslog"), recordsCount);
 
 	assertNotNull(mapper);
 	assertTrue(mapper.deleteBelow(leftCount));
@@ -322,6 +339,64 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	assertEquals(db.countRecords("syslog"), leftCount);
 
 	assertNotNull(mapper);
+
+	db.disconnect();
+    }
+
+    @Test
+    @SuppressWarnings("null")
+    public void testDeleteOlder() throws NullPointerException,
+	    FileNotFoundException, InterruptedException {
+	Database db = prepareDatabase();
+	assertTrue(truncateTable(db, "syslog"));
+	clearDependentTables(db);
+
+	// prepare syslog message mapper
+	SyslogMessageMapper mapper = null;
+	try {
+	    mapper = new SyslogMessageMapper(db);
+	} catch (Exception e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+	assertNotNull(mapper);
+
+	// insert data in two portions with small delay between them
+
+	final int firstBlockSize = 3;
+	final int secondBlockSize = 5;
+
+	Date startDate = getCurrentDate();
+
+	assertTrue(insertTestSyslogMessages(db, mapper, firstBlockSize));
+	assertEquals(countRecords(db, "syslog"), firstBlockSize);
+
+	Date beforePauseDate = getCurrentDate();
+
+	Thread.sleep(300);
+
+	Date afterPauseDate = getCurrentDate();
+
+	Thread.sleep(100);
+
+	assertTrue(insertTestSyslogMessages(db, mapper, secondBlockSize));
+	assertEquals(countRecords(db, "syslog"), firstBlockSize
+		+ secondBlockSize);
+
+	Date endDate = getCurrentDate();
+
+	assertTrue(endDate.after(startDate));
+	assertTrue(endDate.after(afterPauseDate));
+	assertTrue(endDate.after(beforePauseDate));
+
+	assertTrue(afterPauseDate.after(beforePauseDate));
+	assertTrue(afterPauseDate.after(startDate));
+
+	assertTrue(beforePauseDate.after(startDate));
+
+	assertTrue(mapper.deleteOlder(afterPauseDate));
+
+	assertEquals(countRecords(db, "syslog"), secondBlockSize);
 
 	db.disconnect();
     }
@@ -409,49 +484,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	return result;
     }
 
-    /**
-     * Inserts specified count of syslog messages into database
-     * 
-     * @param db
-     *            Database which will be used to create session and assertation
-     * @param mapper
-     *            Mapper which will be used to insert messages into database
-     * @param recordsCount
-     *            Total number of records that should be inserted into database
-     * @return true if succeeded, false otherwise
-     */
-    private boolean insertTestMessages(Database db, SyslogMessageMapper mapper,
-	    int recordsCount) {
-	boolean result = false;
-
-	if (recordsCount >= 0) {
-	    try {
-		String text = "testMessage";
-		String category = "category";
-		String sender = "sender";
-		String type = "type";
-
-		SyslogSessionMapper sessionMapper = new SyslogSessionMapper(db);
-		SyslogSession session = new SyslogSession();
-		assertTrue(sessionMapper.save(session));
-
-		assertTrue(db.setAutoCommit(false));
-		for (int i = 0; i < recordsCount; ++i) {
-		    Message msg = new Message(text, category, type, sender,
-			    session);
-		    assertTrue(mapper.save(msg));
-		}
-		assertTrue(db.commit());
-		assertTrue(db.setAutoCommit(true));
-
-		assertEquals(db.countRecords("syslog"), recordsCount);
-
-		result = true;
-	    } catch (Exception e) {
-		fail(StackTraceUtil.toString(e));
-	    }
-	}
-
-	return result;
+    private Date getCurrentDate() {
+	return new Date(System.currentTimeMillis());
     }
 }

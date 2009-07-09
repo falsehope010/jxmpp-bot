@@ -1,5 +1,11 @@
 package database;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.Connection;
@@ -10,6 +16,10 @@ import java.sql.Statement;
 
 import mappers.SyslogMessageMapper;
 import mappers.SyslogSessionMapper;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
 import utils.RandomUtils;
 import utils.StackTraceUtil;
 import base.DatabaseBaseTest;
@@ -19,6 +29,7 @@ import exceptions.DatabaseNotConnectedException;
 
 public class DatabaseTest extends DatabaseBaseTest {
 
+    @Test
     public void testSetAutoCommit() throws NullPointerException,
 	    FileNotFoundException {
 
@@ -52,6 +63,7 @@ public class DatabaseTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testGetAutoCommit() throws NullPointerException,
 	    FileNotFoundException {
 	Database db = prepareDatabase();
@@ -86,6 +98,7 @@ public class DatabaseTest extends DatabaseBaseTest {
 	}
     }
 
+    @Test
     public void testCommitAutocommitEnabled() throws NullPointerException,
 	    FileNotFoundException {
 	Database db = prepareDatabase();
@@ -109,6 +122,7 @@ public class DatabaseTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testCommitAutocommitDisabled() throws NullPointerException,
 	    FileNotFoundException {
 	Database db = prepareDatabase();
@@ -142,6 +156,7 @@ public class DatabaseTest extends DatabaseBaseTest {
 	db2.disconnect();
     }
 
+    @Test
     public void testRollbackAutocommitEnabled() throws NullPointerException,
 	    FileNotFoundException {
 	Database db = prepareDatabase();
@@ -162,6 +177,7 @@ public class DatabaseTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testRollbackAutocommitDisabled() throws NullPointerException,
 	    FileNotFoundException {
 	Database db = prepareDatabase();
@@ -195,6 +211,7 @@ public class DatabaseTest extends DatabaseBaseTest {
 	db2.disconnect();
     }
 
+    @Test
     public void testCountRecords() throws NullPointerException,
 	    FileNotFoundException {
 	Database db = prepareDatabase();
@@ -214,6 +231,7 @@ public class DatabaseTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testTruncateTable() throws NullPointerException,
 	    FileNotFoundException {
 	Database db = prepareDatabase();
@@ -234,6 +252,7 @@ public class DatabaseTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     @SuppressWarnings("null")
     public void testConnect() {
 
@@ -274,6 +293,7 @@ public class DatabaseTest extends DatabaseBaseTest {
 	assertFalse(db.isConnected());
     }
 
+    @Test
     @SuppressWarnings("null")
     public void testConnectNonDbFile() {
 	File existingNonDbFile = findExistingNonDbFile();
@@ -295,6 +315,7 @@ public class DatabaseTest extends DatabaseBaseTest {
 	assertFalse(db.connected);
     }
 
+    @Test
     public void testLastInsertRowID() throws NullPointerException,
 	    FileNotFoundException {
 	Database db = prepareDatabase();
@@ -324,38 +345,48 @@ public class DatabaseTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Test
     public void testGetConnection() {
 	fail("Not implemented");
     }
 
+    @Test
     public void testGetDbFileSize() {
 	fail("Not implemented");
     }
 
+    @Test
     public void testVacuum() {
 	fail("Not implemented");
     }
 
+    @Test
     public void testSequenceExists() {
 	fail("Not implemented");
     }
 
+    @Test
     public void testGetSequenceValue() {
 	fail("Not implemented");
     }
 
+    @Test
     public void testSetSequenceValue() {
 	fail("Not implemented");
     }
 
+    @Test
     public void testGetAttributeNames() {
 	fail("Not implemented");
     }
 
+    @Test
     public void testGetRecords() {
 	fail("Not implemented");
     }
 
+    @Ignore
+    @Test
     public void testPerformance() throws NullPointerException,
 	    FileNotFoundException, DatabaseNotConnectedException {
 	Database db = prepareDatabase();
@@ -365,9 +396,11 @@ public class DatabaseTest extends DatabaseBaseTest {
 	SyslogSession session = new SyslogSession();
 	assertTrue(s_mapper.save(session));
 
-	int[] recordsCount = new int[] { 500, 1000, 1500, 2000, 2500, 3000,
-		3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000,
-		8500, 9000, 9500, 10000 };
+	/*
+	 * int[] recordsCount = new int[] { 500, 1000, 1500, 2000, 2500, 3000,
+	 * 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500,
+	 * 9000, 9500, 10000 };
+	 */
 
 	int[] recordsCount2 = new int[] { 10, 50, 75, 100, 125, 150, 200, 250,
 		300, 350, 400, 450, 500 };

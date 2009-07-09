@@ -2,7 +2,9 @@ package syslog.rotate;
 
 import java.util.Date;
 
+import mappers.SyslogMessageMapper;
 import database.Database;
+import exceptions.DatabaseNotConnectedException;
 
 /**
  * Skeletal implementation class for ILogRotateStrategy
@@ -36,12 +38,24 @@ public abstract class AbstractLogRotateStrategy implements ILogRotateStrategy {
     /**
      * Sole constructor. For invocation by subclass constructors, typically
      * implicit.
+     * <p>
+     * Checks database and creates {@link SyslogMessageMapper} which will be
+     * possible used by subclasses
      * 
      * @param db
      *            Database instance which will be used by strategy
+     * @throws DatabaseNotConnectedException
+     *             Thrown if database parameter passed to constructor is not in
+     *             connected state
+     * @throws NullPointerException
+     *             Thrown if database parameter passed to constructor is null
+     *             reference
+     * @see #getMessageMapper()
      */
-    protected AbstractLogRotateStrategy(Database db) {
+    protected AbstractLogRotateStrategy(Database db)
+	    throws NullPointerException, DatabaseNotConnectedException {
 	this.db = db;
+	messageMapper = new SyslogMessageMapper(db);
     }
 
     /**
@@ -63,7 +77,17 @@ public abstract class AbstractLogRotateStrategy implements ILogRotateStrategy {
 	rotationsCounter = count;
     }
 
+    /**
+     * Gets underlying syslog message mapper.
+     * 
+     * @return Valid {@link SyslogMessageMapper}
+     */
+    protected SyslogMessageMapper getMessageMapper() {
+	return messageMapper;
+    }
+
     Database db;
     Date lastRunDate;
     int rotationsCounter;
+    SyslogMessageMapper messageMapper;
 }
