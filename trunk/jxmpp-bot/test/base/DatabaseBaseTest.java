@@ -1,12 +1,21 @@
 package base;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.FileNotFoundException;
 
-import junit.framework.TestCase;
+import mappers.SyslogMessageMapper;
+import mappers.SyslogSessionMapper;
+import utils.StackTraceUtil;
 import database.Database;
 import database.DatabaseFactory;
+import domain.syslog.Message;
+import domain.syslog.SyslogSession;
 
-public class DatabaseBaseTest extends TestCase {
+public class DatabaseBaseTest {
 
     public static final String testDbName = "test/test_db";
 
@@ -74,5 +83,51 @@ public class DatabaseBaseTest extends TestCase {
     protected void checkDb(Database db) {
 	assertNotNull(db);
 	assertTrue(db.isConnected());
+    }
+
+    /**
+     * Inserts specified count of syslog messages into database
+     * 
+     * @param db
+     *            Database which will be used to create session and assertation
+     * @param mapper
+     *            Mapper which will be used to insert messages into database
+     * @param recordsCount
+     *            Total number of records that should be inserted into database
+     * @return true if succeeded, false otherwise
+     */
+    protected boolean insertTestSyslogMessages(Database db,
+	    SyslogMessageMapper mapper, int recordsCount) {
+	boolean result = false;
+
+	if (recordsCount >= 0) {
+	    try {
+		String text = "testMessage";
+		String category = "category";
+		String sender = "sender";
+		String type = "type";
+
+		SyslogSessionMapper sessionMapper = new SyslogSessionMapper(db);
+		SyslogSession session = new SyslogSession();
+		assertTrue(sessionMapper.save(session));
+
+		assertTrue(db.setAutoCommit(false));
+		for (int i = 0; i < recordsCount; ++i) {
+		    Message msg = new Message(text, category, type, sender,
+			    session);
+		    assertTrue(mapper.save(msg));
+		}
+		assertTrue(db.commit());
+		assertTrue(db.setAutoCommit(true));
+
+		// assertEquals(db.countRecords("syslog"), recordsCount);
+
+		result = true;
+	    } catch (Exception e) {
+		fail(StackTraceUtil.toString(e));
+	    }
+	}
+
+	return result;
     }
 }

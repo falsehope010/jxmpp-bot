@@ -6,6 +6,6 @@
 	<classpathentry kind="lib" path="D:/Projects/jxmpp-bot/lib/smackx.jar"/>
 	<classpathentry kind="lib" path="D:/Projects/jxmpp-bot/lib/smack.jar"/>
 	<classpathentry kind="lib" path="D:/Projects/jxmpp-bot/lib/sqlitejdbc-v054.jar" sourcepath="D:/Projects/jxmpp-bot/lib/sqlitejdbc-v054.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
