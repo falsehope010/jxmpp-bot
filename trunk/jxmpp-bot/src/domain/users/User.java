@@ -1,6 +1,7 @@
 package domain.users;
 
 import java.util.ArrayList;
+
 import domain.DomainObject;
 
 public class User extends DomainObject {
@@ -10,10 +11,15 @@ public class User extends DomainObject {
 
 	/**
 	 * Creates new User
-	 * @param realName User real name (any combination of name, surname, lastname)
-	 * @param jid User JID (jabber identifier)
-	 * @param accessLevel Access level of user (affects permissions)
-	 * @throws NullPointerException Thrown if accessLevel or jid parameter is null
+	 * 
+	 * @param realName
+	 *            User real name (any combination of name, surname, lastname)
+	 * @param jid
+	 *            User JID (jabber identifier)
+	 * @param accessLevel
+	 *            Access level of user (affects permissions)
+	 * @throws NullPointerException
+	 *             Thrown if accessLevel or jid parameter is null
 	 */
 	public User(String realName, String jid, AccessLevel accessLevel)
 			throws NullPointerException {
@@ -38,7 +44,9 @@ public class User extends DomainObject {
 
 	/**
 	 * Gets user real name. Can be null
-	 * @return User's real name (any combination of name, surname, last name and so on
+	 * 
+	 * @return User's real name (any combination of name, surname, last name and
+	 *         so on
 	 */
 	public String getRealName() {
 		return _real_name;
@@ -46,6 +54,7 @@ public class User extends DomainObject {
 
 	/**
 	 * Gets user access level. Can't be null
+	 * 
 	 * @return User access level
 	 */
 	public AccessLevel getAccessLevel() {
@@ -54,7 +63,9 @@ public class User extends DomainObject {
 
 	/**
 	 * Sets new user real name. Can be null
-	 * @param realName New user's real name
+	 * 
+	 * @param realName
+	 *            New user's real name
 	 */
 	public void setRealName(String realName) {
 		_real_name = realName;
@@ -62,8 +73,11 @@ public class User extends DomainObject {
 
 	/**
 	 * Sets new user access level. Can't be null
-	 * @param accessLevel New user's access level.
-	 * @throws NullPointerException Thrown if you passed null accessLevel parameter
+	 * 
+	 * @param accessLevel
+	 *            New user's access level.
+	 * @throws NullPointerException
+	 *             Thrown if you passed null accessLevel parameter
 	 */
 	public void setAccessLevel(AccessLevel accessLevel)
 			throws NullPointerException {
@@ -77,6 +91,7 @@ public class User extends DomainObject {
 
 	/**
 	 * Gets collection of JIDs for user
+	 * 
 	 * @return JID collection of user
 	 */
 	public ArrayList<String> getJidCollection() {
@@ -85,16 +100,20 @@ public class User extends DomainObject {
 
 	/**
 	 * Gets jid count. User can have multiple jids
+	 * 
 	 * @return Jid count
 	 */
-	public int getJidCount(){
+	public int getJidCount() {
 		return _jidCollection.size();
 	}
-	
+
 	/**
 	 * Adds JID to user's jid collection. Duplicates will be ignored
-	 * @param JID JID to be added into user's jid collection. Can't be null
-	 * @throws NullPointerException Thrown if JID to be added is null
+	 * 
+	 * @param JID
+	 *            JID to be added into user's jid collection. Can't be null
+	 * @throws NullPointerException
+	 *             Thrown if JID to be added is null
 	 */
 	public void addJID(String JID) throws NullPointerException {
 
@@ -108,7 +127,9 @@ public class User extends DomainObject {
 
 	/**
 	 * Removes JID from user's jid collection.
-	 * @param JID JID to be removed, can be null
+	 * 
+	 * @param JID
+	 *            JID to be removed, can be null
 	 */
 	public void removeJID(String JID) {
 		if (_jidCollection.contains(JID)) {
@@ -118,54 +139,57 @@ public class User extends DomainObject {
 
 	/**
 	 * Checks whether user has given JID
-	 * @param JID JID to be checked
+	 * 
+	 * @param JID
+	 *            JID to be checked
 	 * @return True if user has given JID, false otherwise
 	 */
 	public boolean hasJID(String JID) {
 		return _jidCollection.contains(JID);
 	}
-	
-	public void DebugPrint(){
+
+	public void DebugPrint() {
 		System.out.print("User id: " + getID() + '\n');
 		System.out.print("User name: " + _real_name + '\n');
 		System.out.print("User access level: " + _accessLevel.value + '\n');
-		
-		for ( String jid : _jidCollection){
+
+		for (String jid : _jidCollection) {
 			System.out.print("   " + jid + '\n');
 		}
 	}
 
 	/**
 	 * Checks two users for equality
-	 * @param rhs User with which equality will be checked
+	 * 
+	 * @param rhs
+	 *            User with which equality will be checked
 	 * @return True if users are equal, false otherwise
 	 */
-	public boolean equals(User rhs){
+	public boolean equals(User rhs) {
 		boolean result = false;
-		
+
 		try {
-			
-			if ( getID() == rhs.getID() && _real_name.equals(rhs.getRealName())){
+
+			if (getID() == rhs.getID() && _real_name.equals(rhs.getRealName())) {
 				int rhs_level = rhs.getAccessLevel().getValue();
-				
-				if ( _accessLevel.getValue() == rhs_level){
-					
+
+				if (_accessLevel.getValue() == rhs_level) {
+
 					ArrayList<String> rhsJidCollection = rhs.getJidCollection();
-					//compare jids
-					if (getJidCount() == rhsJidCollection.size()){
-						
-						//compare each JID one by one
-						result =
-							( _jidCollection.containsAll(rhsJidCollection) &&
-									_jidCollection.containsAll(rhsJidCollection));
+					// compare jids
+					if (getJidCount() == rhsJidCollection.size()) {
+
+						// compare each JID one by one
+						result = (_jidCollection.containsAll(rhsJidCollection) && _jidCollection
+								.containsAll(rhsJidCollection));
 					}
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
+
 		return result;
 	}
-	
 
 }
