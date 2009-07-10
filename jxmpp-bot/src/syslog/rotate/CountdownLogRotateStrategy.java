@@ -13,17 +13,24 @@ import exceptions.DatabaseNotConnectedException;
  * @author tillias
  * 
  */
-public class CountdownLogRotateStrategy extends AbstractLogRotateStrategy {
+public class CountdownLogRotateStrategy extends IterativeLogRotateStrategy {
 
 	/**
 	 * Creates new instance of strategy.
 	 * 
 	 * @param db
 	 *            Database which will be used to perform log rotate
+	 *            <p>
 	 * @param keptMessages
 	 *            Total number of messages which will be kept in database. If
 	 *            parameter is less or equal to zero
 	 *            {@link #DEFAULT_MESSAGES_KEPT} will be used
+	 *            <p>
+	 * @param iterationTime
+	 *            Time between two nearest rotations. See
+	 *            {@link IterativeLogRotateStrategy}
+	 *            <p>
+	 * 
 	 * @throws NullPointerException
 	 *             Thrown if database parameter passed to constructor is not in
 	 *             connected state
@@ -31,9 +38,10 @@ public class CountdownLogRotateStrategy extends AbstractLogRotateStrategy {
 	 *             Thrown if database parameter passed to constructor is null
 	 *             reference
 	 */
-	public CountdownLogRotateStrategy(Database db, long keptMessages)
-			throws NullPointerException, DatabaseNotConnectedException {
-		super(db);
+	public CountdownLogRotateStrategy(Database db, long keptMessages,
+			long iterationTime) throws NullPointerException,
+			DatabaseNotConnectedException {
+		super(db, iterationTime);
 
 		if (keptMessages > 0)
 			this.keptMessages = keptMessages;
@@ -64,6 +72,9 @@ public class CountdownLogRotateStrategy extends AbstractLogRotateStrategy {
 			} else {
 				result = true;
 			}
+
+			updateRotationDate();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
