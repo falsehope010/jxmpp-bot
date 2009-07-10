@@ -1,7 +1,5 @@
 package syslog.rotate;
 
-import java.util.Date;
-
 import mappers.SyslogMessageMapper;
 import database.Database;
 import exceptions.DatabaseNotConnectedException;
@@ -13,16 +11,6 @@ import exceptions.DatabaseNotConnectedException;
  * 
  */
 public abstract class AbstractLogRotateStrategy implements ILogRotateStrategy {
-
-	/**
-	 * Gets latest date when log rotation was performed
-	 * 
-	 * @return Latest date of log rotation. If rotation was never performed
-	 *         returns null
-	 */
-	public Date getLastRotateDate() {
-		return lastRunDate;
-	}
 
 	/**
 	 * Gets value indicating how many times log rotation was performed
@@ -47,7 +35,6 @@ public abstract class AbstractLogRotateStrategy implements ILogRotateStrategy {
 		boolean result = true;
 
 		++rotationsCounter;
-		lastRunDate = new Date(System.currentTimeMillis());
 
 		return result;
 	}
@@ -76,16 +63,6 @@ public abstract class AbstractLogRotateStrategy implements ILogRotateStrategy {
 	}
 
 	/**
-	 * Sets latest date when log rotation was performed
-	 * 
-	 * @param latestDate
-	 *            Log rotation latest date
-	 */
-	protected void setLastRotateDate(Date latestDate) {
-		lastRunDate = latestDate;
-	}
-
-	/**
 	 * Sets log rotations counter.
 	 * 
 	 * @param count
@@ -104,7 +81,6 @@ public abstract class AbstractLogRotateStrategy implements ILogRotateStrategy {
 	}
 
 	Database db;
-	Date lastRunDate;
 	int rotationsCounter;
 	SyslogMessageMapper messageMapper;
 }
