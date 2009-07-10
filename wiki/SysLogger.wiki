@@ -1,4 +1,4 @@
-#labels Phase-Design
+#labels Phase-Implementation
 = Overview =
 
 System logger performs logging of system events such as various errors, connection attempts and failures etc. It has nothing with group-chat / private-chat logging, though it may be used for logging system xmpp messages (e.g. error auth messages). 
@@ -33,12 +33,30 @@ http://jxmpp-bot.googlecode.com/svn/trunk/jxmpp-bot/wiki_images/Syslog%20databas
 
 = Implementation =
 
+http://jxmpp-bot.googlecode.com/svn/trunk/jxmpp-bot/wiki_images/Syslog%20Class-Diagram.png
+
 == Creating new log messages ==
 
-Syslog is active object. In predefined intervals (through system configuration) it initiates log cleaning activity. Interval mustn't be too small due to performance issues.
-By default log cleaning interval is 10 minutes. This means that each 10 minutes syslog checks if there are any _old_ log messages which should be cleaned from database and memory (if they are cached)
+You can put message to syslog using this method:
+{{{
+ public boolean putMessage(String text, String sender, String category,
+	    String type)
+}}}
 
-Syslog makes decision whether the record is old or not by the use of _selected strategy of cleaning_. 
+Message doesn't go directly into database but instead is saved into internal cache. This is due to sqlite's performance reasons (it is much faster to perform batch insert of 500-1000 messages the inserting them one by one).
+
+!Syslog is active object. It manages it's own internal timer which is used to determine when internal cache should be flushed and all messages should be actually inserted into database. Syslog makes decision whether the record is old or not by the use of its _ILogRotateStrategy_. 
+
+Concrete strategy provides implementation of log rotation procedure. It also manages it's execution timeline. Syslog gets next log rotation date by the use of concrete strategy. This is more flexible then using additional timer inside syslog and perform rotation in fixed intervals. For example strategy can gather some stats about database during rotation and set next execution interval less then previois one if database is growing too fast.
+
+*[TODO]* http://code.google.com/p/jxmpp-bot/issues/detail?id=22&colspec=ID%20Type%20Status%20Priority%20Modified%20Owner%20Summary
+
+!SysLog also performs sessions management. Each time you start syslog (after construction) or restart it, !SysLog automatically creates new !SyslogSession object and maps it into database. So when you put message, you actually don't need to specify session to which this message belongs.
+
+*[OBSOLETE]*
+_By default log cleaning interval is 10 minutes. This means that each 10 minutes syslog checks if there are any _old_ log messages which should be cleaned from database and memory (if they are cached)_
+
+== Caching ==
 
 During initialization syslog caches multiple database tables into memory:
 
@@ -47,59 +65,40 @@ During initialization syslog caches multiple database tables into memory:
  # syslog_types
  # syslog_senders
 
-Those are "primitives" which will be uses very often in the process of construction of new log messages, so we need to cache them in memory. Also we need a fast thread-safe method which will return current session.
+Those are "primitives" which will be uses very often in the process of construction of new log messages, so we need to cache them in memory. When you put message into !SysLog using putMessage() it first of all looks through cached values of _categorie_, _message types_, and _senders_ (lets call them attributes). If there is no such an attribute in cache, it inserts it into database and puts into cache.  
 
-Typically we will use such a process of construction of log message (_*Listing 1*_):
+This way we gather maximum performance without overloading RAM and producing too much I/O (there won't be millions of categories, senders and types I guess - maybe 50-1000).
 
-{{{
- Session currentSession = Syslog.getCurrentSession();
-
- SysLogMessageCathegory cath = new SysLogMessageCathegory("new cathegory");
- SysLogMessageType tp = new SysLogMessageType("new type");
- SysLogSender sndr = new SysLogSender("bot");
- 
- SysLogMessage msg = new SysLogMessage("this is new message", currentSession, cath, tp, sndr);
-  
- Syslog.putMessage(msg);
-}}}
-
-In the first example we create new cathegory, type and sender of Syslog message and attach them to message itself using it's constructor. Those records will be marked as non-persistent and Syslog will take care of inserting them into corresponding tables. Syslog will also cache them in memory in order to reuse them for new log messages.
-
-
-We can use more user-friendly syntax (_*Listing 2*_):
-
-{{{
- SysLogMessage msg = new SysLogMessage("this is next message. 
-     current session will be assigned to it automatically", "test cathegory", "test type", "test sender");
- 
- Syslog.putMessage(msg);
-}}}
-
-In the second example session's information will be assigned to message automatically (current session will be used) by Syslog. Syslog also will take care of all database routines about creating and caching new cathegory, sender, type. Or if they are already present in database Syslog will retrieve them from cache by text name and assign to LogMessage.
-
-In all methods above you don't need to specify message's timestamp since it will be generated automatically in constructor of message. Timestamp will be set according to current system time.
 
 == Retrieve messages from syslog ==
 
-Syslog provides several methods of retrieving messages from database. Consumer of Syslog can specify folowing retrieval conditions:
+Syslog provides several criterions of retrieving messages from database. Consumer of Syslog can specify those
 
+ # Message text pattern
  # Date interval (e.g. startDate, endDate)
  # Session(s)
  # Message type(s)
  # Message cathegory(s)
  # Message sender(s)
 
-Syslog will retrieve records from database model (also it reuses cached records) using those conditions. Optionally syslog provides general methods:
+Syslog will retrieve records from database (actually database is combined with internal cache during retrieval).
 
 {{{
-  getMessages(startDate, endDate, sessions, types, cathegories, senders)
-
-  getMessages(startDate, endDate, session, type, cathegory, sender)
+  public List<Message> getMessages(msgText, startDate, endDate, sessionsList, typesList, cathegoriesList, sendersList)
 }}}
 
-Consumer can pass null to those methods instead of any parameter(s).
-For example if consumer will pass null instead of valid cathegory, Syslog will retrieve messages that can have any cathegory. 
+You can pass null values to this method to omit one or many attributes:
 
+ # If _msgText_ is set to null then text search using message text attribute won't be performed 
+ # If _startDate_ is set to null then messages older then _endDate_ will be retrieved
+ # If _endDate_ is set to null then messages newer then _startDate_ will be retrieved
+ # If both _startDate_ and _endDate_ are set to null, then timestamp attribute won't be taken into account during messages retrieval
+ # If _sessionsList_ is set to null then session attribute won't be taken into account during messages retrieval
+ # The same techique is used for types, categories and senders. 
+
+For string attributes ( msgText, type, category and sender ) comparison with ignore case mode used. All attibutes during search are combined using *AND* condition.
+
+*[TODO]* Several examples are needed here
 
 = List of reserved syslog cathegories =
 
