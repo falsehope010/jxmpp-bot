@@ -158,6 +158,7 @@ public class DatabaseRecord {
 			try {
 				long_val = Long.parseLong(new String(char_val));
 			} catch (Exception e) {
+				// nothing todo here
 			}
 
 			if (long_val != -1) {
@@ -171,6 +172,7 @@ public class DatabaseRecord {
 			try {
 				long_val = Long.parseLong(str_val);
 			} catch (Exception e) {
+				// nothing todo here
 			}
 
 			if (long_val != -1) {

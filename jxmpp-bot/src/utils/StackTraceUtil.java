@@ -5,6 +5,7 @@ import java.io.StringWriter;
 
 public class StackTraceUtil {
 	private StackTraceUtil() {
+		// nothing todo here
 	}
 
 	public static String toString(Throwable e) {
