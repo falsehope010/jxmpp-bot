@@ -45,16 +45,12 @@ You can put message to syslog using this method:
 
 Message doesn't go directly into database but instead is saved into internal cache. This is due to sqlite's performance reasons (it is much faster to perform batch insert of 500-1000 messages the inserting them one by one).
 
-!Syslog is active object. It manages it's own internal timer which is used to determine when internal cache should be flushed and all messages should be actually inserted into database. Syslog makes decision whether the record is old or not by the use of its _ILogRotateStrategy_. 
+Syslog is active object. It manages it's own internal timer which is used to determine when internal cache should be flushed and all messages should be actually inserted into database. Syslog makes decision whether the record is old or not by the use of its _ILogRotateStrategy_. 
 
 Concrete strategy provides implementation of log rotation procedure. It also manages it's execution timeline. Syslog gets next log rotation date by the use of concrete strategy. This is more flexible then using additional timer inside syslog and perform rotation in fixed intervals. For example strategy can gather some stats about database during rotation and set next execution interval less then previois one if database is growing too fast.
 
-*[TODO]* http://code.google.com/p/jxmpp-bot/issues/detail?id=22&colspec=ID%20Type%20Status%20Priority%20Modified%20Owner%20Summary
 
 !SysLog also performs sessions management. Each time you start syslog (after construction) or restart it, !SysLog automatically creates new !SyslogSession object and maps it into database. So when you put message, you actually don't need to specify session to which this message belongs.
-
-*[OBSOLETE]*
-_By default log cleaning interval is 10 minutes. This means that each 10 minutes syslog checks if there are any _old_ log messages which should be cleaned from database and memory (if they are cached)_
 
 == Caching ==
 
@@ -98,7 +94,38 @@ You can pass null values to this method to omit one or many attributes:
 
 For string attributes ( msgText, type, category and sender ) comparison with ignore case mode used. All attibutes during search are combined using *AND* condition.
 
-*[TODO]* Several examples are needed here
+Examples:
+
+{{{
+getMessages("Adv", null, null, null, null, null, null);
+}}}
+This will retrieve all messages which text attribute contains "Adv"
+
+{{{
+DateFormat fmt = DateFormat.getInstance();
+Date startDate = fmt.parse("1.11.2008 11:00:00");
+Date endDate = fmt.parse("2.11.2008 12:00:00");
+getMessages(null, startDate, endDate, null, null, null, null);
+}}}
+This will retrieve all messages with timestamp attribute between 1 Nov 2008 11:00:00 and 2 Nov 2008 12:00:00 
+
+{{{
+List<String> types = new ArrayList<String>;
+types.add("Alerts");
+types.add("Warnings");
+getMessages(null, null, null, null, types, null, null);
+}}}
+This will retrieve all messages with attributes like "Alerts" and "Warnings". By "like" we mean that attribute contains string.
+
+
+= Log rotation =
+
+Log rotation (cleanup) is performed by !SysLog by the use of log rotate strategies. Each strategy must implement ILogRotateStrategy interface. 
+Strategy provides set of methods to get rotation date. When syslog detects that current system time is greater then strategy's rotation time it initiates log rotation.
+
+After performing rotation syslog calls strategy to update (calculate) next rotation date.
+
+AbstractLogRotateStrategy is skeletal class, which partially implements ILogRotateStrategy. As an example CountdownLogRotateStrategy is created. It allows to keep in database only specified number of syslog messages.
 
 = List of reserved syslog cathegories =
 
