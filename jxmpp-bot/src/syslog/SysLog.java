@@ -2,6 +2,7 @@ package syslog;
 
 import java.lang.Thread.State;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -41,7 +42,7 @@ public class SysLog implements Runnable {
      *            Database which will be used to store system logs
      * @param strategy
      *            Strategy which will be used to rotate system logs
-     * @param saveLogsTimeout
+     * @param flushCacheTimeout
      *            Specifies interval in milliseconds after which syslog will
      *            save all syslog messages from it's internal buffer into
      *            database
@@ -58,9 +59,8 @@ public class SysLog implements Runnable {
      *             Thrown if database or log rotation strategy is null-reference
      */
     public SysLog(Database db, ILogRotateStrategy strategy,
-	    long saveLogsTimeout, long logRotateTimeout)
-	    throws IllegalArgumentException, DatabaseNotConnectedException,
-	    NullPointerException {
+	    long flushCacheTimeout) throws IllegalArgumentException,
+	    DatabaseNotConnectedException, NullPointerException {
 
 	if (db == null || strategy == null)
 	    throw new NullPointerException(
@@ -69,12 +69,11 @@ public class SysLog implements Runnable {
 	if (!db.isConnected())
 	    throw new DatabaseNotConnectedException();
 
-	if (saveLogsTimeout <= 0 || logRotateTimeout <= 0)
-	    throw new IllegalArgumentException("Invalid syslog timeout(s)");
+	if (flushCacheTimeout <= 0)
+	    throw new IllegalArgumentException("Invalid flushCache timeout");
 
 	internalQueue = new ConcurrentLinkedQueue<Message>();
-	saveLogsWatch = new BoundedStopWatch(saveLogsTimeout);
-	logRotateWatch = new BoundedStopWatch(logRotateTimeout);
+	flushCacheWatch = new BoundedStopWatch(flushCacheTimeout);
 	logRotateStrategy = strategy;
 
 	this.db = db;
@@ -130,17 +129,7 @@ public class SysLog implements Runnable {
      * @return Number of milliseconds
      */
     public long getSaveLogsTimeout() {
-	return saveLogsWatch.getBound();
-    }
-
-    /**
-     * Gets total number of milliseconds which SysLog will wait before
-     * performing log rotate
-     * 
-     * @return Number of miliseconds
-     */
-    public long getLogRotateTimeout() {
-	return logRotateWatch.getBound();
+	return flushCacheWatch.getBound();
     }
 
     /**
@@ -159,19 +148,21 @@ public class SysLog implements Runnable {
 
     @Override
     public void run() {
-	saveLogsWatch.start();
-	logRotateWatch.start();
+	flushCacheWatch.start();
 
 	while (!terminate) {
 	    try {
-		if (saveLogsWatch.breaksBound()) {
+		if (flushCacheWatch.breaksBound()) {
 		    flushCache();
-		    saveLogsWatch.restart();
+		    flushCacheWatch.restart();
 		}
-		if (logRotateWatch.breaksBound()) {
-		    logRotateStrategy.rotate();
-		    logRotateWatch.restart();
-		}
+
+		logRotate();
+
+		/*
+		 * if (logRotateWatch.breaksBound()) {
+		 * logRotateStrategy.rotate(); logRotateWatch.restart(); }
+		 */
 		Thread.sleep(250);
 	    } catch (Exception e) {
 		e.printStackTrace();
@@ -224,8 +215,9 @@ public class SysLog implements Runnable {
     public void stop() {
 	if (isRunning()) {
 	    setTerminate(true);
-	    closeSession(currentSession); // is running guarantees that session
-	    // isn't null
+
+	    // is running guarantees that session isn't null
+	    closeSession(currentSession);
 	}
     }
 
@@ -435,6 +427,24 @@ public class SysLog implements Runnable {
 	terminate = value;
     }
 
+    /**
+     * Checks whether it's time to perform logs rotation and if so performs it
+     */
+    private void logRotate() {
+	// check whether log rotate should be performed
+	if (logRotateStrategy != null) {
+	    long currentTime = System.currentTimeMillis();
+	    Date strategyRotateDate = logRotateStrategy.getRotationDate();
+
+	    if (strategyRotateDate != null) {
+		if (currentTime >= strategyRotateDate.getTime()) {
+		    logRotateStrategy.rotate();
+		    logRotateStrategy.updateRotationDate();
+		}
+	    }
+	}
+    }
+
     /*
      * Data fields
      */
@@ -464,8 +474,7 @@ public class SysLog implements Runnable {
     boolean running;
     Database db;
 
-    BoundedStopWatch saveLogsWatch;
-    BoundedStopWatch logRotateWatch;
+    BoundedStopWatch flushCacheWatch;
 
     ILogRotateStrategy logRotateStrategy;
 }

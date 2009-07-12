@@ -34,34 +34,20 @@ public class SysLogTest extends DatabaseBaseTest {
 	    DatabaseNotConnectedException {
 	Database db = prepareDatabase();
 	LogRotateStrategyMoc logRotate = new LogRotateStrategyMoc();
-	SysLog log = new SysLog(db, logRotate, saveLogsTimeout,
-		logRotateTimeout);
+	SysLog log = new SysLog(db, logRotate, saveLogsTimeout);
 
 	assertNotNull(log);
-	assertEquals(log.getLogRotateTimeout(), logRotateTimeout);
 	assertEquals(log.getSaveLogsTimeout(), saveLogsTimeout);
 
 	// test invalid timeouts
 	try {
-	    log = new SysLog(db, logRotate, 0, logRotateTimeout);
+	    log = new SysLog(db, logRotate, 0);
 	} catch (Exception e) {
 	    assertTrue(e instanceof IllegalArgumentException);
 	}
 
 	try {
-	    log = new SysLog(db, logRotate, saveLogsTimeout, 0);
-	} catch (Exception e) {
-	    assertTrue(e instanceof IllegalArgumentException);
-	}
-
-	try {
-	    log = new SysLog(db, logRotate, -10, logRotateTimeout);
-	} catch (Exception e) {
-	    assertTrue(e instanceof IllegalArgumentException);
-	}
-
-	try {
-	    log = new SysLog(db, logRotate, saveLogsTimeout, -10);
+	    log = new SysLog(db, logRotate, -10);
 	} catch (Exception e) {
 	    assertTrue(e instanceof IllegalArgumentException);
 	}
@@ -69,21 +55,21 @@ public class SysLogTest extends DatabaseBaseTest {
 	// test invalid database
 	db.disconnect();
 	try {
-	    log = new SysLog(db, logRotate, saveLogsTimeout, logRotateTimeout);
+	    log = new SysLog(db, logRotate, saveLogsTimeout);
 	} catch (Exception e) {
 	    assertTrue(e instanceof DatabaseNotConnectedException);
 	}
 
 	// test null-pointers
 	try {
-	    log = new SysLog(null, logRotate, saveLogsTimeout, logRotateTimeout);
+	    log = new SysLog(null, logRotate, saveLogsTimeout);
 	} catch (Exception e) {
 	    assertTrue(e instanceof NullPointerException);
 	}
 
 	db.connect();
 	try {
-	    log = new SysLog(db, null, saveLogsTimeout, logRotateTimeout);
+	    log = new SysLog(db, null, saveLogsTimeout);
 	} catch (Exception e) {
 	    assertTrue(e instanceof NullPointerException);
 	}
@@ -103,20 +89,6 @@ public class SysLogTest extends DatabaseBaseTest {
 	db.disconnect();
 
 	assertEquals(log.getSaveLogsTimeout(), saveLogsTimeout);
-    }
-
-    @Test
-    public void testGetLogRotateTimeout() throws NullPointerException,
-	    FileNotFoundException {
-	Database db = prepareDatabase();
-
-	SysLog log = prepareSyslog(db);
-
-	assertNotNull(log);
-
-	assertEquals(log.getLogRotateTimeout(), logRotateTimeout);
-
-	db.disconnect();
     }
 
     @Test
@@ -644,10 +616,9 @@ public class SysLogTest extends DatabaseBaseTest {
 	SysLog log = null;
 	try {
 	    LogRotateStrategyMoc logRotate = new LogRotateStrategyMoc();
-	    log = new SysLog(db, logRotate, saveLogsTimeout, logRotateTimeout);
+	    log = new SysLog(db, logRotate, saveLogsTimeout);
 
 	    assertNotNull(log);
-	    assertEquals(log.getLogRotateTimeout(), logRotateTimeout);
 	    assertEquals(log.getSaveLogsTimeout(), saveLogsTimeout);
 	} catch (Exception e) {
 	    fail(StackTraceUtil.toString(e));
@@ -777,5 +748,4 @@ public class SysLogTest extends DatabaseBaseTest {
     }
 
     static final long saveLogsTimeout = 60000;
-    static final long logRotateTimeout = 360000;
 }
