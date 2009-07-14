@@ -10,9 +10,10 @@ package stopwatch;
  */
 
 /**
- * Represents class which provides stop watch mechanism. 
+ * Represents class which provides stop watch mechanism.
+ * 
  * @author tillias_work
- *
+ * 
  */
 public class StopWatch {
 
@@ -35,27 +36,30 @@ public class StopWatch {
 		stopTime = System.currentTimeMillis();
 		running = false;
 	}
-	
+
 	/**
 	 * Restarts stopWatch. Calls stop() and then start().
 	 */
-	public void restart(){
+	public void restart() {
 		stop();
 		start();
 	}
-	
+
 	/**
-	 * Gets value indicating whether stopWatch is running. E.g. client has called
-	 * {@link #start()}
+	 * Gets value indicating whether stopWatch is running. E.g. client has
+	 * called {@link #start()}
+	 * 
 	 * @return
 	 */
-	public boolean isRunning(){
+	public boolean isRunning() {
 		return running;
 	}
 
 	/**
-	 * If stopWatch is running gets total number of milliseconds since it was started.
-	 * Otherwise (stopWatch is stopped) gets difference in milliseconds between it's stop and start date
+	 * If stopWatch is running gets total number of milliseconds since it was
+	 * started. Otherwise (stopWatch is stopped) gets difference in milliseconds
+	 * between it's stop and start date
+	 * 
 	 * @return Number of milliseconds
 	 * @see #getElapsedTimeSecs()
 	 */
@@ -70,8 +74,10 @@ public class StopWatch {
 	}
 
 	/**
-	 * If stopWatch is running gets total number of seconds since it was started.
-	 * Otherwise (stopWatch is stopped) gets difference in seconds between it's stop and start date
+	 * If stopWatch is running gets total number of seconds since it was
+	 * started. Otherwise (stopWatch is stopped) gets difference in seconds
+	 * between it's stop and start date
+	 * 
 	 * @return Number of seconds
 	 * @see #getElapsedTime()
 	 */
