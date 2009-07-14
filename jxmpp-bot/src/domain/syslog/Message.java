@@ -214,8 +214,7 @@ public class Message extends DomainObject {
 			throw new IllegalArgumentException("Argument is empty string.");
 	}
 
-	private void checkSession(SyslogSession s)
-			throws NullPointerException {
+	private void checkSession(SyslogSession s) throws NullPointerException {
 		if (s == null)
 			throw new NullPointerException();
 	}
