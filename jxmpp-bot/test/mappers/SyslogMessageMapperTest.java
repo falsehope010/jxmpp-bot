@@ -15,6 +15,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import utils.RandomUtils;
@@ -30,6 +31,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 
     static final String tableName = "syslog";
 
+    @Ignore
     @Test
     public void testSave() throws NullPointerException, FileNotFoundException,
 	    IllegalArgumentException, DatabaseNotConnectedException {
@@ -128,6 +130,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Ignore
     @Test
     public void testSaveMany() throws NullPointerException,
 	    FileNotFoundException, DatabaseNotConnectedException {
@@ -174,6 +177,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Ignore
     @SuppressWarnings("boxing")
     @Test
     public void testDelete() throws NullPointerException,
@@ -214,6 +218,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Ignore
     @Test
     public void testSyslogMessageMapper() throws NullPointerException,
 	    FileNotFoundException, IllegalArgumentException,
@@ -248,6 +253,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Ignore
     @Test
     public void testGetMessages() throws NullPointerException,
 	    FileNotFoundException, IllegalArgumentException,
@@ -312,6 +318,48 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
     }
 
     @Test
+    public void testGetMessagesFilteredByText() throws NullPointerException,
+	    FileNotFoundException, IllegalArgumentException {
+	Database db = initDb();
+	assertTrue(truncateTable(db, "syslog"));
+
+	SyslogMessageMapper mapper = null;
+	try {
+	    mapper = new SyslogMessageMapper(db);
+	} catch (DatabaseNotConnectedException e) {
+	    fail(StackTraceUtil.toString(e));
+	}
+
+	// insert several messages
+	String matchFilterText = "test_match_test";
+	String unmatchFilterText = "not";
+	String testAttribute = "test";
+
+	final int messagesCount = 1;
+
+	for (int i = 0; i < messagesCount; ++i) {
+	    assertTrue(mapper.save(new Message(matchFilterText, testAttribute,
+		    testAttribute, testAttribute, new SyslogSession())));
+	    assertTrue(mapper.save(new Message(unmatchFilterText,
+		    testAttribute, testAttribute, testAttribute,
+		    new SyslogSession())));
+	}
+
+	assertEquals(countRecords(db, "syslog"), messagesCount * 2);
+
+	SearchSettings settings = new SearchSettings();
+	settings.setTextPattern(matchFilterText);
+
+	List<Message> messages = mapper.getMessages(settings);
+
+	assertNotNull(messages);
+	assertEquals(messages.size(), messagesCount);
+
+	db.disconnect();
+    }
+
+    @Ignore
+    @Test
     @SuppressWarnings( { "null" })
     public void testDeleteBelow() throws NullPointerException,
 	    FileNotFoundException {
@@ -346,6 +394,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Ignore
     @Test
     @SuppressWarnings("null")
     public void testDeleteOlder() throws NullPointerException,
@@ -404,6 +453,7 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @Ignore
     @SuppressWarnings("null")
     @Test
     public void testPerformanceInsert() throws NullPointerException,
