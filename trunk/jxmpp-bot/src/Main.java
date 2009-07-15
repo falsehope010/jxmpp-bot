@@ -1,81 +1,88 @@
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.ChatManager;
+import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.SASLAuthentication;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+
 import database.Database;
 import database.DatabaseFactory;
 
 public class Main {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
 
-		try {
+	try {
 
-			/*
-			 * DatabaseFactory factory = new DatabaseFactory("test_db");
-			 * Database db = factory.createDatabase(); db.connect();
-			 * SyslogMessageMapper mapper = new SyslogMessageMapper(db); //...do
-			 * any work with mapper db.disconnect();
-			 */
+	    /*
+	     * DatabaseFactory factory = new DatabaseFactory("test_db");
+	     * Database db = factory.createDatabase(); db.connect();
+	     * SyslogMessageMapper mapper = new SyslogMessageMapper(db); //...do
+	     * any work with mapper db.disconnect();
+	     */
 
-			DatabaseFactory factory = new DatabaseFactory("test_db");
-			Database db = factory.createDatabase();
+	    DatabaseFactory factory = new DatabaseFactory("test_db");
+	    Database db = factory.createDatabase();
 
-			db.connect();
+	    db.connect();
 
-			db.disconnect();
+	    db.disconnect();
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+	} catch (Exception e) {
+	    e.printStackTrace();
 	}
 
-	protected static void XmppConnect() {
-		try {
-			ConnectionConfiguration configuration = new ConnectionConfiguration(
-					"jabbus.org", 5222);
-			XMPPConnection conn = new XMPPConnection(configuration);
+    }
 
-			conn.connect();
+    protected static void XmppConnect() {
+	try {
+	    ConnectionConfiguration configuration = new ConnectionConfiguration(
+		    "jabbus.org", 5222);
+	    XMPPConnection conn = new XMPPConnection(configuration);
 
-			SASLAuthentication.supportSASLMechanism("PLAIN", 0);
+	    conn.connect();
 
-			conn.login("tillias", "DJ!u[Fc0i5@Z-13FNKK{Ykqj", "test");
+	    SASLAuthentication.supportSASLMechanism("PLAIN", 0);
 
-			if (conn.isConnected()) {
+	    conn.login("tillias", "DJ!u[Fc0i5@Z-13FNKK{Ykqj", "test");
 
-				System.out.print("Logged in!\n");
+	    if (conn.isConnected()) {
 
-				ChatManager chatManager = conn.getChatManager();
+		System.out.print("Logged in!\n");
 
-				if (chatManager != null) {
-					XmppMessageListener listener = new XmppMessageListener();
-					Chat chat = chatManager.createChat("[tillias]@jabber.ru",
-							listener);
+		ChatManager chatManager = conn.getChatManager();
 
-					chat.sendMessage("Hello!");
-				}
+		if (chatManager != null) {
+		    XmppMessageListener listener = new XmppMessageListener();
+		    Chat chat = chatManager.createChat("[tillias]@jabber.ru",
+			    listener);
 
-			} else {
-				System.out.print("Can't login\n");
-			}
-
-			boolean flag = false;
-
-			while (!flag) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-
-			conn.disconnect();
-
-			// System.out.print(conn.isConnected());
-		} catch (XMPPException ex) {
-			System.out.print(ex.getMessage());
+		    chat.sendMessage("Hello!");
 		}
+
+	    } else {
+		System.out.print("Can't login\n");
+	    }
+
+	    boolean flag = false;
+
+	    while (!flag) {
+		try {
+		    Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		    e.printStackTrace();
+		}
+	    }
+
+	    conn.disconnect();
+
+	    // System.out.print(conn.isConnected());
+	} catch (XMPPException ex) {
+	    System.out.print(ex.getMessage());
 	}
+    }
 
 }
