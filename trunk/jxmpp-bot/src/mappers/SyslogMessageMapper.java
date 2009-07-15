@@ -320,6 +320,113 @@ public class SyslogMessageMapper extends AbstractMapper {
 	List<Message> result = new ArrayList<Message>();
 
 	if (settings != null) {
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("select a.id, a.timestamp, a.text, ");
+	    sb.append("a.session_id, ");
+	    sb.append("c.name, ");
+	    sb.append("d.name, ");
+	    sb.append("e.name ");
+	    sb
+		    .append("from syslog as a, syslog_sessions as b, syslog_categories as c,");
+	    sb.append("syslog_types as d, syslog_senders as e ");
+	    sb.append("where a.session_id = b.id and a.category_id = c.id ");
+	    sb.append("and a.type_id = d.id and a.sender_id = e.id ");
+
+	    sb.append(" and ");
+
+	    boolean hasTextFilter = false, hasStartDate = false, hasEndDate = false;
+
+	    String textFilter = settings.getTextPattern();
+
+	    if (textFilter != null) {
+		sb.append("a.text like '%");
+		sb.append(textFilter);
+		sb.append("%'");
+
+		hasTextFilter = true;
+	    }
+
+	    java.util.Date startDate = settings.getStartDate();
+
+	    if (startDate != null) {
+		if (hasTextFilter) {
+		    sb.append(" AND ");
+
+		    hasStartDate = true;
+		}
+
+		sb.append("timestamp >= ");
+		sb.append(startDate.getTime());
+		sb.append(' ');
+	    }
+
+	    java.util.Date endDate = settings.getEndDate();
+
+	    if (endDate != null) {
+		if (hasTextFilter || hasStartDate) {
+		    sb.append(" AND ");
+
+		    hasEndDate = true;
+		}
+
+		sb.append("timestamp <= ");
+		sb.append(endDate.getTime());
+		sb.append(' ');
+	    }
+
+	    // TODO: continue
+	    System.out.print(sb);
+
+	    String sql = sb.toString();
+
+	    Statement st = null;
+	    ResultSet rs = null;
+
+	    try {
+		Connection conn = db.getConnection();
+		st = conn.createStatement();
+
+		rs = st.executeQuery(sql);
+
+		result = new ArrayList<Message>();
+
+		while (rs.next()) {
+		    long messageID = rs.getLong(1);
+		    Date timestamp = rs.getDate(2);
+		    String text = rs.getString(3);
+		    long sessionID = rs.getLong(4);
+
+		    SyslogSession session = SyslogSessionMapper
+			    .getByID(sessionID);
+
+		    String categoryName = rs.getString(5);
+		    MessageCategory category = getCategory(categoryName);
+
+		    String typeName = rs.getString(6);
+		    MessageType type = getType(typeName);
+
+		    String senderName = rs.getString(7);
+		    MessageSender sender = getSender(senderName);
+
+		    Message msg = new Message(text, categoryName, typeName,
+			    senderName, session);
+		    msg.mapperSetID(messageID);
+		    msg.mapperSetTimestamp(timestamp);
+		    msg.mapperSetCategory(category);
+		    msg.mapperSetType(type);
+		    msg.mapperSetSender(sender);
+		    msg.mapperSetPersistence(true);
+
+		    result.add(msg);
+
+		}
+	    } catch (Exception e) {
+		result = null;
+
+		e.printStackTrace();
+	    } finally {
+		db.Cleanup(st, rs);
+	    }
 
 	}
 
