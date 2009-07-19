@@ -279,174 +279,180 @@ public class SyslogMessageMapper extends AbstractMapper {
 	List<Message> result = new ArrayList<Message>();
 
 	if (settings != null) {
-	    StringBuilder sb = new StringBuilder();
-	    sb.append("select a.id, a.timestamp, a.text, ");
-	    sb.append("a.session_id, ");
-	    sb.append("c.name, ");
-	    sb.append("d.name, ");
-	    sb.append("e.name ");
-	    sb
-		    .append("from syslog as a, syslog_sessions as b, syslog_categories as c,");
-	    sb.append("syslog_types as d, syslog_senders as e ");
-	    sb.append("where a.session_id = b.id and a.category_id = c.id ");
-	    sb.append("and a.type_id = d.id and a.sender_id = e.id ");
+	    try {
+		StringBuilder sb = new StringBuilder();
+		sb.append("select a.id, a.timestamp, a.text, ");
+		sb.append("a.session_id, ");
+		sb.append("c.name, ");
+		sb.append("d.name, ");
+		sb.append("e.name ");
+		sb
+			.append("from syslog as a, syslog_sessions as b, syslog_categories as c,");
+		sb.append("syslog_types as d, syslog_senders as e ");
+		sb
+			.append("where a.session_id = b.id and a.category_id = c.id ");
+		sb.append("and a.type_id = d.id and a.sender_id = e.id ");
 
-	    sb.append(" and ");
+		sb.append(" and ");
 
-	    boolean hasTextFilter = false, hasStartDate = false, hasEndDate = false;
+		boolean hasTextFilter = false, hasStartDate = false, hasEndDate = false;
 
-	    // process text filtering if needed
-	    String textFilter = settings.getTextPattern();
+		// process text filtering if needed
+		String textFilter = settings.getTextPattern();
 
-	    if (textFilter != null) {
-		sb.append("a.text like '%");
-		sb.append(textFilter);
-		sb.append("%'");
+		if (textFilter != null) {
+		    sb.append("a.text like '%");
+		    sb.append(textFilter);
+		    sb.append("%'");
 
-		hasTextFilter = true;
-	    }
-
-	    // process start date if needed
-	    java.util.Date startDate = settings.getStartDate();
-
-	    if (startDate != null) {
-		if (hasTextFilter) {
-		    sb.append(" AND ");
+		    hasTextFilter = true;
 		}
 
-		sb.append("timestamp >= ");
-		sb.append(startDate.getTime());
-		sb.append(' ');
+		// process start date if needed
+		java.util.Date startDate = settings.getStartDate();
 
-		hasStartDate = true;
-	    }
-
-	    // process end date if needed
-	    java.util.Date endDate = settings.getEndDate();
-
-	    if (endDate != null) {
-		if (hasTextFilter || hasStartDate) {
-		    sb.append(" AND ");
-		}
-
-		sb.append("timestamp <= ");
-		sb.append(endDate.getTime());
-		sb.append(' ');
-
-		hasEndDate = true;
-	    }
-
-	    // process categories if needed
-	    boolean hasCategories = false;
-
-	    List<String> categoryNames = settings.getCategories();
-
-	    if (categoryNames != null && categoryNames.size() > 0) {
-		if (hasTextFilter || hasStartDate || hasEndDate) {
-		    sb.append(" AND ");
-		}
-
-		/*
-		 * Retrieve categories from internal static cache using their
-		 * name. After that we produce such a string: 'a.catrgory_id in
-		 * (id1, id2, id3, ... idn)' and append it to our sqlQuery
-		 * builder
-		 */
-		List<Long> ids = getCategoriesID(categoryNames);
-		if (ids.size() > 0) {
-		    sb.append(" a.category_id in (");
-		    for (Long id : ids) {
-			sb.append(id);
-			sb.append(',');
+		if (startDate != null) {
+		    if (hasTextFilter) {
+			sb.append(" AND ");
 		    }
-		    sb.append("-1)");
+
+		    sb.append("timestamp >= ");
+		    sb.append(startDate.getTime());
+		    sb.append(' ');
+
+		    hasStartDate = true;
 		}
 
-		hasCategories = true;
-	    }
+		// process end date if needed
+		java.util.Date endDate = settings.getEndDate();
 
-	    boolean hasTypes = false;
-
-	    List<String> typeNames = settings.getTypes();
-
-	    if (typeNames != null && typeNames.size() > 0) {
-		if (hasTextFilter || hasStartDate || hasEndDate
-			|| hasCategories) {
-		    sb.append(" AND ");
-		}
-
-		/*
-		 * Retrieve types from internal static cache using their name.
-		 * After that we produce such a string: 'a.type_id in (id1, id2,
-		 * id3, ... idn)' and append it to our sqlQuery builder
-		 */
-		List<Long> ids = getTypesID(typeNames);
-
-		if (ids.size() > 0) {
-		    sb.append(" a.type_id in (");
-		    for (Long id : ids) {
-			sb.append(id);
-			sb.append(',');
+		if (endDate != null) {
+		    if (hasTextFilter || hasStartDate) {
+			sb.append(" AND ");
 		    }
-		    sb.append("-1)");
+
+		    sb.append("timestamp <= ");
+		    sb.append(endDate.getTime());
+		    sb.append(' ');
+
+		    hasEndDate = true;
 		}
 
-		hasTypes = true;
-	    }
+		// process categories if needed
+		boolean hasCategories = false;
 
-	    boolean hasSenders = false;
+		List<String> categoryNames = settings.getCategories();
 
-	    List<String> senderNames = settings.getSenders();
-
-	    if (senderNames != null && senderNames.size() > 0) {
-		if (hasTextFilter || hasStartDate || hasEndDate
-			|| hasCategories || hasTypes) {
-		    sb.append(" AND ");
-		}
-
-		/*
-		 * Retrieve types from internal static cache using their name.
-		 * After that we produce such a string: 'a.type_id in (id1, id2,
-		 * id3, ... idn)' and append it to our sqlQuery builder
-		 */
-		List<Long> ids = getSendersID(senderNames);
-
-		if (ids.size() > 0) {
-		    sb.append(" a.sender_id in (");
-		    for (Long id : ids) {
-			sb.append(id);
-			sb.append(',');
+		if (categoryNames != null && categoryNames.size() > 0) {
+		    if (hasTextFilter || hasStartDate || hasEndDate) {
+			sb.append(" AND ");
 		    }
-		    sb.append("-1)");
-		}
 
-		hasSenders = true;
-	    }
-
-	    List<SyslogSession> sessions = settings.getSessions();
-
-	    if (sessions != null && sessions.size() > 0) {
-		if (hasTextFilter || hasStartDate || hasEndDate
-			|| hasCategories || hasTypes || hasSenders) {
-		    sb.append(" AND ");
-
-		    sb.append(" a.session_id in (");
-		    for (SyslogSession session : sessions) {
-			sb.append(session.getID());
-			sb.append(',');
+		    /*
+		     * Retrieve categories from internal static cache using
+		     * their name. After that we produce such a string:
+		     * 'a.catrgory_id in (id1, id2, id3, ... idn)' and append it
+		     * to our sqlQuery builder
+		     */
+		    List<Long> ids = getCategoriesID(categoryNames);
+		    if (ids.size() > 0) {
+			sb.append(" a.category_id in (");
+			for (Long id : ids) {
+			    sb.append(id);
+			    sb.append(',');
+			}
+			sb.append("-1)");
 		    }
-		    sb.append("-1)");
+
+		    hasCategories = true;
 		}
+
+		boolean hasTypes = false;
+
+		List<String> typeNames = settings.getTypes();
+
+		if (typeNames != null && typeNames.size() > 0) {
+		    if (hasTextFilter || hasStartDate || hasEndDate
+			    || hasCategories) {
+			sb.append(" AND ");
+		    }
+
+		    /*
+		     * Retrieve types from internal static cache using their
+		     * name. After that we produce such a string: 'a.type_id in
+		     * (id1, id2, id3, ... idn)' and append it to our sqlQuery
+		     * builder
+		     */
+		    List<Long> ids = getTypesID(typeNames);
+
+		    if (ids.size() > 0) {
+			sb.append(" a.type_id in (");
+			for (Long id : ids) {
+			    sb.append(id);
+			    sb.append(',');
+			}
+			sb.append("-1)");
+		    }
+
+		    hasTypes = true;
+		}
+
+		boolean hasSenders = false;
+
+		List<String> senderNames = settings.getSenders();
+
+		if (senderNames != null && senderNames.size() > 0) {
+		    if (hasTextFilter || hasStartDate || hasEndDate
+			    || hasCategories || hasTypes) {
+			sb.append(" AND ");
+		    }
+
+		    /*
+		     * Retrieve types from internal static cache using their
+		     * name. After that we produce such a string: 'a.type_id in
+		     * (id1, id2, id3, ... idn)' and append it to our sqlQuery
+		     * builder
+		     */
+		    List<Long> ids = getSendersID(senderNames);
+
+		    if (ids.size() > 0) {
+			sb.append(" a.sender_id in (");
+			for (Long id : ids) {
+			    sb.append(id);
+			    sb.append(',');
+			}
+			sb.append("-1)");
+		    }
+
+		    hasSenders = true;
+		}
+
+		List<SyslogSession> sessions = settings.getSessions();
+
+		if (sessions != null && sessions.size() > 0) {
+		    if (hasTextFilter || hasStartDate || hasEndDate
+			    || hasCategories || hasTypes || hasSenders) {
+			sb.append(" AND ");
+
+			sb.append(" a.session_id in (");
+			for (SyslogSession session : sessions) {
+			    sb.append(session.getID());
+			    sb.append(',');
+			}
+			sb.append("-1)");
+		    }
+		}
+
+		// TODO: remove debug print
+		System.out.println(sb);
+
+		String sql = sb.toString();
+
+		result = executeGetQuery(sql);
+	    } catch (Exception e) {
+		// nothing to do
 	    }
-
-	    // TODO: remove debug print
-	    System.out.print(sb);
-
-	    String sql = sb.toString();
-
-	    result = executeGetQuery(sql);
 	}
-
 	return result;
     }
 
@@ -779,6 +785,14 @@ public class SyslogMessageMapper extends AbstractMapper {
 
 		int rows_affected = pr.executeUpdate();
 
+		/*
+		 * If performing batch insert ID of record will be left. So we
+		 * force commit changes to db
+		 */
+		if (!db.getAutoCommit()) {
+		    db.commit();
+		}
+
 		if (rows_affected == 1) { // category has been saved
 
 		    long recordID = db.LastInsertRowID();
@@ -818,6 +832,14 @@ public class SyslogMessageMapper extends AbstractMapper {
 
 		int rows_affected = pr.executeUpdate();
 
+		/*
+		 * If performing batch insert ID of record will be left. So we
+		 * force commit changes to db
+		 */
+		if (!db.getAutoCommit()) {
+		    db.commit();
+		}
+
 		if (rows_affected == 1) { // category has been saved
 
 		    long recordID = db.LastInsertRowID();
@@ -856,6 +878,14 @@ public class SyslogMessageMapper extends AbstractMapper {
 		pr.setString(1, Name);
 
 		int rows_affected = pr.executeUpdate();
+
+		/*
+		 * If performing batch insert ID of record will be left. So we
+		 * force commit changes to db
+		 */
+		if (!db.getAutoCommit()) {
+		    db.commit();
+		}
 
 		if (rows_affected == 1) { // category has been saved
 
@@ -1012,8 +1042,6 @@ public class SyslogMessageMapper extends AbstractMapper {
 	    }
 	} catch (Exception e) {
 	    result.clear();
-
-	    e.printStackTrace();
 	} finally {
 	    db.Cleanup(st, rs);
 	}
