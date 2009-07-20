@@ -28,6 +28,8 @@ public class SyslogMessageMapperGetRecordsTest extends DatabaseBaseTest {
 
 	SyslogMessageMapper mapper = insertTestMessages(db);
 
+	assertEquals(countRecords(db, "syslog"), messagesCount * 2);
+
 	// test using default message text == testAttibute
 	SearchSettings settings = new SearchSettings();
 	settings.setTextPattern(testAttribute);
@@ -316,6 +318,8 @@ public class SyslogMessageMapperGetRecordsTest extends DatabaseBaseTest {
 	assertTrue(db.commit());
 	assertTrue(db.setAutoCommit(true));
 
+	assertTrue(performDeepCleanup(db));
+
 	db.disconnect();
     }
 
@@ -346,9 +350,6 @@ public class SyslogMessageMapperGetRecordsTest extends DatabaseBaseTest {
 
 	assertEquals(countRecords(db, "syslog"), messagesCount * 2);
 
-	assertTrue(truncateTable(db, "syslog"));
-	assertTrue(db.vacuum());
-
 	return mapper;
     }
 
@@ -358,6 +359,20 @@ public class SyslogMessageMapperGetRecordsTest extends DatabaseBaseTest {
 	for (int i = 0; i < attributesCount; ++i) {
 	    result.add(prefix + Integer.toString(i));
 	}
+
+	return result;
+    }
+
+    private boolean performDeepCleanup(Database db) {
+	boolean result = true;
+
+	result &= truncateTable(db, "syslog");
+	result &= truncateTable(db, "syslog_sessions");
+	result &= truncateTable(db, "syslog_senders");
+	result &= truncateTable(db, "syslog_types");
+	result &= truncateTable(db, "syslog_categories");
+
+	result &= db.vacuum();
 
 	return result;
     }
