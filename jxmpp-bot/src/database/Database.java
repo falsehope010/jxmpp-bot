@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import utils.StackTraceUtil;
-import domain.users.AccessLevel;
+import domain.muc.AccessLevel;
 import exceptions.DatabaseSequenceNotFoundException;
 
 public class Database {
