@@ -1,4 +1,4 @@
-package domain.users;
+package domain.muc;
 
 public class AccessLevel {
 	public static final int Min = 0;

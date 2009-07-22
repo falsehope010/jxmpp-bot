@@ -1,10 +1,23 @@
-package domain.users;
+package domain.muc;
 
 import java.util.Date;
 
 import domain.DomainObject;
 
 public class User extends DomainObject {
+
+    public User() {
+
+    }
+
+    public User(String realName, String job, String position, Date birthday,
+	    String comments) {
+	this.realName = realName;
+	this.job = job;
+	this.position = position;
+	this.birthday = birthday;
+	this.comments = comments;
+    }
 
     public String getRealName() {
 	return realName;
