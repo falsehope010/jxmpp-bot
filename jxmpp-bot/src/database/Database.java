@@ -9,11 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import utils.StackTraceUtil;
-import domain.muc.AccessLevel;
 import exceptions.DatabaseSequenceNotFoundException;
 
 public class Database {
@@ -89,10 +87,10 @@ public class Database {
     }
 
     /**
-     * Returns last inserted rowid (after insert in any table in database)
+     * Returns last inserted row_id (after insert in any table in database)
      * 
-     * @return rowid if any insert was performed before call, 0 otherwise. Note:
-     *         if there is no opened connection also returns 0
+     * @return row_id if any insert was performed before call, 0 otherwise.
+     *         Note: if there is no opened connection also returns 0
      */
     public long LastInsertRowID() {
 	long result = 0;
@@ -664,165 +662,6 @@ public class Database {
 	} catch (Exception e) {
 	} finally {
 	    Cleanup(stat, rs);
-	}
-
-	return result;
-    }
-
-    // TODO: refactor those into userMapper
-    public boolean insertUser(String realName, String JID,
-	    AccessLevel accessLevel) {
-	boolean result = false;
-
-	PreparedStatement prep = null;
-
-	try {
-	    prep = conn
-		    .prepareStatement("insert into users(real_name,access_level) values (?,?);");
-
-	    prep.setString(1, realName);
-	    prep.setInt(2, accessLevel.getValue());
-
-	    prep.execute();
-
-	    long usrID = LastInsertRowID();
-
-	    if (usrID > 0) {
-		Cleanup(prep); // clean up after previous insert
-
-		prep = conn
-			.prepareStatement("insert into jids(id_user,jid) values(?,?);");
-
-		prep.setLong(1, usrID);
-		prep.setString(2, JID);
-
-		int rows_affected = prep.executeUpdate();
-
-		if (rows_affected == 1)
-		    result = true;
-	    }
-	} catch (Exception e) {
-	} finally {
-	    Cleanup(prep, null);
-	}
-
-	return result;
-    }
-
-    public boolean insertUserJid(long UserID, String JID) {
-	boolean result = false;
-
-	PreparedStatement prep = null;
-	Statement stat = null;
-	ResultSet rs = null;
-
-	try {
-	    // check whether user with given JID exists
-
-	    prep = conn
-		    .prepareStatement("select count(1) from users where id=?;");
-	    prep.setLong(1, UserID);
-
-	    rs = prep.executeQuery();
-
-	    if (rs.next()) {
-		long count = rs.getLong(1);
-
-		boolean user_exists = count > 0;
-
-		if (user_exists) {
-
-		    Cleanup(prep);
-
-		    prep = conn
-			    .prepareStatement("insert into jids(id_user,jid) values(?,?);");
-		    prep.setLong(1, UserID);
-		    prep.setString(2, JID);
-
-		    int rows_affected = prep.executeUpdate();
-
-		    if (rows_affected == 1)
-			result = true;
-		}
-	    }
-	} catch (Exception e) {
-	} finally {
-	    Cleanup(prep, rs);
-	    Cleanup(stat);
-	}
-
-	return result;
-    }
-
-    /**
-     * Retrieves all records from 'jids' database table and creates mapping
-     * between userID and it's jids collection. We use jids collection because
-     * user can have multiple jids
-     * 
-     * @return Mapping between userID and it's jids collection
-     */
-    private HashMap<Long, ArrayList<String>> getUsersJids() {
-	HashMap<Long, ArrayList<String>> result = null;
-
-	Statement stat = null;
-	ResultSet rs = null;
-	try {
-	    stat = conn.createStatement();
-
-	    rs = stat.executeQuery("select id_user,jid from jids;");
-
-	    result = new HashMap<Long, ArrayList<String>>();
-
-	    while (rs.next()) {
-		long usrID = rs.getLong(1);
-		String usrJid = rs.getString(2);
-
-		/*
-		 * We've just loaded new userID, so we need create new list of
-		 * jids for it
-		 */
-		if (!result.containsKey(usrID)) {
-		    ArrayList<String> jidList = new ArrayList<String>();
-		    jidList.add(usrJid);
-		    result.put(usrID, jidList);
-		}
-		/*
-		 * usrID is already present in hashMap. Simply add jid to
-		 * existing jid list
-		 */
-		else {
-		    ArrayList<String> jidList = result.get(usrID);
-		    if (jidList != null) {
-			jidList.add(usrJid);
-		    }
-		}
-	    }
-
-	} catch (Exception e) {
-	    result = null;
-	} finally {
-	    Cleanup(stat, rs);
-	}
-
-	return result;
-    }
-
-    /**
-     * Gets sum of elements in array
-     * 
-     * @param ar
-     *            Array which elements will be summed
-     * @return Sum of elements of array. -1 if ar is null or empty
-     */
-    public int getSumElements(int[] ar) {
-	int result = -1;
-
-	if (ar != null && ar.length > 0) {
-	    result = ar[0];
-
-	    for (int i = 1; i < ar.length; ++i) {
-		result += ar[i];
-	    }
 	}
 
 	return result;
