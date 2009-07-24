@@ -18,5 +18,5 @@ import domain.syslog.SyslogMessageTest;
 	SyslogMessageMapperGetRecordsTest.class,
 	CountdownLogRotateStrategyTest.class, SysLogTest.class })
 public class SyslogTestSuite {
-
+    // sole constructor
 }

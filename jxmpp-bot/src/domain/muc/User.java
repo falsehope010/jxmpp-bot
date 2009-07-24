@@ -7,7 +7,7 @@ import domain.DomainObject;
 public class User extends DomainObject {
 
     public User() {
-
+	// default constructor avaliable
     }
 
     public User(String realName, String job, String position, Date birthday,
