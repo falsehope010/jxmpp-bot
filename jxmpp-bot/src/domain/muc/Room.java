@@ -9,10 +9,6 @@ import domain.DomainObject;
  * @author tillias
  * 
  */
-/**
- * @author tillias
- * 
- */
 public class Room extends DomainObject {
 
     /**

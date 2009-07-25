@@ -1,5 +1,6 @@
 package domain.muc;
 
+import mappers.UserPermissionsMapper;
 import domain.DomainObject;
 
 /**
@@ -29,6 +30,7 @@ public class UserPermissions extends DomainObject {
      * @throws NullPointerException
      *             Thrown if any parameter passed to constructor is null
      *             reference
+     * @see #validate()
      */
     public UserPermissions(User user, Room room, String jabberID)
 	    throws IllegalArgumentException, NullPointerException {
@@ -111,6 +113,31 @@ public class UserPermissions extends DomainObject {
      */
     public Room getRoom() {
 	return room;
+    }
+
+    /**
+     * Gets value indicating whether underlying user and room aren't null
+     * references and both are in persistent state.
+     * 
+     * <p>
+     * Though it isn't possible to construct UserPermissions instance using
+     * non-persistent User and Room objects, additional check is performed.
+     * Method is used by {@link UserPermissionsMapper}
+     * 
+     * @return True if underlying user and room aren't null references and both
+     *         are persistent domain objects.
+     * @see #UserPermissions(User, Room, String)
+     */
+    public boolean validate() {
+	boolean result = false;
+
+	if (user != null && room != null) {
+	    if (user.isPersistent() && room.isPersistent()) {
+		result = true;
+	    }
+	}
+
+	return result;
     }
 
     User user;

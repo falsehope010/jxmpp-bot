@@ -88,7 +88,7 @@ public class UserMapper extends AbstractMapper {
      * {@link User}. If this isn't so method does nothing and returns false
      * 
      * @param obj
-     *            {@link User} to be mapped into database
+     *            {@link User} instance to be mapped into database
      * 
      */
     @Override
