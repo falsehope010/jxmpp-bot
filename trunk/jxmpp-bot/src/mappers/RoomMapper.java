@@ -27,6 +27,17 @@ public class RoomMapper extends AbstractMapper {
 	super(db);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation deletes {@link Room} from database. No business logic
+     * is performed.
+     * 
+     * <p>
+     * Parameter passed to this method is considered to be an instance of
+     * {@link Room}. If it isn't so or record is not persistent method does
+     * nothing and returns false.
+     */
     @Override
     public boolean delete(DomainObject obj) {
 	boolean result = false;
@@ -62,6 +73,22 @@ public class RoomMapper extends AbstractMapper {
 	return result;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation performs mapping of {@link Room} into database.
+     * <p>
+     * If record isn't persistent it is simply inserted into corresponding
+     * database table. If record is persistent it is updated. No additional
+     * business logic is performed.
+     * <p>
+     * Parameter passed to this method is considered to be an instance of
+     * {@link Room}. If this isn't so method does nothing and returns false
+     * 
+     * @param obj
+     *            {@link Room} instance to be mapped into database
+     * 
+     */
     @Override
     public boolean save(DomainObject obj) {
 	boolean result = false;
@@ -79,6 +106,13 @@ public class RoomMapper extends AbstractMapper {
 	return result;
     }
 
+    /**
+     * Inserts room into database.
+     * 
+     * @param room
+     *            Room to be inserted
+     * @return True if succeeded, false otherwise
+     */
     private boolean insertRoom(Room room) {
 	boolean result = false;
 
@@ -117,6 +151,13 @@ public class RoomMapper extends AbstractMapper {
 	return result;
     }
 
+    /**
+     * Updates existing (e.g. persistent) room in database
+     * 
+     * @param room
+     *            Room to be updated
+     * @return True if succeded, false otherwise
+     */
     private boolean updateRoom(Room room) {
 	boolean result = false;
 

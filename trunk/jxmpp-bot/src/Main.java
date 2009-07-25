@@ -1,3 +1,10 @@
+import java.io.IOException;
+import java.util.Formatter;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -15,6 +22,21 @@ public class Main {
      */
     public static void main(String[] args) {
 
+	Logger lg = Logger.getLogger("main.sys");
+
+	SimpleFormatter fmt = new SimpleFormatter();
+
+	FileHandler fh = null;
+	try {
+	    fh = new FileHandler("app.log");
+	    fh.setFormatter(fmt);
+	    lg.addHandler(fh);
+	} catch (SecurityException e1) {
+	    e1.printStackTrace();
+	} catch (IOException e1) {
+	    e1.printStackTrace();
+	}
+
 	try {
 
 	    /*
@@ -29,10 +51,19 @@ public class Main {
 
 	    db.connect();
 
+	    lg.log(Level.INFO, "connected...");
+
 	    db.disconnect();
+
+	    lg.log(Level.INFO, "diconnected...");
 
 	} catch (Exception e) {
 	    e.printStackTrace();
+	} finally {
+	    if (fh != null) {
+		fh.flush();
+		fh.close();
+	    }
 	}
 
     }
