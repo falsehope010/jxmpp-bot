@@ -17,6 +17,7 @@ import domain.syslog.Message;
 import domain.syslog.MessageCategory;
 import domain.syslog.MessageSender;
 import domain.syslog.MessageType;
+import domain.syslog.SearchSettings;
 import domain.syslog.SyslogSession;
 import exceptions.DatabaseNotConnectedException;
 

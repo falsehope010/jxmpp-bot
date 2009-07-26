@@ -16,6 +16,7 @@ import utils.StackTraceUtil;
 import base.DatabaseBaseTest;
 import database.Database;
 import domain.syslog.Message;
+import domain.syslog.SearchSettings;
 import domain.syslog.SyslogSession;
 import exceptions.DatabaseNotConnectedException;
 
