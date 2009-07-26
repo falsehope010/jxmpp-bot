@@ -163,7 +163,7 @@ public class ChatMessageMapper extends AbstractMapper {
      * 
      * @param permissions
      *            Record to be updated
-     * @return True if succeded, false otherwise
+     * @return True if succeed, false otherwise
      */
     private boolean updateMessage(ChatMessage message) {
 	boolean result = false;
