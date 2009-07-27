@@ -371,6 +371,8 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 
 	Date startDate = getCurrentDate();
 
+	Thread.sleep(10);
+
 	assertTrue(insertTestSyslogMessages(db, mapper, firstBlockSize));
 	assertEquals(countRecords(db, "syslog"), firstBlockSize);
 
@@ -438,8 +440,8 @@ public class SyslogMessageMapperTest extends DatabaseBaseTest {
 	final int msgTextLen = 128;
 	final int msgAttributeLen = 64;
 
-	final int iterationsCount = 25;
-	final int messagesCount = 1000;
+	final int iterationsCount = 5;
+	final int messagesCount = 5;
 
 	assertTrue(db.setAutoCommit(false));
 

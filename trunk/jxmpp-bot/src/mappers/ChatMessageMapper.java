@@ -129,7 +129,7 @@ public class ChatMessageMapper extends AbstractMapper {
 		Connection conn = db.getConnection();
 
 		pr = conn
-			.prepareStatement("inser into chat_messages(timestamp,text,sender,recipient) "
+			.prepareStatement("insert into chat_messages(timestamp,text,sender,recipient) "
 				+ "values(?,?,?,?)");
 		pr.setDate(1, DateConverter.Convert(message.getTimestamp()));
 		pr.setString(2, message.getText());
