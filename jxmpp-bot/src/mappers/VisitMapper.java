@@ -49,7 +49,7 @@ public class VisitMapper extends AbstractMapper {
 
 		    if (rows_affected == 1) {
 			visit.mapperSetID(0);
-			visit.mapperSetPersistence(true);
+			visit.mapperSetPersistence(false);
 
 			result = true;
 		    }

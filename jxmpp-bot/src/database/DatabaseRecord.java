@@ -23,186 +23,189 @@ import utils.DateConverter;
  */
 public class DatabaseRecord {
 
-	/**
-	 * Creates new empty database record. You can use
-	 * {@link #setFieldValue(String, Object)} to populate record with fields
-	 */
-	public DatabaseRecord() {
-		fields = new ArrayList<DatabaseRecordField>();
+    /**
+     * Creates new empty database record. You can use
+     * {@link #setFieldValue(String, Object)} to populate record with fields
+     */
+    public DatabaseRecord() {
+	fields = new ArrayList<DatabaseRecordField>();
+    }
+
+    /**
+     * Sets field value. If field does not exist creates new one, otherwise
+     * updates it's value
+     * 
+     * @param fieldName
+     *            Field name
+     * @param value
+     *            Field value
+     */
+    public void setFieldValue(String fieldName, Object value) {
+	DatabaseRecordField field = getField(fieldName);
+
+	if (field != null) {
+	    field.setValue(value);
+	} else {
+	    DatabaseRecordField newField = new DatabaseRecordField(fieldName,
+		    value);
+	    fields.add(newField);
+	}
+    }
+
+    /**
+     * Gets value indicating whether field with given name holds null-reference
+     * 
+     * @param fieldName
+     *            Field name
+     * @return True if field with given name holds null-reference, otherwise
+     *         false
+     * @throws IllegalArgumentException
+     *             Thrown if field with given name doesn't exist
+     */
+    public boolean isNull(String fieldName) throws IllegalArgumentException {
+	Object fieldValue = getObject(fieldName);
+
+	return fieldValue == null;
+    }
+
+    /**
+     * Gets field value.
+     * 
+     * @param fieldName
+     *            Field name
+     * @return Field value if field with given name exists
+     * @throws IllegalArgumentException
+     *             Thrown if field with given name doesn't exist
+     */
+    public Object getObject(String fieldName) throws IllegalArgumentException {
+	Object result = null;
+
+	DatabaseRecordField field = getField(fieldName);
+
+	if (field != null) {
+	    result = field.getValue();
+	} else
+	    throw new IllegalArgumentException("Field " + fieldName
+		    + " doesn't exist");
+
+	return result;
+    }
+
+    /**
+     * Gets field value as Long
+     * 
+     * @param fieldName
+     *            Field name
+     * @return Field value as Long
+     * @throws IllegalArgumentException
+     *             Thrown if field with given name doesn't exist
+     * @throws ClassCastException
+     *             Thrown if field value can't be casted to Long
+     */
+    public Long getLong(String fieldName) throws IllegalArgumentException,
+	    ClassCastException {
+	Object fieldValue = getObject(fieldName);
+
+	if (fieldValue instanceof Integer) {
+	    Integer int_val = (Integer) fieldValue;
+	    return new Long(int_val.longValue());
 	}
 
-	/**
-	 * Sets field value. If field does not exist creates new one, otherwise
-	 * updates it's value
-	 * 
-	 * @param fieldName
-	 *            Field name
-	 * @param value
-	 *            Field value
-	 */
-	public void setFieldValue(String fieldName, Object value) {
-		DatabaseRecordField field = getField(fieldName);
-
-		if (field != null) {
-			field.setValue(value);
-		} else {
-			DatabaseRecordField newField = new DatabaseRecordField(fieldName,
-					value);
-			fields.add(newField);
-		}
+	if (fieldValue instanceof Long) {
+	    return (Long) fieldValue;
 	}
 
-	/**
-	 * Gets value indicating whether field with given name holds null-reference
-	 * 
-	 * @param fieldName
-	 *            Field name
-	 * @return True if field with given name holds null-reference, otherwise
-	 *         false
-	 * @throws IllegalArgumentException
-	 *             Thrown if field with given name doesn't exist
-	 */
-	public boolean isNull(String fieldName) throws IllegalArgumentException {
-		Object fieldValue = getObject(fieldName);
+	throw new ClassCastException("Can't cast field value=["
+		+ fieldValue.toString() + "] to Long");
+    }
 
-		return fieldValue == null;
+    /**
+     * Gets field value as {@link Date}
+     * 
+     * @param fieldName
+     *            Field name
+     * @return Field value as Date
+     * @throws IllegalArgumentException
+     *             Thrown if field with given name doesn't exist
+     * @throws ClassCastException
+     *             Thrown if field value can't be casted to Long
+     */
+    public Date getDate(String fieldName) throws IllegalArgumentException,
+	    ClassCastException {
+	Object fieldValue = getObject(fieldName);
+
+	if (fieldValue == null)
+	    return null;
+
+	if (fieldValue instanceof Long) {
+	    Long long_val = (Long) fieldValue;
+	    return new Date(long_val);
 	}
 
-	/**
-	 * Gets field value.
-	 * 
-	 * @param fieldName
-	 *            Field name
-	 * @return Field value if field with given name exists
-	 * @throws IllegalArgumentException
-	 *             Thrown if field with given name doesn't exist
-	 */
-	public Object getObject(String fieldName) throws IllegalArgumentException {
-		Object result = null;
-
-		DatabaseRecordField field = getField(fieldName);
-
-		if (field != null) {
-			result = field.getValue();
-		} else
-			throw new IllegalArgumentException("Field " + fieldName
-					+ " doesn't exist");
-
-		return result;
+	if (fieldValue instanceof Integer) {
+	    Long long_val = ((Integer) fieldValue).longValue();
+	    return new Date(long_val);
 	}
 
-	/**
-	 * Gets field value as Long
-	 * 
-	 * @param fieldName
-	 *            Field name
-	 * @return Field value as Long
-	 * @throws IllegalArgumentException
-	 *             Thrown if field with given name doesn't exist
-	 * @throws ClassCastException
-	 *             Thrown if field value can't be casted to Long
-	 */
-	public Long getLong(String fieldName) throws IllegalArgumentException,
-			ClassCastException {
-		Object fieldValue = getObject(fieldName);
-
-		if (fieldValue instanceof Integer) {
-			Integer int_val = (Integer) fieldValue;
-			return new Long(int_val.longValue());
-		}
-
-		if (fieldValue instanceof Long) {
-			return (Long) fieldValue;
-		}
-
-		throw new ClassCastException("Can't cast field value=["
-				+ fieldValue.toString() + "] to Long");
+	if (fieldValue instanceof Date) {
+	    return (Date) fieldValue;
 	}
 
-	/**
-	 * Gets field value as {@link Date}
-	 * 
-	 * @param fieldName
-	 *            Field name
-	 * @return Field value as Date
-	 * @throws IllegalArgumentException
-	 *             Thrown if field with given name doesn't exist
-	 * @throws ClassCastException
-	 *             Thrown if field value can't be casted to Long
-	 */
-	public Date getDate(String fieldName) throws IllegalArgumentException,
-			ClassCastException {
-		Object fieldValue = getObject(fieldName);
-
-		if (fieldValue instanceof Long) {
-			Long long_val = (Long) fieldValue;
-			return new Date(long_val);
-		}
-
-		if (fieldValue instanceof Integer) {
-			Long long_val = ((Integer) fieldValue).longValue();
-			return new Date(long_val);
-		}
-
-		if (fieldValue instanceof Date) {
-			return (Date) fieldValue;
-		}
-
-		if (fieldValue instanceof java.sql.Date) {
-			return DateConverter.Convert((java.sql.Date) fieldValue);
-		}
-
-		if (fieldValue instanceof char[]) {
-			char[] char_val = (char[]) fieldValue;
-			long long_val = -1;
-			try {
-				long_val = Long.parseLong(new String(char_val));
-			} catch (Exception e) {
-				// nothing todo here
-			}
-
-			if (long_val != -1) {
-				return new Date(long_val);
-			}
-		}
-
-		if (fieldValue instanceof String) {
-			String str_val = (String) fieldValue;
-			long long_val = -1;
-			try {
-				long_val = Long.parseLong(str_val);
-			} catch (Exception e) {
-				// nothing todo here
-			}
-
-			if (long_val != -1) {
-				return new Date(long_val);
-			}
-		}
-
-		throw new ClassCastException("Can't cast field value=["
-				+ fieldValue.toString() + "] to Date");
+	if (fieldValue instanceof java.sql.Date) {
+	    return DateConverter.Convert((java.sql.Date) fieldValue);
 	}
 
-	/**
-	 * Finds field using it's name in internal fields collection
-	 * 
-	 * @param name
-	 *            Field name
-	 * @return Valid field if exists, null-reference otherwise
-	 */
-	private DatabaseRecordField getField(String name) {
-		DatabaseRecordField result = null;
+	if (fieldValue instanceof char[]) {
+	    char[] char_val = (char[]) fieldValue;
+	    long long_val = -1;
+	    try {
+		long_val = Long.parseLong(new String(char_val));
+	    } catch (Exception e) {
+		// nothing todo here
+	    }
 
-		for (DatabaseRecordField f : fields) {
-			if (f.getName().equals(name)) {
-				result = f;
-				break;
-			}
-		}
-
-		return result;
+	    if (long_val != -1) {
+		return new Date(long_val);
+	    }
 	}
 
-	ArrayList<DatabaseRecordField> fields;
+	if (fieldValue instanceof String) {
+	    String str_val = (String) fieldValue;
+	    long long_val = -1;
+	    try {
+		long_val = Long.parseLong(str_val);
+	    } catch (Exception e) {
+		// nothing todo here
+	    }
+
+	    if (long_val != -1) {
+		return new Date(long_val);
+	    }
+	}
+
+	throw new ClassCastException("Can't cast field value=["
+		+ fieldValue.toString() + "] to Date");
+    }
+
+    /**
+     * Finds field using it's name in internal fields collection
+     * 
+     * @param name
+     *            Field name
+     * @return Valid field if exists, null-reference otherwise
+     */
+    private DatabaseRecordField getField(String name) {
+	DatabaseRecordField result = null;
+
+	for (DatabaseRecordField f : fields) {
+	    if (f.getName().equals(name)) {
+		result = f;
+		break;
+	    }
+	}
+
+	return result;
+    }
+
+    ArrayList<DatabaseRecordField> fields;
 }

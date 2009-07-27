@@ -92,6 +92,20 @@ public class ChatMessage extends DomainObject {
 	return recipient;
     }
 
+    /**
+     * Sets message text
+     * 
+     * @param text
+     *            New message text. Parameter can't be null
+     * @throws NullPointerException
+     *             Thrown if parameter passed to method is null reference
+     */
+    public void setText(String text) throws NullPointerException {
+	if (text == null)
+	    throw new NullPointerException("Message text can't be null");
+	this.text = text;
+    }
+
     String text;
     Date timestamp;
     Visit sender;
