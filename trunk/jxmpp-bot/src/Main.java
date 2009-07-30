@@ -1,9 +1,7 @@
-import java.io.IOException;
-import java.util.Formatter;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
@@ -12,9 +10,6 @@ import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 
-import database.Database;
-import database.DatabaseFactory;
-
 public class Main {
 
     /**
@@ -22,50 +17,48 @@ public class Main {
      */
     public static void main(String[] args) {
 
-	Logger lg = Logger.getLogger("main.sys");
-
-	SimpleFormatter fmt = new SimpleFormatter();
-
-	FileHandler fh = null;
-	try {
-	    fh = new FileHandler("app.log");
-	    fh.setFormatter(fmt);
-	    lg.addHandler(fh);
-	} catch (SecurityException e1) {
-	    e1.printStackTrace();
-	} catch (IOException e1) {
-	    e1.printStackTrace();
-	}
+	Connection conn = null;
 
 	try {
+	    conn = DriverManager
+		    .getConnection("jdbc:derby:derbyDB;create=true");
 
-	    /*
-	     * DatabaseFactory factory = new DatabaseFactory("test_db");
-	     * Database db = factory.createDatabase(); db.connect();
-	     * SyslogMessageMapper mapper = new SyslogMessageMapper(db); //...do
-	     * any work with mapper db.disconnect();
-	     */
+	    PreparedStatement pr = conn
+		    .prepareStatement("insert into test_table(name,surname) values(?,?)");
 
-	    DatabaseFactory factory = new DatabaseFactory("test_db");
-	    Database db = factory.createDatabase();
+	    conn.setAutoCommit(false);
 
-	    db.connect();
+	    for (int i = 0; i < 100000; ++i) {
+		pr.setString(1, Integer.toString(i) + "AAAAAAAAAAAAAAA");
+		pr.setString(2, "12312312313212313123123123");
 
-	    lg.log(Level.INFO, "connected...");
+		pr.executeUpdate();
 
-	    db.disconnect();
-
-	    lg.log(Level.INFO, "diconnected...");
-
-	} catch (Exception e) {
-	    e.printStackTrace();
-	} finally {
-	    if (fh != null) {
-		fh.flush();
-		fh.close();
 	    }
+
+	    conn.commit();
+
+	    conn.setAutoCommit(true);
+
+	    pr.close();
+
+	} catch (SQLException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
 
+	try {
+	    if (conn != null)
+		conn.close();
+	} catch (SQLException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+
+	try {
+	    DriverManager.getConnection("jdbc:derby:;shutdown=true");
+	} catch (SQLException e) {
+	}
     }
 
     protected static void XmppConnect() {
