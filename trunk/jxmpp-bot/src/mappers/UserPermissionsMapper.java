@@ -2,9 +2,16 @@ package mappers;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
+import muc.Repository;
 import database.Database;
 import domain.DomainObject;
+import domain.muc.Room;
+import domain.muc.User;
 import domain.muc.UserPermissions;
 import exceptions.DatabaseNotConnectedException;
 
@@ -94,6 +101,74 @@ public class UserPermissionsMapper extends AbstractMapper {
 		    result = updateRecord(permissions);
 		}
 	    }
+	}
+
+	return result;
+    }
+
+    /**
+     * Loads all user permissions from database. Uses {@link Repository} in
+     * order to map from relational to object model
+     * 
+     * @param repository
+     *            Instance of {@link Repository} which will be used for
+     *            OR-mapping
+     * @return List of all user permissions
+     * @throws NullPointerException
+     *             Thrown if repository parameter passed to method is null
+     *             reference
+     * @see Repository
+     * @see UserPermissions
+     */
+    public List<UserPermissions> getUserPermissions(Repository repository)
+	    throws NullPointerException {
+	if (repository == null)
+	    throw new NullPointerException("Repository can't be null");
+
+	ArrayList<UserPermissions> result = new ArrayList<UserPermissions>();
+
+	Statement st = null;
+	ResultSet rs = null;
+
+	try {
+	    Connection conn = db.getConnection();
+
+	    st = conn.createStatement();
+
+	    rs = st
+		    .executeQuery("select id,user_id,room_id,jid,access_level from permissions;");
+
+	    long recordID, userID, roomID;
+	    String jabberID;
+	    int accessLevel;
+
+	    while (rs.next()) {
+		recordID = rs.getLong(1);
+		userID = rs.getLong(2);
+		roomID = rs.getLong(3);
+		jabberID = rs.getString(4);
+		accessLevel = rs.getInt(5);
+
+		User user = repository.getUser(userID);
+		Room room = repository.getRoom(roomID);
+
+		if (recordID > 0 && user != null && room != null) {
+		    if (jabberID != null && jabberID.length() > 0) {
+			UserPermissions permissions = new UserPermissions(user,
+				room, jabberID, accessLevel);
+
+			permissions.mapperSetID(recordID);
+			permissions.mapperSetPersistence(true);
+
+			result.add(permissions);
+		    }
+		}
+	    }
+
+	} catch (Exception e) {
+	    e.printStackTrace();
+	} finally {
+	    db.Cleanup(st, rs);
 	}
 
 	return result;

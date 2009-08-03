@@ -14,9 +14,14 @@ import domain.DomainObject;
 public class UserPermissions extends DomainObject {
 
     /**
+     * Default access level, which is assigned to {@link User} for the specified
+     * {@link Room}
+     */
+    public static final int DEFAULT_ACCESS_LEVEL = 0;
+
+    /**
      * Creates new instance using given user and room. Set's access level to
-     * zero. You can manually change access level after creating instance using
-     * {@link #setAccessLevel(int)}
+     * default value - zero.
      * 
      * @param user
      *            User who owns given jabberID
@@ -31,9 +36,35 @@ public class UserPermissions extends DomainObject {
      *             Thrown if any parameter passed to constructor is null
      *             reference
      * @see #validate()
+     * @see #DEFAULT_ACCESS_LEVEL
      */
-    public UserPermissions(User user, Room room, String jabberID)
-	    throws IllegalArgumentException, NullPointerException {
+    public UserPermissions(User user, Room room, String jabberID) {
+	this(user, room, jabberID, 0);
+    }
+
+    /**
+     * Creates new instance using given user and room and grants given access
+     * level.
+     * 
+     * @param user
+     *            User who owns given jabberID
+     * @param room
+     *            Chat room
+     * @param jabberID
+     *            jabberID of given user
+     * @param accessLevel
+     *            Access level of given user for the specified room
+     * @throws IllegalArgumentException
+     *             Thrown if user or room passed to constructor aren't
+     *             persistent domain objects
+     * @throws NullPointerException
+     *             Thrown if any parameter passed to constructor is null
+     *             reference
+     * @see #validate()
+     */
+    public UserPermissions(User user, Room room, String jabberID,
+	    int accessLevel) throws IllegalArgumentException,
+	    NullPointerException {
 	if (user == null || room == null || jabberID == null)
 	    throw new NullPointerException(
 		    "Some argument passed to constructor is null-reference");
@@ -48,7 +79,7 @@ public class UserPermissions extends DomainObject {
 	this.user = user;
 	this.room = room;
 	this.jabberID = jabberID;
-	this.accessLevel = 0;
+	this.accessLevel = accessLevel;
     }
 
     /**
