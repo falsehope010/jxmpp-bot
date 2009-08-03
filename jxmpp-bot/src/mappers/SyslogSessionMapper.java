@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import utils.DateConverter;
 import database.Database;
@@ -186,7 +187,7 @@ public class SyslogSessionMapper extends AbstractMapper {
      * 
      * @return ArrayList with sessions if succeded, null-reference otherwise
      */
-    public ArrayList<SyslogSession> getSessions() {
+    public List<SyslogSession> getSessions() {
 	ArrayList<SyslogSession> result = null;
 
 	Statement st = null;
