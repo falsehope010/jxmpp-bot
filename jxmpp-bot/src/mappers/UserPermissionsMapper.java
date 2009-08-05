@@ -10,8 +10,7 @@ import java.util.List;
 import muc.Repository;
 import database.Database;
 import domain.DomainObject;
-import domain.muc.Room;
-import domain.muc.User;
+import domain.internal.UserPermissionsEntity;
 import domain.muc.UserPermissions;
 import exceptions.DatabaseNotConnectedException;
 
@@ -107,25 +106,19 @@ public class UserPermissionsMapper extends AbstractMapper {
     }
 
     /**
-     * Loads all user permissions from database. Uses {@link Repository} in
-     * order to map from relational to object model
+     * Loads all user permission entities from database.
+     * <p>
+     * For internal use. Method is used by {@link Repository} in order to load
+     * high level domain objects of {@link UserPermissions} type
      * 
-     * @param repository
-     *            Instance of {@link Repository} which will be used for
-     *            OR-mapping
-     * @return List of all user permissions
-     * @throws NullPointerException
-     *             Thrown if repository parameter passed to method is null
-     *             reference
+     * @return List of all entities from database
+     * 
      * @see Repository
-     * @see UserPermissions
+     * @see UserPermissionsEntity
      */
-    public List<UserPermissions> getUserPermissions(Repository repository)
-	    throws NullPointerException {
-	if (repository == null)
-	    throw new NullPointerException("Repository can't be null");
+    public List<UserPermissionsEntity> repositoryGetUserPermissions() {
 
-	ArrayList<UserPermissions> result = new ArrayList<UserPermissions>();
+	ArrayList<UserPermissionsEntity> result = new ArrayList<UserPermissionsEntity>();
 
 	Statement st = null;
 	ResultSet rs = null;
@@ -149,18 +142,13 @@ public class UserPermissionsMapper extends AbstractMapper {
 		jabberID = rs.getString(4);
 		accessLevel = rs.getInt(5);
 
-		User user = repository.getUser(userID);
-		Room room = repository.getRoom(roomID);
-
-		if (recordID > 0 && user != null && room != null) {
+		if (recordID > 0 && userID > 0 && roomID > 0) {
 		    if (jabberID != null && jabberID.length() > 0) {
-			UserPermissions permissions = new UserPermissions(user,
-				room, jabberID, accessLevel);
 
-			permissions.mapperSetID(recordID);
-			permissions.mapperSetPersistence(true);
+			UserPermissionsEntity entity = new UserPermissionsEntity(
+				recordID, userID, roomID, jabberID, accessLevel);
 
-			result.add(permissions);
+			result.add(entity);
 		    }
 		}
 	    }
