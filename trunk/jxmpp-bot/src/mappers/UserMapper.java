@@ -2,6 +2,10 @@ package mappers;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import utils.DateConverter;
 import database.Database;
@@ -103,6 +107,48 @@ public class UserMapper extends AbstractMapper {
 	    } else {
 		result = updateUser(user);
 	    }
+	}
+
+	return result;
+    }
+
+    /**
+     * Gets all {@link User} records from database
+     * 
+     * @return List of all users from database
+     */
+    public List<User> getUsers() {
+	ArrayList<User> result = new ArrayList<User>();
+
+	Statement st = null;
+	ResultSet rs = null;
+
+	try {
+	    Connection conn = db.getConnection();
+	    st = conn.createStatement();
+	    rs = st
+		    .executeQuery("select id,real_name,job,position,birthday,comments from users;");
+
+	    while (rs.next()) {
+		long userID = rs.getLong(1);
+
+		User user = new User();
+		user.mapperSetID(userID);
+
+		user.setRealName(rs.getString(2));
+		user.setJob(rs.getString(3));
+		user.setPosition(rs.getString(4));
+		user.setBirthday(rs.getDate(5));
+		user.setComments(rs.getString(6));
+
+		user.mapperSetPersistence(true);
+
+		result.add(user);
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	} finally {
+	    db.Cleanup(st, rs);
 	}
 
 	return result;

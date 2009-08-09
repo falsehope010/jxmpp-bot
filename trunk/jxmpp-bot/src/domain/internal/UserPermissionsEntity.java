@@ -10,58 +10,58 @@ package domain.internal;
  */
 public class UserPermissionsEntity {
 
-    public UserPermissionsEntity(long id, long user_id, long room_id,
-	    String jid, int accessLevel) {
+    public UserPermissionsEntity(long id, long userID, long roomID,
+	    String jabberID, int accessLevel) {
 	this.id = id;
-	this.user_id = user_id;
-	this.room_id = room_id;
-	this.jid = jid;
-	this.access_level = accessLevel;
+	this.userID = userID;
+	this.roomID = roomID;
+	this.jabberID = jabberID;
+	this.accessLevel = accessLevel;
     }
 
-    public long getId() {
+    public long getID() {
 	return id;
     }
 
-    public void setId(long id) {
+    public void setID(long id) {
 	this.id = id;
     }
 
-    public long getUser_id() {
-	return user_id;
+    public long getUserID() {
+	return userID;
     }
 
-    public void setUser_id(long userId) {
-	user_id = userId;
+    public void setUserID(long userId) {
+	userID = userId;
     }
 
-    public long getRoom_id() {
-	return room_id;
+    public long getRoomID() {
+	return roomID;
     }
 
-    public void setRoom_id(long roomId) {
-	room_id = roomId;
+    public void setRoomID(long roomId) {
+	roomID = roomId;
     }
 
-    public String getJid() {
-	return jid;
+    public String getJabberID() {
+	return jabberID;
     }
 
-    public void setJid(String jid) {
-	this.jid = jid;
+    public void setJabberID(String jid) {
+	this.jabberID = jid;
     }
 
-    public int getAccess_level() {
-	return access_level;
+    public int getAccessLevel() {
+	return accessLevel;
     }
 
-    public void setAccess_level(int accessLevel) {
-	access_level = accessLevel;
+    public void setAccessLevel(int accessLevel) {
+	this.accessLevel = accessLevel;
     }
 
     long id;
-    long user_id;
-    long room_id;
-    String jid;
-    int access_level;
+    long userID;
+    long roomID;
+    String jabberID;
+    int accessLevel;
 }

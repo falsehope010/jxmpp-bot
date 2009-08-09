@@ -271,6 +271,11 @@ public class UserMapperTest extends DatabaseBaseTest {
     }
 
     @Test
+    public void testGetUsers() {
+	fail("Not yet implemented");
+    }
+
+    @Test
     public void testUserMapper() throws NullPointerException,
 	    FileNotFoundException {
 	UserMapper testMapper = null;
