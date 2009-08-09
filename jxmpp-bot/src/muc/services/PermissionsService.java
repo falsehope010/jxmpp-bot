@@ -40,7 +40,8 @@ public class PermissionsService extends AbstractService {
 	try {
 	    userPermissions = new HashMap<RjPair, UserPermissions>();
 
-	    List<UserPermissions> lperm = repository.getUserPermissions();
+	    // TODO:
+	    List<UserPermissions> lperm = null;// repository.getUserPermissions();
 
 	    for (UserPermissions up : lperm) {
 		RjPair rj = generateRjPair(up);

@@ -1,20 +1,22 @@
 package muc;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import mappers.UserPermissionsMapper;
+import mappers.RoomMapper;
+import mappers.UserMapper;
 import database.Database;
+import domain.IdentityMap;
 import domain.muc.Room;
 import domain.muc.User;
-import domain.muc.UserPermissions;
 import exceptions.RepositoryInitializationException;
 
 /**
  * Represents repository which is used for OR-mapping of several muc tables
  * <p>
- * {@link UserPermissionsMapper} uses repository for mapping users and rooms to
- * user permissions objects
+ * Repository is designed to be used as single instance in application. It
+ * creates multiple identity maps during construction (e.g. users identity map,
+ * rooms identity map). It also provides several high-level methods of creating
+ * / updating users and rooms and manages all internal processing
  * 
  * @author tillias
  * 
@@ -43,54 +45,96 @@ public class Repository {
 		    "Database isn't in connected state");
 	this.db = db;
 
-	if (!initRepository())
-	    throw new RepositoryInitializationException(
-		    "Can't initialize repository");
+	usersMap = loadUsers(db);
+	roomsMap = loadRooms(db);
     }
 
-    public List<UserPermissions> getUserPermissions() {
-	return new ArrayList<UserPermissions>();
-
-	// TODO:
-    }
-
-    // TODO:
     /**
      * Retrieves {@link User} from repository using it's ID
      * 
-     * @param id
+     * @param ID
      *            User identifier
      * @return Valid, persistent User if such a user is stored in repository,
      *         null reference otherwise
      */
-    public User getUser(long id) {
-	return null;
+    public User getUser(long ID) {
+	return usersMap.get(ID);
     }
 
-    // TODO:
     /**
      * Retrieves {@link Room} from repository using it's ID
      * 
-     * @param id
+     * @param ID
      *            Room identifier
      * @return Valid, persistent Room if such a room is stored in repository,,
      *         null reference otherwise
      */
-    public Room getRoom(long id) {
-	return null;
+    public Room getRoom(long ID) {
+	return roomsMap.get(ID);
     }
 
-    private boolean initRepository() {
-	return loadUsers() && loadRooms();
+    /**
+     * Loads all users from database and creates {@link IdentityMap}
+     * 
+     * @param database
+     *            Database which stores users
+     * @return Identity map of users
+     * @throws RepositoryInitializationException
+     *             Thrown if any error occurred during building of IdentityMap.
+     *             See exeception message for details.
+     * @see {@link User}
+     */
+    private IdentityMap<User> loadUsers(Database database)
+	    throws RepositoryInitializationException {
+	IdentityMap<User> result = new IdentityMap<User>();
+
+	try {
+	    UserMapper mapper = new UserMapper(database);
+
+	    List<User> users = mapper.getUsers();
+
+	    for (User user : users) {
+		result.add(user);
+	    }
+	} catch (Exception e) {
+	    throw new RepositoryInitializationException(
+		    "Can't init users identity map. " + e.getMessage());
+	}
+
+	return result;
     }
 
-    private boolean loadUsers() {
-	return false;
+    /**
+     * Loads all rooms from database and creates {@link IdentityMap}
+     * 
+     * @param database
+     *            Database which stores rooms
+     * @return Identity map of rooms
+     * @throws RepositoryInitializationException
+     * @see {@link Room}
+     */
+    private IdentityMap<Room> loadRooms(Database database)
+	    throws RepositoryInitializationException {
+	IdentityMap<Room> result = new IdentityMap<Room>();
+
+	try {
+	    RoomMapper mapper = new RoomMapper(database);
+
+	    List<Room> rooms = mapper.getRooms();
+
+	    for (Room room : rooms) {
+		result.add(room);
+	    }
+
+	} catch (Exception e) {
+	    throw new RepositoryInitializationException(
+		    "Can't init rooms identity map");
+	}
+
+	return result;
     }
 
-    private boolean loadRooms() {
-	return false;
-    }
-
-    private Database db;
+    Database db;
+    IdentityMap<User> usersMap;
+    IdentityMap<Room> roomsMap;
 }

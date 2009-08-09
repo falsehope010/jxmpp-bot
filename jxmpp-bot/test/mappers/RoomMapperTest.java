@@ -191,9 +191,67 @@ public class RoomMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testGetRooms() {
-	fail("Not yet implemented");
+	Database db = null;
+
+	try {
+	    db = prepareDatabase();
+	} catch (Exception e) {
+	    fail(StackTraceUtil.toString(e));
+	}
+
+	assertNotNull(db);
+	assertTrue(truncateTable(db, "rooms"));
+
+	RoomMapper mapper = null;
+
+	try {
+	    mapper = new RoomMapper(db);
+	} catch (Exception e) {
+	    fail(StackTraceUtil.toString(e));
+	}
+
+	assertNotNull(mapper);
+
+	final int recordsCount = 5;
+
+	ArrayList<Room> list = new ArrayList<Room>(recordsCount);
+
+	for (int i = 0; i < recordsCount; ++i) {
+	    Room room = new Room("room" + Integer.toString(i)
+		    + "@conference.xmpp.org");
+
+	    assertTrue(mapper.save(room));
+	    assertTrue(room.isPersistent());
+	    assertTrue(room.getID() > 0);
+
+	    list.add(room);
+	}
+
+	assertEquals(countRecords(db, "rooms"), recordsCount);
+
+	// load records back from database
+	List<Room> rooms = mapper.getRooms();
+	assertNotNull(rooms);
+	assertEquals(rooms.size(), recordsCount);
+
+	for (int i = 0; i < recordsCount; ++i) {
+	    Room objectItem = list.get(i);
+	    Room entityItem = rooms.get(i);
+
+	    assertNotNull(entityItem);
+	    assertEquals(objectItem.getID(), entityItem.getID());
+	    assertEquals(objectItem.getName(), entityItem.getName());
+
+	    /*
+	     * No need to compare other fields since we've set them to null at
+	     * the very beginning
+	     */
+	}
+
+	db.disconnect();
     }
 
     @Test
