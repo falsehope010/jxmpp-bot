@@ -192,6 +192,11 @@ public class RoomMapperTest extends DatabaseBaseTest {
     }
 
     @Test
+    public void testGetRooms() {
+	fail("Not yet implemented");
+    }
+
+    @Test
     public void testRoomMapper() throws NullPointerException,
 	    FileNotFoundException {
 	RoomMapper testMapper = null;

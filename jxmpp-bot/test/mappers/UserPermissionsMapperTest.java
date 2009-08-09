@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import utils.StackTraceUtil;
 import base.PermissionsTest;
 import database.Database;
 import database.DatabaseRecord;
+import domain.internal.UserPermissionsEntity;
 import domain.muc.Room;
 import domain.muc.User;
 import domain.muc.UserPermissions;
@@ -286,4 +288,80 @@ public class UserPermissionsMapperTest extends PermissionsTest {
 
     }
 
+    @SuppressWarnings("null")
+    @Test
+    public void testGetEntities() throws NullPointerException,
+	    FileNotFoundException {
+	Database db = prepareDatabase();
+
+	assertTrue(truncateTable(db, "rooms"));
+	assertTrue(truncateTable(db, "users"));
+	assertTrue(truncateTable(db, "permissions"));
+
+	UserMapper u_mapper = null;
+	RoomMapper r_mapper = null;
+	UserPermissionsMapper mapper = null;
+
+	try {
+	    u_mapper = new UserMapper(db);
+	    r_mapper = new RoomMapper(db);
+	    mapper = new UserPermissionsMapper(db);
+	} catch (Exception e) {
+	    fail(StackTraceUtil.toString(e));
+	}
+
+	assertNotNull(u_mapper);
+	assertNotNull(r_mapper);
+	assertNotNull(mapper);
+
+	User user = new User();
+	Room room = new Room("test@conference.xmpp.org");
+
+	assertTrue(u_mapper.save(user));
+	assertTrue(r_mapper.save(room));
+	assertTrue(user.isPersistent());
+	assertTrue(user.getID() > 0);
+	assertTrue(room.isPersistent());
+	assertTrue(room.getID() > 0);
+
+	final int recordsCount = 5;
+	ArrayList<UserPermissions> list = new ArrayList<UserPermissions>(
+		recordsCount);
+
+	for (int i = 0; i < recordsCount; ++i) {
+	    UserPermissions p = new UserPermissions(user, room, "john_doe"
+		    + Integer.toString(i) + "@xmpp.ru");
+	    assertTrue(mapper.save(p));
+	    assertTrue(p.isPersistent());
+	    assertTrue(p.getID() > 0);
+
+	    list.add(p);
+	}
+
+	assertEquals(countRecords(db, "permissions"), recordsCount);
+	assertEquals(list.size(), recordsCount);
+
+	List<UserPermissionsEntity> entities = mapper
+		.repositoryGetUserPermissions();
+
+	assertNotNull(entities);
+	assertEquals(entities.size(), recordsCount);
+
+	// verify entities against object model
+	for (int i = 0; i < recordsCount; ++i) {
+	    UserPermissions objectItem = list.get(i);
+	    UserPermissionsEntity entityItem = entities.get(i);
+	    assertNotNull(objectItem);
+	    assertNotNull(entityItem);
+
+	    assertEquals(objectItem.getID(), entityItem.getID());
+	    assertEquals(objectItem.getUser().getID(), entityItem.getUserID());
+	    assertEquals(objectItem.getRoom().getID(), entityItem.getRoomID());
+	    assertEquals(objectItem.getJabberID(), entityItem.getJabberID());
+	    assertEquals(objectItem.getAccessLevel(), entityItem
+		    .getAccessLevel());
+	}
+
+	db.disconnect();
+    }
 }

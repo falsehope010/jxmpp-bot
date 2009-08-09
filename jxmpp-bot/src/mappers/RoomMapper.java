@@ -2,6 +2,10 @@ package mappers;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import database.Database;
 import domain.DomainObject;
@@ -101,6 +105,38 @@ public class RoomMapper extends AbstractMapper {
 	    } else {
 		result = updateRoom(room);
 	    }
+	}
+
+	return result;
+    }
+
+    public List<Room> getRooms() {
+	ArrayList<Room> result = new ArrayList<Room>();
+
+	Statement st = null;
+	ResultSet rs = null;
+
+	try {
+	    Connection conn = db.getConnection();
+	    st = conn.createStatement();
+	    rs = st.executeQuery("select id,name,description from rooms;");
+
+	    while (rs.next()) {
+		long recordID = rs.getLong(1);
+		String roomName = rs.getString(2);
+		String description = rs.getString(3);
+
+		Room room = new Room(roomName, description);
+
+		room.mapperSetID(recordID);
+		room.mapperSetPersistence(true);
+
+		result.add(room);
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	} finally {
+	    db.Cleanup(st, rs);
 	}
 
 	return result;
