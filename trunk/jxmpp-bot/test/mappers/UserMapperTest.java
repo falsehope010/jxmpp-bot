@@ -270,9 +270,65 @@ public class UserMapperTest extends DatabaseBaseTest {
 	db.disconnect();
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testGetUsers() {
-	fail("Not yet implemented");
+	Database db = null;
+
+	try {
+	    db = prepareDatabase();
+	} catch (Exception e) {
+	    fail(StackTraceUtil.toString(e));
+	}
+
+	assertNotNull(db);
+	assertTrue(truncateTable(db, "users"));
+
+	UserMapper mapper = null;
+
+	try {
+	    mapper = new UserMapper(db);
+	} catch (Exception e) {
+	    fail(StackTraceUtil.toString(e));
+	}
+
+	assertNotNull(mapper);
+
+	final int recordsCount = 5;
+
+	ArrayList<User> list = new ArrayList<User>(recordsCount);
+
+	for (int i = 0; i < recordsCount; ++i) {
+	    User user = new User();
+
+	    assertTrue(mapper.save(user));
+	    assertTrue(user.isPersistent());
+	    assertTrue(user.getID() > 0);
+
+	    list.add(user);
+	}
+
+	assertEquals(countRecords(db, "users"), recordsCount);
+
+	// load records back from database
+	List<User> users = mapper.getUsers();
+	assertNotNull(users);
+	assertEquals(users.size(), recordsCount);
+
+	for (int i = 0; i < recordsCount; ++i) {
+	    User objectItem = list.get(i);
+	    User entityItem = users.get(i);
+
+	    assertNotNull(entityItem);
+	    assertEquals(objectItem.getID(), entityItem.getID());
+
+	    /*
+	     * No need to compare other fields since we've set them to null at
+	     * the very beginning
+	     */
+	}
+
+	db.disconnect();
     }
 
     @Test
