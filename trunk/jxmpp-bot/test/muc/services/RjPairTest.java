@@ -13,9 +13,9 @@ public class RjPairTest {
 
 	final int counter = 100;
 
-	RjPair p1 = new RjPair("john_doe@xmpp.org",
+	JidRoomKey p1 = new JidRoomKey("john_doe@xmpp.org",
 		"conference@conference.xmpp.org");
-	RjPair p2 = new RjPair("john_doe@xmpp.org",
+	JidRoomKey p2 = new JidRoomKey("john_doe@xmpp.org",
 		"conference@conference.xmpp.org");
 
 	for (int i = 0; i < counter; ++i) {
@@ -32,8 +32,8 @@ public class RjPairTest {
 
 	final int counter = 100;
 
-	RjPair p1 = new RjPair(jabberID, roomName);
-	RjPair p2 = new RjPair(jabberID + salt, roomName);
+	JidRoomKey p1 = new JidRoomKey(jabberID, roomName);
+	JidRoomKey p2 = new JidRoomKey(jabberID + salt, roomName);
 
 	for (int i = 0; i < counter; ++i) {
 	    assertFalse(p1.hashCode() == p2.hashCode());
@@ -45,18 +45,18 @@ public class RjPairTest {
 	String jabberID = "john_doe@xmpp.org";
 	String roomName = "conference@conference.xmpp.org";
 
-	RjPair p1 = new RjPair(jabberID, roomName);
+	JidRoomKey p1 = new JidRoomKey(jabberID, roomName);
 
 	// reflexiveness
 	assertTrue(p1.equals(p1));
 
 	// symmetric property
-	RjPair p2 = new RjPair(jabberID, roomName);
+	JidRoomKey p2 = new JidRoomKey(jabberID, roomName);
 	assertTrue(p1.equals(p2));
 	assertTrue(p2.equals(p1));
 
 	// transitivity
-	RjPair p3 = new RjPair(jabberID, roomName);
+	JidRoomKey p3 = new JidRoomKey(jabberID, roomName);
 	assertTrue(p1.equals(p2));
 	assertTrue(p2.equals(p3));
 	assertTrue(p1.equals(p3));
@@ -68,19 +68,19 @@ public class RjPairTest {
 	String roomName = "conference@conference.xmpp.org";
 	String salt = "123";
 
-	RjPair p1 = new RjPair(jabberID, roomName);
+	JidRoomKey p1 = new JidRoomKey(jabberID, roomName);
 
 	// reflexivity
 	assertTrue(p1.equals(p1));
 
 	// simm
-	RjPair p2 = new RjPair(jabberID + salt, roomName);
+	JidRoomKey p2 = new JidRoomKey(jabberID + salt, roomName);
 	assertFalse(p1.equals(p2));
 	assertFalse(p2.equals(p1));
 
 	// transitivity
-	p2 = new RjPair(jabberID, roomName);
-	RjPair p3 = new RjPair(jabberID + salt, roomName);
+	p2 = new JidRoomKey(jabberID, roomName);
+	JidRoomKey p3 = new JidRoomKey(jabberID + salt, roomName);
 	assertTrue(p1.equals(p2));
 	assertFalse(p2.equals(p3));
 	assertFalse(p1.equals(p3));
