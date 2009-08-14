@@ -1,8 +1,17 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import muc.services.JidRoomKey;
+
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+
+import utils.MemoryAnalizer;
+import utils.RandomUtils;
 
 public class Main {
 
@@ -10,7 +19,43 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) {
-	XmppConnect();
+	int jidsCount = 100;
+	int roomsCount = 2;
+
+	long start = MemoryAnalizer.getMemoryUse();
+
+	HashMap<JidRoomKey, Long> map = new HashMap<JidRoomKey, Long>();
+	List<JidRoomKey> keys = new ArrayList<JidRoomKey>(jidsCount
+		* roomsCount);
+
+	Long value = 0l;
+
+	for (int i = 0; i < jidsCount; ++i) {
+	    String jidName = RandomUtils.getRandomString(64);
+	    for (int j = 0; j < roomsCount; ++j) {
+		String roomName = RandomUtils.getRandomString(128);
+
+		JidRoomKey key = new JidRoomKey(jidName, roomName);
+
+		map.put(key, value);
+		keys.add(key);
+	    }
+	}
+
+	System.out.println(map.keySet().size());
+	for (JidRoomKey key : keys) {
+	    if (map.get(key) != value) {
+		System.out.println("error");
+	    }
+	}
+
+	// dowork
+
+	long total = MemoryAnalizer.getMemoryUse() - start;
+
+	System.out.print(total);
+
+	// XmppConnect();
     }
 
     protected static void XmppConnect() {
