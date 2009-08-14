@@ -1,6 +1,4 @@
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import muc.services.JidRoomKey;
 
@@ -9,9 +7,6 @@ import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-
-import utils.MemoryAnalizer;
-import utils.RandomUtils;
 
 public class Main {
 
@@ -22,38 +17,34 @@ public class Main {
 	int jidsCount = 100;
 	int roomsCount = 2;
 
-	long start = MemoryAnalizer.getMemoryUse();
+	// long start = MemoryAnalizer.getMemoryUse();
 
 	HashMap<JidRoomKey, Long> map = new HashMap<JidRoomKey, Long>();
-	List<JidRoomKey> keys = new ArrayList<JidRoomKey>(jidsCount
-		* roomsCount);
 
-	Long value = 0l;
+	map.put(new JidRoomKey("Peter_brown@gmail.com", "Chat_room1"), 50l);
+	map.put(new JidRoomKey("peter@gmail.com", "Chat_room2"), 50l);
+	map.put(new JidRoomKey("brown@gmail.com", "Chat_room3"), 10l);
+	map.put(new JidRoomKey("liza@yahoo.com", "Chat_room1"), 10l);
+	map.put(new JidRoomKey("white@yahoo.com", "Chat_room2"), 10l);
+	map.put(new JidRoomKey("mGrey@gmail.com", "Chat_room3"), 50l);
+	map.put(new JidRoomKey("johnDoe@gmail.com", "Chat_room2"), 10l);
+	map.put(new JidRoomKey("mcCoy@gmail.com", "Chat_room3"), 10l);
 
-	for (int i = 0; i < jidsCount; ++i) {
-	    String jidName = RandomUtils.getRandomString(64);
-	    for (int j = 0; j < roomsCount; ++j) {
-		String roomName = RandomUtils.getRandomString(128);
+	System.out.println(map.get(new JidRoomKey("mGrey@gmail.com",
+		"Chat_room3")));
 
-		JidRoomKey key = new JidRoomKey(jidName, roomName);
+	JidRoomKey key1 = new JidRoomKey("account1", "room1");
+	JidRoomKey key2 = new JidRoomKey("account1", "room1");
 
-		map.put(key, value);
-		keys.add(key);
-	    }
-	}
-
-	System.out.println(map.keySet().size());
-	for (JidRoomKey key : keys) {
-	    if (map.get(key) != value) {
-		System.out.println("error");
-	    }
+	if (key1.equals(key2)) {
+	    System.out.println("Objects are equal");
 	}
 
 	// dowork
 
-	long total = MemoryAnalizer.getMemoryUse() - start;
+	// long total = MemoryAnalizer.getMemoryUse() - start;
 
-	System.out.print(total);
+	// System.out.print(total);
 
 	// XmppConnect();
     }
