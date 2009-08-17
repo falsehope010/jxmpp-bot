@@ -40,7 +40,7 @@ public class PermissionsService extends AbstractService {
 	    userPermissions = new HashMap<JidRoomKey, UserPermissions>();
 
 	    // TODO:
-	    List<UserPermissions> lperm = null;// repository.getUserPermissions();
+	    List<UserPermissions> lperm = repository.getUserPermissions();// repository.getUserPermissions();
 
 	    for (UserPermissions up : lperm) {
 		JidRoomKey rj = generateRjPair(up);

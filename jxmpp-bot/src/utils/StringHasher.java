@@ -1,9 +1,9 @@
 package utils;
 
 public class StringHasher {
-    public static int hashString(int aSeed, String str) {
+    public static int hashString(int initial, String str) {
 
-	int result = aSeed;
+	int result = initial;
 
 	if (str == null) {
 	    result = hashInt(result, 0);
@@ -13,18 +13,14 @@ public class StringHasher {
 	return result;
     }
 
-    private static int hashInt(int aSeed, int ival) {
+    private static int hashInt(int initial, int ival) {
 	/*
 	 * Implementation Note Note that byte and short are handled by this
 	 * method, through implicit conversion.
 	 */
-	return firstTerm(aSeed) + ival;
-    }
-
-    private static int firstTerm(int aSeed) {
-	return fODD_PRIME_NUMBER * aSeed;
+	return ODD_PRIME_NUMBER * initial + ival;
     }
 
     public static final int SEED = 23;
-    protected static final int fODD_PRIME_NUMBER = 37;
+    static final int ODD_PRIME_NUMBER = 37;
 }

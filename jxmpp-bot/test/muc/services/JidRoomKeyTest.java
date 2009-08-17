@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-public class RjPairTest {
+public class JidRoomKeyTest {
 
     @Test
     public void testHashCode() {
@@ -19,6 +19,7 @@ public class RjPairTest {
 		"conference@conference.xmpp.org");
 
 	for (int i = 0; i < counter; ++i) {
+	    assertTrue(p1.equals(p2));
 	    assertEquals(p1.hashCode(), p2.hashCode());
 	}
     }
@@ -36,30 +37,35 @@ public class RjPairTest {
 	JidRoomKey p2 = new JidRoomKey(jabberID + salt, roomName);
 
 	for (int i = 0; i < counter; ++i) {
+	    assertFalse(p1.equals(p2));
 	    assertFalse(p1.hashCode() == p2.hashCode());
 	}
     }
 
     @Test
     public void testEqualsObject() {
-	String jabberID = "john_doe@xmpp.org";
-	String roomName = "conference@conference.xmpp.org";
+	JidRoomKey p1 = new JidRoomKey("john_doe@xmpp.org",
+		"conference@conference.xmpp.org");
 
-	JidRoomKey p1 = new JidRoomKey(jabberID, roomName);
-
-	// reflexiveness
+	// reflexiveness of equality
 	assertTrue(p1.equals(p1));
 
 	// symmetric property
-	JidRoomKey p2 = new JidRoomKey(jabberID, roomName);
+	JidRoomKey p2 = new JidRoomKey("john_doe@xmpp.org",
+		"conference@conference.xmpp.org");
 	assertTrue(p1.equals(p2));
 	assertTrue(p2.equals(p1));
 
-	// transitivity
-	JidRoomKey p3 = new JidRoomKey(jabberID, roomName);
+	// transitive property
+	JidRoomKey p3 = new JidRoomKey("john_doe@xmpp.org",
+		"conference@conference.xmpp.org");
 	assertTrue(p1.equals(p2));
 	assertTrue(p2.equals(p3));
 	assertTrue(p1.equals(p3));
+
+	// null equality
+	assertFalse(p1.equals(null));
+	assertFalse(p2.equals(null));
     }
 
     @Test

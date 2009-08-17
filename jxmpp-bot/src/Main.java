@@ -1,12 +1,10 @@
-import java.util.HashMap;
-
-import muc.services.JidRoomKey;
-
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+
+import utils.math.PermutationGenerator;
 
 public class Main {
 
@@ -14,32 +12,28 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) {
-	int jidsCount = 100;
-	int roomsCount = 2;
 
 	// long start = MemoryAnalizer.getMemoryUse();
 
-	HashMap<JidRoomKey, Long> map = new HashMap<JidRoomKey, Long>();
+	/*
+	 * final int size = 100000;
+	 * 
+	 * for (int i = 0; i < 72; ++i) { System.out.println(Integer.toString(i,
+	 * 36)); }
+	 */
 
-	map.put(new JidRoomKey("Peter_brown@gmail.com", "Chat_room1"), 50l);
-	map.put(new JidRoomKey("peter@gmail.com", "Chat_room2"), 50l);
-	map.put(new JidRoomKey("brown@gmail.com", "Chat_room3"), 10l);
-	map.put(new JidRoomKey("liza@yahoo.com", "Chat_room1"), 10l);
-	map.put(new JidRoomKey("white@yahoo.com", "Chat_room2"), 10l);
-	map.put(new JidRoomKey("mGrey@gmail.com", "Chat_room3"), 50l);
-	map.put(new JidRoomKey("johnDoe@gmail.com", "Chat_room2"), 10l);
-	map.put(new JidRoomKey("mcCoy@gmail.com", "Chat_room3"), 10l);
-
-	System.out.println(map.get(new JidRoomKey("mGrey@gmail.com",
-		"Chat_room3")));
-
-	JidRoomKey key1 = new JidRoomKey("account1", "room1");
-	JidRoomKey key2 = new JidRoomKey("account1", "room1");
-
-	if (key1.equals(key2)) {
-	    System.out.println("Objects are equal");
+	int[] indices;
+	String elements = "abcdefg";
+	PermutationGenerator x = new PermutationGenerator(elements.length());
+	StringBuffer permutation;
+	while (x.hasMore()) {
+	    permutation = new StringBuffer();
+	    indices = x.getNext();
+	    for (int i = 0; i < indices.length; i++) {
+		permutation.append(elements.charAt(indices[i]));
+	    }
+	    System.out.println(permutation.toString());
 	}
-
 	// dowork
 
 	// long total = MemoryAnalizer.getMemoryUse() - start;

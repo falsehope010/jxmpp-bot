@@ -11,16 +11,16 @@ public class RandomUtils {
 	StringBuilder sb = new StringBuilder();
 
 	for (int i = 0; i < length; ++i) {
-	    int index = rnd.nextInt(maxChars);
-	    sb.append(chars.charAt(index));
+	    int rndChar = RandomUtils.randomNumber(33, 126);
+	    sb.append((char) rndChar);
 	}
 
 	return sb.toString();
     }
 
-    private static final Random rnd = new Random();
-    private static final String chars = "abcdefghijklmnopqrstuvwxyz"
-	    + "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	    + "01234567890!@#$%^&*()_+=-,./<>?:;[]{}";
-    private static final int maxChars = chars.length();
+    public static int randomNumber(int min, int max) {
+	return rnd.nextInt(max - min + 1) + min;
+    }
+
+    private static Random rnd = new Random();
 }
