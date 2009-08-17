@@ -2,7 +2,10 @@ package muc.services;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.HashMap;
 
 import org.junit.Test;
 
@@ -91,4 +94,70 @@ public class JidRoomKeyTest {
 	assertFalse(p2.equals(p3));
 	assertFalse(p1.equals(p3));
     }
+
+    @Test
+    public void testHashMapUsersChanged() {
+	HashMap<JidRoomKey, Long> hashMap = new HashMap<JidRoomKey, Long>();
+
+	final long keysCount = hashMapItemsCount;
+
+	for (long i = 0; i < keysCount; ++i) {
+	    JidRoomKey key = new JidRoomKey(generateJid(i),
+		    "room@conference.xmpp.org");
+	    hashMap.put(key, i);
+	}
+
+	assertEquals(hashMap.size(), keysCount);
+
+	// test access levels
+	for (long i = 0; i < keysCount; ++i) {
+	    JidRoomKey key = new JidRoomKey(generateJid(i),
+		    "room@conference.xmpp.org");
+
+	    Long value = hashMap.get(key);
+
+	    assertNotNull(value);
+	    assertEquals(
+		    "Expected value for mapping should be equal to actual",
+		    (Long) i, value);
+
+	}
+    }
+
+    @Test
+    public void testHashMapRoomsChanged() {
+	HashMap<JidRoomKey, Long> hashMap = new HashMap<JidRoomKey, Long>();
+
+	final long keysCount = hashMapItemsCount;
+
+	for (long i = 0; i < keysCount; ++i) {
+	    JidRoomKey key = new JidRoomKey("user@xmpp.org", generateRoom(i));
+	    hashMap.put(key, i);
+	}
+
+	assertEquals(hashMap.size(), keysCount);
+
+	// test access levels
+	for (long i = 0; i < keysCount; ++i) {
+	    JidRoomKey key = new JidRoomKey("user@xmpp.org", generateRoom(i));
+
+	    Long value = hashMap.get(key);
+
+	    assertNotNull(value);
+	    assertEquals(
+		    "Expected value for mapping should be equal to actual",
+		    (Long) i, value);
+
+	}
+    }
+
+    private String generateJid(Long index) {
+	return "user" + Long.toString(index) + "@xmpp.org";
+    }
+
+    private String generateRoom(Long index) {
+	return "room" + Long.toString(index) + "@conference.xmpp.org";
+    }
+
+    final static long hashMapItemsCount = 10000;
 }

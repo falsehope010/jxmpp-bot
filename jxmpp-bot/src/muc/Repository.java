@@ -6,8 +6,9 @@ import java.util.List;
 import mappers.RoomMapper;
 import mappers.UserMapper;
 import mappers.UserPermissionsMapper;
+import muc.services.IdentityMap;
 import database.Database;
-import domain.IdentityMap;
+import domain.internal.UserPermissionsEntity;
 import domain.muc.Room;
 import domain.muc.User;
 import domain.muc.UserPermissions;
@@ -76,8 +77,43 @@ public class Repository {
 	return roomsMap.get(ID);
     }
 
+    /**
+     * Performs OR-mapping of users, rooms and permissions database tables and
+     * returns all constructed {@link UserPermissions} objects.
+     * 
+     * @return All {@link UserPermissions} objects from database
+     * @see UserPermissions
+     * @see UserPermissionsMapper
+     */
     public List<UserPermissions> getUserPermissions() {
 	ArrayList<UserPermissions> result = new ArrayList<UserPermissions>();
+
+	try {
+	    List<UserPermissionsEntity> entites = permissionsMapper
+		    .repositoryGetUserPermissions();
+
+	    if (entites != null && entites.size() > 0) {
+		for (UserPermissionsEntity entity : entites) {
+		    long userID = entity.getUserID();
+		    long roomID = entity.getRoomID();
+
+		    User user = usersMap.get(userID);
+		    Room room = roomsMap.get(roomID);
+
+		    UserPermissions permissions = new UserPermissions(user,
+			    room, entity.getJabberID());
+		    permissions.setAccessLevel(entity.getAccessLevel());
+
+		    permissions.mapperSetID(entity.getID());
+		    permissions.mapperSetPersistence(true);
+
+		    result.add(permissions);
+		}
+	    }
+
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
 
 	return result;
     }
@@ -91,7 +127,8 @@ public class Repository {
      * @throws IllegalArgumentException
      *             Thrown if database verification is failed
      */
-    private void verifyDatabase(Database database) throws IllegalArgumentException {
+    private void verifyDatabase(Database database)
+	    throws IllegalArgumentException {
 	if (database == null)
 	    throw new IllegalArgumentException("Database can't be null");
 	if (!database.isConnected())
@@ -156,22 +193,25 @@ public class Repository {
 	return result;
     }
 
-    private boolean initMappers(Database database)
+    /**
+     * Initializes all internal database mappers using given database
+     * 
+     * @param database
+     *            Must be valid {@link Database} in connected state
+     * @throws RepositoryInitializationException
+     *             Thrown if database not connected or error on mappers
+     *             initialization (construction has occured)
+     */
+    private void initMappers(Database database)
 	    throws RepositoryInitializationException {
-	boolean result = false;
-
 	try {
 	    permissionsMapper = new UserPermissionsMapper(database);
 	    userMapper = new UserMapper(database);
 	    roomMapper = new RoomMapper(database);
-
-	    result = true;
 	} catch (Exception e) {
 	    throw new RepositoryInitializationException(
 		    "Can't initialize mapper(s)");
 	}
-
-	return result;
     }
 
     UserPermissionsMapper permissionsMapper;

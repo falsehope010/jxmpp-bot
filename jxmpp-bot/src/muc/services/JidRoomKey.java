@@ -46,8 +46,8 @@ public class JidRoomKey {
     public int hashCode() {
 	if (fHashCode == 0) {
 	    int result = StringHasher.SEED;
-	    result = StringHasher.hashString(result, jabberID);
-	    result = StringHasher.hashString(result, roomName);
+	    result ^= StringHasher.hashString(result, jabberID);
+	    result ^= StringHasher.hashString(result, roomName);
 
 	    fHashCode = result;
 	}

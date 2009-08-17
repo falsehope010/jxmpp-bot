@@ -1,6 +1,8 @@
-package domain;
+package muc.services;
 
 import java.util.HashMap;
+
+import domain.DomainObject;
 
 /**
  * Implements IdentityMap pattern. Stores mappings between {@link DomainObject}
@@ -42,6 +44,24 @@ public class IdentityMap<T extends DomainObject> {
      */
     public T get(long ID) {
 	return body.get(ID);
+    }
+
+    /**
+     * Returns total number of {@link DomainObject} instances stored inside this
+     * identity map. All of them have unique ID field
+     * 
+     * @return Total number of {@link DomainObject} instances in identity map.
+     */
+    public int size() {
+	return body.size();
+    }
+
+    /**
+     * Removes all items from this identity map. Identity map will be empty
+     * after this call returns
+     */
+    public void clear() {
+	body.clear();
     }
 
     HashMap<Long, T> body;
