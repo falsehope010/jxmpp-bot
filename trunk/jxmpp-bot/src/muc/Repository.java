@@ -1,13 +1,16 @@
 package muc;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mappers.RoomMapper;
 import mappers.UserMapper;
+import mappers.UserPermissionsMapper;
 import database.Database;
 import domain.IdentityMap;
 import domain.muc.Room;
 import domain.muc.User;
+import domain.muc.UserPermissions;
 import exceptions.RepositoryInitializationException;
 
 /**
@@ -38,11 +41,11 @@ public class Repository {
      */
     public Repository(Database db) throws RepositoryInitializationException,
 	    IllegalArgumentException {
-	if (db == null)
-	    throw new IllegalArgumentException("Database can't be null");
-	if (!db.isConnected())
-	    throw new IllegalArgumentException(
-		    "Database isn't in connected state");
+
+	verifyDatabase(db);
+
+	initMappers(db);
+
 	this.db = db;
 
 	usersMap = loadUsers(db);
@@ -73,6 +76,29 @@ public class Repository {
 	return roomsMap.get(ID);
     }
 
+    public List<UserPermissions> getUserPermissions() {
+	ArrayList<UserPermissions> result = new ArrayList<UserPermissions>();
+
+	return result;
+    }
+
+    /**
+     * Verifies whether given database isn't null reference and is in connected
+     * state
+     * 
+     * @param database
+     *            Database to be verified
+     * @throws IllegalArgumentException
+     *             Thrown if database verification is failed
+     */
+    private void verifyDatabase(Database database) throws IllegalArgumentException {
+	if (database == null)
+	    throw new IllegalArgumentException("Database can't be null");
+	if (!database.isConnected())
+	    throw new IllegalArgumentException(
+		    "Database isn't in connected state");
+    }
+
     /**
      * Loads all users from database and creates {@link IdentityMap}
      * 
@@ -89,9 +115,7 @@ public class Repository {
 	IdentityMap<User> result = new IdentityMap<User>();
 
 	try {
-	    UserMapper mapper = new UserMapper(database);
-
-	    List<User> users = mapper.getUsers();
+	    List<User> users = userMapper.getUsers();
 
 	    for (User user : users) {
 		result.add(user);
@@ -118,9 +142,7 @@ public class Repository {
 	IdentityMap<Room> result = new IdentityMap<Room>();
 
 	try {
-	    RoomMapper mapper = new RoomMapper(database);
-
-	    List<Room> rooms = mapper.getRooms();
+	    List<Room> rooms = roomMapper.getRooms();
 
 	    for (Room room : rooms) {
 		result.add(room);
@@ -133,6 +155,28 @@ public class Repository {
 
 	return result;
     }
+
+    private boolean initMappers(Database database)
+	    throws RepositoryInitializationException {
+	boolean result = false;
+
+	try {
+	    permissionsMapper = new UserPermissionsMapper(database);
+	    userMapper = new UserMapper(database);
+	    roomMapper = new RoomMapper(database);
+
+	    result = true;
+	} catch (Exception e) {
+	    throw new RepositoryInitializationException(
+		    "Can't initialize mapper(s)");
+	}
+
+	return result;
+    }
+
+    UserPermissionsMapper permissionsMapper;
+    UserMapper userMapper;
+    RoomMapper roomMapper;
 
     Database db;
     IdentityMap<User> usersMap;

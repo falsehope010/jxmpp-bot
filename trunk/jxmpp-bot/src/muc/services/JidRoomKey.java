@@ -30,6 +30,9 @@ public class JidRoomKey {
 
     @Override
     public boolean equals(Object obj) {
+	if (this == obj)
+	    return true;
+
 	if (!(obj instanceof JidRoomKey))
 	    return false;
 
