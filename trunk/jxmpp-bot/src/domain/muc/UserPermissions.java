@@ -4,7 +4,7 @@ import mappers.UserPermissionsMapper;
 import domain.DomainObject;
 
 /**
- * Stores access level for bot's user in the specified chat room.
+ * Stores access level for multi-chat user in the specified chat room.
  * 
  * @see User
  * @see Room
