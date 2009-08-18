@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import muc.Repository;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import domain.muc.UserPermissions;
+import exceptions.ServiceInitializationException;
 
 /**
  * Represents muc service which contains set of methods allowing to manipulate
@@ -16,30 +18,63 @@ import domain.muc.UserPermissions;
 public class PermissionsService extends AbstractService {
 
     /**
-     * Creates new instance of permissions service.
+     * Creates new instance of user permissions service.
      * 
      * @param repository
      *            {@link Repository} which will be used to work with database
      *            (e.g. insert/update/delete domain objects)
      * @throws NullPointerException
      *             Thrown if repository parameter is null reference
+     * @throws ServiceInitializationException
+     *             Thrown on service initialization error. See exception clause
+     *             for details
      */
     public PermissionsService(Repository repository)
-	    throws NullPointerException {
+	    throws NullPointerException, ServiceInitializationException {
 	super(repository);
 
 	loadUserPermissions();
     }
 
     /**
+     * Gets {@link UserPermissions} record using user's jabberID and multichat
+     * room name
+     * <p>
+     * Method is not thread-safe. Works fast due-to caching.
+     * 
+     * @param jabberID
+     *            User's jabber ID (e.g. xmpp account name)
+     * @param roomName
+     *            Room name where user is chatting
+     * @return {@link UserPermissions} for given user chatting in give chat
+     *         room. If there is no such a user/room in database returns null
+     *         pointer
+     */
+    public UserPermissions getPermissions(String jabberID, String roomName) {
+	JidRoomKey key = new JidRoomKey(jabberID, roomName);
+
+	return userPermissions.get(key);
+    }
+
+    public void grantPermissions(UserPermissions permissions) {
+	throw new NotImplementedException();
+    }
+
+    public void revokePermissions(UserPermissions permissions) {
+	throw new NotImplementedException();
+    }
+
+    /**
      * Loads all {@link UserPermissions} domain objects from repository and
      * builds {@link #userPermissions} hash map
+     * 
+     * @throws ServiceInitializationException
+     *             Thrown on initialization error. See clause for details
      */
-    private void loadUserPermissions() {
+    private void loadUserPermissions() throws ServiceInitializationException {
 	try {
 	    userPermissions = new HashMap<JidRoomKey, UserPermissions>();
 
-	    // TODO:
 	    List<UserPermissions> lperm = repository.getUserPermissions();// repository.getUserPermissions();
 
 	    for (UserPermissions up : lperm) {
@@ -49,7 +84,10 @@ public class PermissionsService extends AbstractService {
 		}
 	    }
 	} catch (Exception e) {
-	    e.printStackTrace();
+	    ServiceInitializationException exception = new ServiceInitializationException(
+		    "Can't initialize service", e);
+	    throw exception;
+
 	}
     }
 
