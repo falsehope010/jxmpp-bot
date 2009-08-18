@@ -12,6 +12,7 @@ import java.util.List;
 
 import mappers.RoomMapper;
 import mappers.UserMapper;
+import mappers.UserPermissionsMapper;
 import muc.Repository;
 
 import org.junit.Test;
@@ -21,6 +22,7 @@ import base.DatabaseBaseTest;
 import database.Database;
 import domain.muc.Room;
 import domain.muc.User;
+import domain.muc.UserPermissions;
 
 public class RepositoryTest extends DatabaseBaseTest {
 
@@ -73,6 +75,8 @@ public class RepositoryTest extends DatabaseBaseTest {
 
 	List<User> users = assertInsertUsers(db, usersCount);
 
+	assertEquals(users.size(), usersCount);
+
 	Repository repo = assertInitRepository(db);
 
 	for (User user : users) {
@@ -103,6 +107,8 @@ public class RepositoryTest extends DatabaseBaseTest {
 
 	List<Room> rooms = assertInsertRooms(db, roomsCount);
 
+	assertEquals(rooms.size(), roomsCount);
+
 	Repository repo = assertInitRepository(db);
 
 	for (Room room : rooms) {
@@ -124,6 +130,49 @@ public class RepositoryTest extends DatabaseBaseTest {
 	    FileNotFoundException {
 	Database db = prepareDatabase();
 
+	assertTruncateDependentTables(db);
+
+	final int recordsCount = 10;
+
+	List<UserPermissions> list = assertInsertPermissions(db, recordsCount);
+
+	assertNotNull(list);
+
+	// create new repository. repo will load all users/rooms, build identity
+	// maps etc
+	Repository repo = assertInitRepository(db);
+
+	// retrieve all permissions using repo
+	List<UserPermissions> repoList = repo.getUserPermissions();
+
+	assertNotNull(repoList);
+	assertEquals(repoList.size(), recordsCount);
+
+	// verify records one by one
+	for (int i = 0; i < recordsCount; ++i) {
+	    UserPermissions ethalon = list.get(i);
+	    UserPermissions perm = repoList.get(i);
+
+	    assertNotNull(ethalon);
+	    assertNotNull(perm);
+
+	    assertTrue(perm.isPersistent());
+	    assertTrue(perm.getID() > 0);
+
+	    assertEquals(ethalon.getAccessLevel(), perm.getAccessLevel());
+	    assertEquals(ethalon.getID(), perm.getID());
+	    assertEquals(ethalon.getJabberID(), perm.getJabberID());
+
+	    // verify room equality
+	    assertEquals(ethalon.getRoom().getID(), perm.getRoom().getID());
+	    assertEquals(ethalon.getRoom().getName(), perm.getRoom().getName());
+	    assertEquals(ethalon.getRoom().getDescription(), perm.getRoom()
+		    .getDescription());
+
+	    // verify user equality
+	    assertEquals(ethalon.getUser().getID(), perm.getUser().getID());
+	}
+
 	db.disconnect();
     }
 
@@ -136,7 +185,56 @@ public class RepositoryTest extends DatabaseBaseTest {
 	assertTrue(truncateTable(db, "permissions"));
     }
 
-    private Repository assertInitRepository(Database db) {
+    @SuppressWarnings("null")
+    protected List<UserPermissions> assertInsertPermissions(Database db,
+	    int recordsCount) {
+	assertTrue(recordsCount > 0);
+
+	ArrayList<UserPermissions> result = new ArrayList<UserPermissions>();
+
+	List<User> users = assertInsertUsers(db, recordsCount);
+	List<Room> rooms = assertInsertRooms(db, recordsCount);
+	List<String> jids = getJids(recordsCount);
+
+	assertEquals(users.size(), recordsCount);
+	assertEquals(rooms.size(), recordsCount);
+
+	// init mapper
+	UserPermissionsMapper mapper = null;
+
+	try {
+	    mapper = new UserPermissionsMapper(db);
+	} catch (Exception e) {
+	    fail(StackTraceUtil.toString(e));
+	}
+
+	assertNotNull(mapper);
+
+	// insert permissions
+	for (int i = 0; i < recordsCount; ++i) {
+	    User u = users.get(i);
+	    Room r = rooms.get(i);
+	    String jid = jids.get(i);
+
+	    assertNotNull(u);
+	    assertNotNull(r);
+	    assertNotNull(jid);
+
+	    UserPermissions permissions = new UserPermissions(u, r, jid);
+
+	    assertTrue(mapper.save(permissions));
+	    assertTrue(permissions.isPersistent());
+	    assertTrue(permissions.getID() > 0);
+
+	    result.add(permissions);
+	}
+
+	assertEquals(countRecords(db, "permissions"), recordsCount);
+
+	return result;
+    }
+
+    protected Repository assertInitRepository(Database db) {
 	Repository repo = null;
 
 	try {
@@ -191,6 +289,7 @@ public class RepositoryTest extends DatabaseBaseTest {
 	return result;
     }
 
+    @SuppressWarnings("null")
     protected List<Room> assertInsertRooms(Database db, int roomsCount) {
 	ArrayList<Room> result = new ArrayList<Room>();
 
@@ -223,6 +322,16 @@ public class RepositoryTest extends DatabaseBaseTest {
 
 	assertEquals(countRecords(db, "rooms"), roomsCount);
 	assertEquals(result.size(), roomsCount);
+
+	return result;
+    }
+
+    protected List<String> getJids(int recordsCount) {
+	ArrayList<String> result = new ArrayList<String>(recordsCount);
+
+	for (int i = 0; i < recordsCount; ++i) {
+	    result.add("user" + Integer.toString(i) + "@xmpp.org");
+	}
 
 	return result;
     }
