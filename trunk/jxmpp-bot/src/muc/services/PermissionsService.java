@@ -4,7 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import muc.Repository;
+import muc.StringHashMap;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import domain.DomainObject;
+import domain.muc.Room;
+import domain.muc.User;
 import domain.muc.UserPermissions;
 import exceptions.ServiceInitializationException;
 
@@ -33,7 +37,11 @@ public class PermissionsService extends AbstractService {
 	    throws NullPointerException, ServiceInitializationException {
 	super(repository);
 
-	loadUserPermissions();
+	userPermissions = new HashMap<JidRoomKey, UserPermissions>();
+	usersIndex = new StringHashMap<User>();
+	roomsIndex = new StringHashMap<Room>();
+
+	initializeService();
     }
 
     /**
@@ -56,24 +64,25 @@ public class PermissionsService extends AbstractService {
 	return userPermissions.get(key);
     }
 
-    public void grantPermissions(UserPermissions permissions) {
+    public void grantPermissions(String jabberID, String roomName,
+	    int accessLevel) {
 	throw new NotImplementedException();
     }
 
-    public void revokePermissions(UserPermissions permissions) {
+    public void revokePermissions(String jabberID, String roomName) {
 	throw new NotImplementedException();
     }
 
     /**
      * Loads all {@link UserPermissions} domain objects from repository and
-     * builds {@link #userPermissions} hash map
+     * builds {@link #userPermissions} hash map. Also builds usersIndex and
+     * roomsIndex
      * 
      * @throws ServiceInitializationException
      *             Thrown on initialization error. See clause for details
      */
-    private void loadUserPermissions() throws ServiceInitializationException {
+    private void initializeService() throws ServiceInitializationException {
 	try {
-	    userPermissions = new HashMap<JidRoomKey, UserPermissions>();
 
 	    List<UserPermissions> lperm = repository.getUserPermissions();// repository.getUserPermissions();
 
@@ -81,7 +90,13 @@ public class PermissionsService extends AbstractService {
 		JidRoomKey rj = generateRjPair(up);
 		if (rj != null) {
 		    userPermissions.put(rj, up);
-		}
+		} else
+		    throw new IllegalArgumentException(
+			    "Invalid user permissions entity returned by Repository");
+	    }
+
+	    if (!buildIndices(lperm)) {
+		throw new Exception("Can't build user/room indexes");
 	    }
 	} catch (Exception e) {
 	    ServiceInitializationException exception = new ServiceInitializationException(
@@ -89,6 +104,32 @@ public class PermissionsService extends AbstractService {
 	    throw exception;
 
 	}
+    }
+
+    private boolean buildIndices(List<UserPermissions> permissions)
+	    throws IllegalArgumentException {
+	boolean result = false;
+
+	for (UserPermissions p : permissions) {
+	    if (p != null && p.isPersistent()) {
+		User user = p.getUser();
+		Room room = p.getRoom();
+		String jabberID = p.getJabberID();
+
+		if (isValid(room) && isValid(user) && jabberID != null) {
+		    usersIndex.put(jabberID, user);
+		    roomsIndex.put(room.getName(), room);
+		} else {
+		    throw new IllegalArgumentException(
+			    "Invalid permissions data field. Must be persistent");
+		}
+	    } else {
+		throw new IllegalArgumentException(
+			"Permission record isn't persistent domain objecy");
+	    }
+	}
+
+	return result;
     }
 
     /**
@@ -104,10 +145,20 @@ public class PermissionsService extends AbstractService {
 	JidRoomKey result = null;
 
 	if (up != null && up.isPersistent()) {
-	    result = new JidRoomKey(up.getJabberID(), up.getRoom().getName());
+	    Room room = up.getRoom();
+	    User user = up.getUser();
+	    String jabberID = up.getJabberID();
+
+	    if (isValid(room) && isValid(user) && jabberID != null) {
+		result = new JidRoomKey(jabberID, room.getName());
+	    }
 	}
 
 	return result;
+    }
+
+    private boolean isValid(DomainObject obj) {
+	return obj != null && obj.isPersistent();
     }
 
     /**
@@ -121,4 +172,7 @@ public class PermissionsService extends AbstractService {
      * @see UserPermissions
      */
     HashMap<JidRoomKey, UserPermissions> userPermissions;
+
+    StringHashMap<User> usersIndex;
+    StringHashMap<Room> roomsIndex;
 }
