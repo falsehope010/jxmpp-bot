@@ -62,67 +62,6 @@ public class RepositoryTest extends RepositoryBaseTest {
     }
 
     @Test
-    public void testGetUser() throws NullPointerException,
-	    FileNotFoundException {
-	Database db = prepareDatabase();
-
-	assertTruncateDependentTables(db);
-
-	final int usersCount = 10;
-
-	List<User> users = assertInsertUsers(db, usersCount);
-
-	assertEquals(users.size(), usersCount);
-
-	Repository repo = assertInitRepository(db);
-
-	for (User user : users) {
-	    User repoUser = repo.getUser(user.getID());
-
-	    assertNotNull(repoUser);
-
-	    assertTrue(repoUser.isPersistent());
-	    assertEquals(user.getID(), repoUser.getID());
-	    assertEquals(user.getBirthday(), repoUser.getBirthday());
-	    assertEquals(user.getComments(), repoUser.getComments());
-	    assertEquals(user.getJob(), repoUser.getJob());
-	    assertEquals(user.getPosition(), repoUser.getPosition());
-	    assertEquals(user.getRealName(), repoUser.getRealName());
-	}
-
-	db.disconnect();
-    }
-
-    @Test
-    public void testGetRoom() throws NullPointerException,
-	    FileNotFoundException {
-	Database db = prepareDatabase();
-
-	assertTruncateDependentTables(db);
-
-	final int roomsCount = 10;
-
-	List<Room> rooms = assertInsertRooms(db, roomsCount);
-
-	assertEquals(rooms.size(), roomsCount);
-
-	Repository repo = assertInitRepository(db);
-
-	for (Room room : rooms) {
-	    Room repoRoom = repo.getRoom(room.getID());
-
-	    assertNotNull(repoRoom);
-
-	    assertTrue(repoRoom.isPersistent());
-	    assertEquals(room.getID(), repoRoom.getID());
-	    assertEquals(room.getName(), repoRoom.getName());
-	    assertEquals(room.getDescription(), repoRoom.getDescription());
-	}
-
-	db.disconnect();
-    }
-
-    @Test
     public void testGetUserPermissions() throws NullPointerException,
 	    FileNotFoundException {
 	Database db = prepareDatabase();
@@ -171,6 +110,16 @@ public class RepositoryTest extends RepositoryBaseTest {
 	}
 
 	db.disconnect();
+    }
+
+    @Test
+    public void testCreateUser() {
+	fail("Not yet implemented");
+    }
+
+    @Test
+    public void testCreateRoom() {
+	fail("Not yet implemented");
     }
 
     protected void assertTruncateDependentTables(Database db) {

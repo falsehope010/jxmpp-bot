@@ -47,39 +47,16 @@ public class Repository {
 
 	initMappers(db);
 
+	buildIndex();
+
 	this.db = db;
-
-	usersMap = loadUsers(db);
-	roomsMap = loadRooms(db);
-    }
-
-    /**
-     * Retrieves {@link User} from repository using it's ID
-     * 
-     * @param ID
-     *            User identifier
-     * @return Valid, persistent User if such a user is stored in repository,
-     *         null reference otherwise
-     */
-    public User getUser(long ID) {
-	return usersMap.get(ID);
-    }
-
-    /**
-     * Retrieves {@link Room} from repository using it's ID
-     * 
-     * @param ID
-     *            Room identifier
-     * @return Valid, persistent Room if such a room is stored in repository,,
-     *         null reference otherwise
-     */
-    public Room getRoom(long ID) {
-	return roomsMap.get(ID);
     }
 
     /**
      * Performs OR-mapping of users, rooms and permissions database tables and
      * returns all constructed {@link UserPermissions} objects.
+     * <p>
+     * Items guaranteed to be persistent domain objects
      * 
      * @return All {@link UserPermissions} objects from database
      * @see UserPermissions
@@ -89,6 +66,9 @@ public class Repository {
 	ArrayList<UserPermissions> result = new ArrayList<UserPermissions>();
 
 	try {
+	    IdentityMap<User> usersMap = loadUsers(db);
+	    IdentityMap<Room> roomsMap = loadRooms(db);
+
 	    List<UserPermissionsEntity> entites = permissionsMapper
 		    .repositoryGetUserPermissions();
 
@@ -118,6 +98,42 @@ public class Repository {
 	return result;
     }
 
+    public UserPermissions createUserPermissions(String jabberID,
+	    String roomName, int accessLevel) throws Exception {
+	UserPermissions result = null;
+
+	try {
+
+	    // verify whether user exists and if not create it
+	    User user = index.getUser(jabberID);
+	    if (user == null) {
+		user = createUser();
+	    }
+
+	    // verify whether room exists and if not create it
+	    Room room = index.getRoom(roomName);
+	    if (room == null) {
+		room = createRoom(roomName);
+	    }
+
+	    result = new UserPermissions(user, room, jabberID, accessLevel);
+	    if (!permissionsMapper.save(result)) {
+		throw new Exception("Can't save permissions to database");
+	    }
+
+	    // add to index
+	    index.putUser(jabberID, user);
+	    index.putRoom(roomName, room);
+
+	} catch (Exception e) {
+	    Exception ex = new Exception(
+		    "Error creating permissions. See cause", e);
+	    throw ex;
+	}
+
+	return result;
+    }
+
     /**
      * Verifies whether given database isn't null reference and is in connected
      * state
@@ -134,6 +150,16 @@ public class Repository {
 	if (!database.isConnected())
 	    throw new IllegalArgumentException(
 		    "Database isn't in connected state");
+    }
+
+    private void buildIndex() throws RepositoryInitializationException {
+	try {
+	    List<UserPermissions> permissions = getUserPermissions();
+	    index = new RepositoryIndex(permissions);
+	} catch (Exception e) {
+	    throw new RepositoryInitializationException(
+		    "Can't build repository index");
+	}
     }
 
     /**
@@ -214,11 +240,51 @@ public class Repository {
 	}
     }
 
+    /**
+     * Creates new {@link User} and maps it into database
+     * 
+     * @return Valid persistent domain object (User)
+     * @throws Exception
+     *             Thrown if user can't be mapped into database
+     */
+    private User createUser() throws Exception {
+	User result = new User();
+
+	if (!userMapper.save(result)) {
+	    throw new Exception("Can't save user to database");
+	}
+
+	return result;
+    }
+
+    /**
+     * Creates new {@link Room} and maps it into database
+     * 
+     * @param roomName
+     *            Room name
+     * @return Valid persistent domain object (Room)
+     * @throws Exception
+     *             Thrown if room can't be mapped into database
+     */
+    private Room createRoom(String roomName) throws Exception {
+	Room result = new Room(roomName);
+
+	if (!roomMapper.save(result)) {
+	    throw new Exception("Can't save room to database");
+	}
+
+	// add to index
+	index.putRoom(roomName, result);
+
+	return result;
+    }
+
     UserPermissionsMapper permissionsMapper;
     UserMapper userMapper;
     RoomMapper roomMapper;
 
+    RepositoryIndex index;
+
     Database db;
-    IdentityMap<User> usersMap;
-    IdentityMap<Room> roomsMap;
+
 }
