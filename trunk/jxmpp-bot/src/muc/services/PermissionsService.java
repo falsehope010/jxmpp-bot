@@ -11,6 +11,7 @@ import domain.muc.Room;
 import domain.muc.User;
 import domain.muc.UserPermissions;
 import exceptions.ServiceInitializationException;
+import exceptions.ServiceOperationException;
 
 /**
  * Represents muc service which contains set of methods allowing to manipulate
@@ -64,9 +65,69 @@ public class PermissionsService extends AbstractService {
 	return userPermissions.get(key);
     }
 
+    /**
+     * Grants permissions for specified user in specified chat room. If user
+     * with given jabberID doesn't exist he is created. If room with given name
+     * doesn't exist it is created.
+     * <p>
+     * If there exists permissions record already, only access level is updated
+     * 
+     * @param jabberID
+     *            Jabber identifier for given user
+     * @param roomName
+     *            Chat room name
+     * @param accessLevel
+     *            Access level for user having given jabberID and chating in
+     *            given room
+     * @throws ServiceOperationException
+     *             Thrown if any error has been occured during creating user
+     *             permissions. See message and cause for details
+     */
     public void grantPermissions(String jabberID, String roomName,
-	    int accessLevel) {
-	throw new NotImplementedException();
+	    int accessLevel) throws ServiceOperationException {
+
+	/* We create key and check if UserPermissions already exists */
+
+	JidRoomKey key = new JidRoomKey(jabberID, roomName);
+	UserPermissions permissions = userPermissions.get(key);
+
+	if (permissions != null) {
+
+	    /*
+	     * Found permissions. Only access level should be updated. We should
+	     * compare current access level and new value to be set in order to
+	     * verify that access level has been actually changed
+	     */
+
+	    if (accessLevel != permissions.getAccessLevel()) {
+		if (repository.saveUserPermissions(permissions)) {
+		    throw new ServiceOperationException(
+			    "Can't save new access level to database", null);
+		}
+	    }
+
+	} else {
+
+	    /*
+	     * Permissions record doesn't exist. We must create new permissions
+	     * record
+	     */
+
+	    try {
+		permissions = repository.createUserPermissions(jabberID,
+			roomName, accessLevel);
+
+		JidRoomKey newKey = generateRjPair(permissions);
+		addKey(newKey, permissions);
+
+	    } catch (Exception e) {
+		ServiceOperationException ex = new ServiceOperationException(
+			"Can't create new user permissions, see cause for details",
+			e);
+		throw ex;
+	    }
+	}
+
     }
 
     public void revokePermissions(String jabberID, String roomName) {
@@ -89,7 +150,7 @@ public class PermissionsService extends AbstractService {
 	    for (UserPermissions up : lperm) {
 		JidRoomKey rj = generateRjPair(up);
 		if (rj != null) {
-		    userPermissions.put(rj, up);
+		    addKey(rj, up);
 		} else
 		    throw new IllegalArgumentException(
 			    "Invalid user permissions entity returned by Repository");
@@ -159,6 +220,10 @@ public class PermissionsService extends AbstractService {
 
     private boolean isValid(DomainObject obj) {
 	return obj != null && obj.isPersistent();
+    }
+
+    private void addKey(JidRoomKey key, UserPermissions value) {
+	userPermissions.put(key, value);
     }
 
     /**

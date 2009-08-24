@@ -98,6 +98,25 @@ public class Repository {
 	return result;
     }
 
+    /**
+     * Creates new {@link UserPermissions} instance and maps it into database.
+     * Automatically creates new {@link User} and {@link Room} if needed
+     * <p>
+     * Note: if called multiple times creates and maps {@link UserPermissions}
+     * into database also multiple times. So uniqueness should be controlled by
+     * method caller
+     * 
+     * @param jabberID
+     *            User's jabberID.
+     * @param roomName
+     *            Multichat room's name
+     * @param accessLevel
+     *            Access level for given user in given room
+     * @return Valid persistent {@link UserPermissions} instance if succeed.
+     * @throws Exception
+     *             Thrown on any error while creating and mapping
+     *             {@link UserPermissions} instance. See message for details
+     */
     public UserPermissions createUserPermissions(String jabberID,
 	    String roomName, int accessLevel) throws Exception {
 	UserPermissions result = null;
@@ -134,6 +153,16 @@ public class Repository {
 	return result;
     }
 
+    public boolean saveUserPermissions(UserPermissions permissions) {
+	boolean result = false;
+
+	if (permissions != null && permissions.isPersistent()) {
+	    result = permissionsMapper.save(permissions);
+	}
+
+	return result;
+    }
+
     /**
      * Verifies whether given database isn't null reference and is in connected
      * state
@@ -152,6 +181,12 @@ public class Repository {
 		    "Database isn't in connected state");
     }
 
+    /**
+     * Builds internal Repository's index
+     * 
+     * @throws RepositoryInitializationException
+     *             Thrown on any error occured during index build
+     */
     private void buildIndex() throws RepositoryInitializationException {
 	try {
 	    List<UserPermissions> permissions = getUserPermissions();
