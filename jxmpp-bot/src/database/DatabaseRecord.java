@@ -106,7 +106,8 @@ public class DatabaseRecord {
 	    ClassCastException {
 	Object fieldValue = getObject(fieldName);
 
-	if (fieldValue instanceof Integer) {
+	if (fieldValue instanceof Integer || fieldValue instanceof Byte
+		|| fieldValue instanceof Short) {
 	    Integer int_val = (Integer) fieldValue;
 	    return new Long(int_val.longValue());
 	}
@@ -117,6 +118,29 @@ public class DatabaseRecord {
 
 	throw new ClassCastException("Can't cast field value=["
 		+ fieldValue.toString() + "] to Long");
+    }
+
+    public Integer getInt(String fieldName) {
+	Object fieldValue = getObject(fieldName);
+
+	if (fieldValue instanceof Integer || fieldValue instanceof Byte
+		|| fieldValue instanceof Short) {
+	    return (Integer) fieldValue;
+	}
+
+	throw new ClassCastException("Can't cast field value=["
+		+ fieldValue.toString() + "] to Integer");
+    }
+
+    public String getString(String fieldName) {
+	Object fieldValue = getObject(fieldName);
+
+	if (fieldValue instanceof String) {
+	    return (String) fieldValue;
+	}
+
+	throw new ClassCastException("Can't cast field value=["
+		+ fieldValue.toString() + "] to String");
     }
 
     /**
