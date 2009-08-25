@@ -67,6 +67,16 @@ public class RepositoryIndex {
     }
 
     /**
+     * Removes the mapping for the specified room name if present
+     * 
+     * @param roomName
+     *            Chat room name
+     */
+    public void removeRoom(String roomName) {
+	roomsIndex.remove(roomName);
+    }
+
+    /**
      * Gets {@link User} from index using user's jabberID
      * 
      * @param jabberID
@@ -91,6 +101,16 @@ public class RepositoryIndex {
 	if (jabberID != null && isValid(user)) {
 	    usersIndex.put(jabberID, user);
 	}
+    }
+
+    /**
+     * Removes mapping for the specified user's jabberID if present
+     * 
+     * @param jabberID
+     *            User jabberID
+     */
+    public void removeUser(String jabberID) {
+	usersIndex.remove(jabberID);
     }
 
     /**

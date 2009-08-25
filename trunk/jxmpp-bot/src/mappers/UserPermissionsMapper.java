@@ -106,6 +106,44 @@ public class UserPermissionsMapper extends AbstractMapper {
     }
 
     /**
+     * Updates access level in database for given user permissions. New access
+     * level is retrieved from permissions parameter passed to this method using
+     * {@link UserPermissions#getAccessLevel()}
+     * 
+     * @param permissions
+     *            Permissions to be updated. Must be valid persistent domain
+     *            object
+     * @return True if succeeded, false otherwise
+     */
+    public boolean updateAccessLevel(UserPermissions permissions) {
+	boolean result = false;
+
+	if (permissions != null && permissions.isPersistent()) {
+	    PreparedStatement pr = null;
+
+	    try {
+		Connection conn = db.getConnection();
+
+		pr = conn
+			.prepareStatement("update permissions set access_level = ? "
+				+ "where id=?;");
+		pr.setInt(1, permissions.getAccessLevel());
+		pr.setLong(2, permissions.getID());
+
+		int rows_affected = pr.executeUpdate();
+
+		if (rows_affected == 1) {
+		    result = true;
+		}
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    }
+	}
+
+	return result;
+    }
+
+    /**
      * Loads all user permission entities from database.
      * <p>
      * For internal use. Method is used by {@link Repository} in order to load
