@@ -364,4 +364,90 @@ public class UserPermissionsMapperTest extends PermissionsTest {
 
 	db.disconnect();
     }
+
+    @SuppressWarnings("null")
+    @Test
+    public void testUpdateAccessLevel() throws NullPointerException,
+	    FileNotFoundException {
+	Database db = null;
+
+	try {
+	    db = prepareDatabase();
+	} catch (Exception e) {
+	    fail(StackTraceUtil.toString(e));
+	}
+
+	assertNotNull(db);
+	assertTruncateDependentTables(db);
+
+	UserPermissionsMapper mapper = null;
+
+	try {
+	    mapper = new UserPermissionsMapper(db);
+	} catch (Exception e) {
+	    fail(StackTraceUtil.toString(e));
+	}
+
+	UserPermissions permissions = assertCreatePermissions(db);
+
+	assertNotNull(permissions);
+
+	// insert into db and verify
+	assertTrue(mapper.save(permissions));
+	assertTrue(permissions.isPersistent());
+	assertTrue(permissions.getID() > 0);
+
+	assertEquals(countRecords(db, "permissions"), 1);
+	assertEquals(countRecords(db, "users"), 1);
+	assertEquals(countRecords(db, "rooms"), 1);
+
+	List<DatabaseRecord> records = db.getRecords("permissions");
+
+	assertNotNull(records);
+	assertEquals(records.size(), 1);
+
+	DatabaseRecord record = records.get(0);
+	assertNotNull(record);
+
+	assertEquals(record.getLong("id"), (Long) permissions.getID());
+	assertEquals(record.getLong("user_id"), (Long) permissions.getUser()
+		.getID());
+	assertEquals(record.getLong("room_id"), (Long) permissions.getRoom()
+		.getID());
+	assertEquals(record.getObject("jid"), permissions.getJabberID());
+	assertEquals(record.getLong("access_level"), new Long(Integer
+		.toString(permissions.getAccessLevel())));
+
+	// update access_level and verify
+	final int newAccessLevel = 100;
+
+	permissions.setAccessLevel(newAccessLevel);
+
+	assertEquals(permissions.getAccessLevel(), newAccessLevel);
+
+	assertTrue(mapper.updateAccessLevel(permissions));
+
+	assertEquals(countRecords(db, "permissions"), 1);
+	assertEquals(countRecords(db, "users"), 1);
+	assertEquals(countRecords(db, "rooms"), 1);
+
+	records = db.getRecords("permissions");
+
+	assertNotNull(records);
+	assertEquals(records.size(), 1);
+
+	record = records.get(0);
+	assertNotNull(record);
+
+	assertEquals(record.getLong("id"), (Long) permissions.getID());
+	assertEquals(record.getLong("user_id"), (Long) permissions.getUser()
+		.getID());
+	assertEquals(record.getLong("room_id"), (Long) permissions.getRoom()
+		.getID());
+	assertEquals(record.getObject("jid"), permissions.getJabberID());
+	assertEquals(record.getLong("access_level"), new Long(Integer
+		.toString(permissions.getAccessLevel())));
+
+	db.disconnect();
+    }
 }

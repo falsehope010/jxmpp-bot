@@ -73,6 +73,7 @@ public class Database {
 		}
 	    }
 	} catch (Exception e) {
+	    // nothing todo here
 	}
     }
 
@@ -107,8 +108,8 @@ public class Database {
 		result = rs.getLong(1);
 
 	    } catch (Exception e) {
+		// nothing todo here
 	    } finally {
-
 		Cleanup(stat, rs);
 	    }
 	}
@@ -145,12 +146,14 @@ public class Database {
 	    try {
 		stat.close();
 	    } catch (Exception e) {
+		// nothing todo here
 	    }
 	}
 	if (rs != null) {
 	    try {
 		rs.close();
 	    } catch (Exception e) {
+		// nothing todo here
 	    }
 	}
     }
@@ -166,6 +169,7 @@ public class Database {
 	    try {
 		stat.close();
 	    } catch (Exception e) {
+		// nothing todo here
 	    }
 	}
     }
@@ -188,6 +192,7 @@ public class Database {
 
 	    result = true;
 	} catch (Exception e) {
+	    // nothing todo here
 	} finally {
 	    Cleanup(st);
 	}
@@ -216,6 +221,7 @@ public class Database {
 		result = rs.getLong(1);
 	    }
 	} catch (Exception e) {
+	    // nothing todo here
 	} finally {
 	    Cleanup(st, rs);
 	}
@@ -239,6 +245,7 @@ public class Database {
 		result = dbFile.length();
 	    }
 	} catch (Exception e) {
+	    // nothing todo here
 	}
 
 	return result;
@@ -260,6 +267,7 @@ public class Database {
 
 	    result = true;
 	} catch (Exception e) {
+	    // nothing todo here
 	} finally {
 	    Cleanup(st);
 	}
@@ -295,6 +303,7 @@ public class Database {
 	    }
 
 	} catch (Exception e) {
+	    // nothing todo here
 	} finally {
 	    Cleanup(pr, rs);
 	}
@@ -328,6 +337,7 @@ public class Database {
 		    result = rs.getLong(1);
 		}
 	    } catch (Exception e) {
+		// nothing todo here
 	    } finally {
 		Cleanup(pr, rs);
 	    }
@@ -370,6 +380,7 @@ public class Database {
 		}
 
 	    } catch (Exception e) {
+		// nothing todo here
 	    } finally {
 		Cleanup(pr);
 	    }
@@ -660,6 +671,7 @@ public class Database {
 		}
 	    }
 	} catch (Exception e) {
+	    // nothing todo here
 	} finally {
 	    Cleanup(stat, rs);
 	}

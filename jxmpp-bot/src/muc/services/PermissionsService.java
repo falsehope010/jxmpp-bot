@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import muc.Repository;
-import muc.StringHashMap;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import domain.DomainObject;
 import domain.muc.Room;
 import domain.muc.User;
@@ -39,8 +37,6 @@ public class PermissionsService extends AbstractService {
 	super(repository);
 
 	userPermissions = new HashMap<JidRoomKey, UserPermissions>();
-	usersIndex = new StringHashMap<User>();
-	roomsIndex = new StringHashMap<Room>();
 
 	initializeService();
     }
@@ -100,7 +96,7 @@ public class PermissionsService extends AbstractService {
 	     */
 
 	    if (accessLevel != permissions.getAccessLevel()) {
-		if (repository.saveUserPermissions(permissions)) {
+		if (repository.updateAccessLevel(permissions)) {
 		    throw new ServiceOperationException(
 			    "Can't save new access level to database", null);
 		}
@@ -130,8 +126,29 @@ public class PermissionsService extends AbstractService {
 
     }
 
-    public void revokePermissions(String jabberID, String roomName) {
-	throw new NotImplementedException();
+    /**
+     * Sets permissions for user having given jabberID in given chat room to
+     * zero
+     * 
+     * @param jabberID
+     *            User jabberID
+     * @param roomName
+     *            Char room name
+     * @throws ServiceOperationException
+     *             Thrown if access level can't be updated in database
+     */
+    public void revokePermissions(String jabberID, String roomName)
+	    throws ServiceOperationException {
+	JidRoomKey key = new JidRoomKey(jabberID, roomName);
+	UserPermissions permissions = userPermissions.get(key);
+
+	if (permissions != null) {
+	    permissions.setAccessLevel(0);
+
+	    if (!repository.updateAccessLevel(permissions))
+		throw new ServiceOperationException(
+			"Can't delete user permissions from database", null);
+	}
     }
 
     /**
@@ -155,42 +172,12 @@ public class PermissionsService extends AbstractService {
 		    throw new IllegalArgumentException(
 			    "Invalid user permissions entity returned by Repository");
 	    }
-
-	    if (!buildIndices(lperm)) {
-		throw new Exception("Can't build user/room indexes");
-	    }
 	} catch (Exception e) {
 	    ServiceInitializationException exception = new ServiceInitializationException(
 		    "Can't initialize service", e);
 	    throw exception;
 
 	}
-    }
-
-    private boolean buildIndices(List<UserPermissions> permissions)
-	    throws IllegalArgumentException {
-	boolean result = false;
-
-	for (UserPermissions p : permissions) {
-	    if (p != null && p.isPersistent()) {
-		User user = p.getUser();
-		Room room = p.getRoom();
-		String jabberID = p.getJabberID();
-
-		if (isValid(room) && isValid(user) && jabberID != null) {
-		    usersIndex.put(jabberID, user);
-		    roomsIndex.put(room.getName(), room);
-		} else {
-		    throw new IllegalArgumentException(
-			    "Invalid permissions data field. Must be persistent");
-		}
-	    } else {
-		throw new IllegalArgumentException(
-			"Permission record isn't persistent domain objecy");
-	    }
-	}
-
-	return result;
     }
 
     /**
@@ -238,6 +225,4 @@ public class PermissionsService extends AbstractService {
      */
     HashMap<JidRoomKey, UserPermissions> userPermissions;
 
-    StringHashMap<User> usersIndex;
-    StringHashMap<Room> roomsIndex;
 }

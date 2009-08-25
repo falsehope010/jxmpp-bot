@@ -153,11 +153,21 @@ public class Repository {
 	return result;
     }
 
-    public boolean saveUserPermissions(UserPermissions permissions) {
+    /**
+     * Updates access level for given {@link UserPermissions} in database.
+     * Parameter passed to this method must be valid persistent domain object.
+     * If it isn't persistent does nothing
+     * 
+     * @param permissions
+     *            User permissions to be updated. Must be valid persistent
+     *            domain object
+     * @return True if succeeded, false otherwise
+     */
+    public boolean updateAccessLevel(UserPermissions permissions) {
 	boolean result = false;
 
 	if (permissions != null && permissions.isPersistent()) {
-	    result = permissionsMapper.save(permissions);
+	    result = permissionsMapper.updateAccessLevel(permissions);
 	}
 
 	return result;

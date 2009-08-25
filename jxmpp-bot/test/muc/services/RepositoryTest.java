@@ -280,6 +280,8 @@ public class RepositoryTest extends RepositoryBaseTest {
 	    assertEquals(dPermissions.getLong("user_id"), (Long) user.getID());
 	    assertEquals(dPermissions.getLong("room_id"), (Long) room.getID());
 	}
+
+	db.disconnect();
     }
 
     @Test
@@ -326,6 +328,155 @@ public class RepositoryTest extends RepositoryBaseTest {
 	assertEquals(countRecords(db, "permissions"), recordsCount);
 	assertEquals(countRecords(db, "users"), 1);
 	assertEquals(countRecords(db, "rooms"), 1);
+
+	db.disconnect();
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void testUpdateUserPermissions() throws NullPointerException,
+	    FileNotFoundException {
+	Database db = prepareDatabase();
+
+	assertTruncateDependentTables(db);
+
+	Repository repo = assertInitRepository(db);
+
+	String jabberID = "john_doe@xmpp.org";
+	String roomName = "room@conference.xmpp.org";
+	int accessLevel = 10;
+
+	UserPermissions permissions = null;
+	try {
+	    permissions = repo.createUserPermissions(jabberID, roomName,
+		    accessLevel);
+	} catch (Exception e) {
+	    fail("Can't create permissions using Repository. "
+		    + StackTraceUtil.toString(e));
+	}
+
+	assertNotNull(permissions);
+	assertTrue(permissions.isPersistent());
+	assertTrue(permissions.getID() > 0);
+
+	// verify records are mapped into database
+	assertEquals(countRecords(db, "permissions"), 1);
+	assertEquals(countRecords(db, "users"), 1);
+	assertEquals(countRecords(db, "rooms"), 1);
+
+	List<DatabaseRecord> listPermissions = db.getRecords("permissions");
+	List<DatabaseRecord> listUsers = db.getRecords("users");
+	List<DatabaseRecord> listRooms = db.getRecords("rooms");
+
+	assertNotNull(listPermissions);
+	assertEquals(listPermissions.size(), 1);
+	assertNotNull(listUsers);
+	assertEquals(listUsers.size(), 1);
+	assertNotNull(listRooms);
+	assertEquals(listRooms.size(), 1);
+
+	// verify permissions record fields
+	DatabaseRecord dPermissions = listPermissions.get(0);
+	assertNotNull(dPermissions);
+
+	assertEquals((Long) permissions.getID(), dPermissions.getLong("id"));
+	assertEquals((Integer) permissions.getAccessLevel(), dPermissions
+		.getInt("access_level"));
+	assertEquals(permissions.getAccessLevel(), accessLevel);
+	assertEquals(permissions.getJabberID(), dPermissions.getString("jid"));
+
+	// verify user
+	User user = permissions.getUser();
+	assertNotNull(user);
+	assertTrue(user.isPersistent());
+	assertTrue(user.getID() > 0);
+
+	DatabaseRecord dUser = listUsers.get(0);
+	assertNotNull(dUser);
+
+	assertEquals((Long) user.getID(), dUser.getLong("id"));
+
+	// verify room
+	Room room = permissions.getRoom();
+	assertNotNull(room);
+	assertTrue(room.isPersistent());
+	assertTrue(room.getID() > 0);
+
+	DatabaseRecord dRoom = listRooms.get(0);
+	assertNotNull(dRoom);
+
+	assertEquals((Long) room.getID(), dRoom.getLong("id"));
+	assertEquals(room.getName(), dRoom.getString("name"));
+
+	// additional verification
+	assertEquals(dPermissions.getLong("user_id"), (Long) user.getID());
+	assertEquals(dPermissions.getLong("room_id"), (Long) room.getID());
+
+	// update access level
+	final int newAccessLevel = accessLevel + 100;
+
+	permissions.setAccessLevel(newAccessLevel);
+
+	/*
+	 * Verify db and record's fields again
+	 */
+
+	assertTrue(repo.updateAccessLevel(permissions));
+
+	// verify records are mapped into database
+	assertEquals(countRecords(db, "permissions"), 1);
+	assertEquals(countRecords(db, "users"), 1);
+	assertEquals(countRecords(db, "rooms"), 1);
+
+	listPermissions = db.getRecords("permissions");
+	listUsers = db.getRecords("users");
+	listRooms = db.getRecords("rooms");
+
+	assertNotNull(listPermissions);
+	assertEquals(listPermissions.size(), 1);
+	assertNotNull(listUsers);
+	assertEquals(listUsers.size(), 1);
+	assertNotNull(listRooms);
+	assertEquals(listRooms.size(), 1);
+
+	// verify permissions record fields
+	dPermissions = listPermissions.get(0);
+	assertNotNull(dPermissions);
+
+	assertEquals((Long) permissions.getID(), dPermissions.getLong("id"));
+	assertEquals((Integer) permissions.getAccessLevel(), dPermissions
+		.getInt("access_level"));
+	assertEquals(permissions.getAccessLevel(), newAccessLevel);
+	assertEquals(permissions.getJabberID(), dPermissions.getString("jid"));
+
+	// verify user
+	user = permissions.getUser();
+	assertNotNull(user);
+	assertTrue(user.isPersistent());
+	assertTrue(user.getID() > 0);
+
+	dUser = listUsers.get(0);
+	assertNotNull(dUser);
+
+	assertEquals((Long) user.getID(), dUser.getLong("id"));
+
+	// verify room
+	room = permissions.getRoom();
+	assertNotNull(room);
+	assertTrue(room.isPersistent());
+	assertTrue(room.getID() > 0);
+
+	dRoom = listRooms.get(0);
+	assertNotNull(dRoom);
+
+	assertEquals((Long) room.getID(), dRoom.getLong("id"));
+	assertEquals(room.getName(), dRoom.getString("name"));
+
+	// additional verification
+	assertEquals(dPermissions.getLong("user_id"), (Long) user.getID());
+	assertEquals(dPermissions.getLong("room_id"), (Long) room.getID());
+
+	db.disconnect();
     }
 
     protected void assertTruncateDependentTables(Database db) {
