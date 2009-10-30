@@ -36,8 +36,6 @@ public class PermissionsService extends AbstractService {
 	    throws NullPointerException, ServiceInitializationException {
 	super(repository);
 
-	userPermissions = new HashMap<JidRoomKey, UserPermissions>();
-
 	initializeService();
     }
 
@@ -158,10 +156,11 @@ public class PermissionsService extends AbstractService {
      * @throws ServiceInitializationException
      *             Thrown on initialization error. See clause for details
      */
-    private void initializeService() throws ServiceInitializationException {
+    protected void initializeService() throws ServiceInitializationException {
 	try {
+	    userPermissions = new HashMap<JidRoomKey, UserPermissions>();
 
-	    List<UserPermissions> lperm = repository.getUserPermissions();// repository.getUserPermissions();
+	    List<UserPermissions> lperm = repository.getUserPermissions();
 
 	    for (UserPermissions up : lperm) {
 		JidRoomKey rj = generateRjPair(up);
