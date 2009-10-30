@@ -76,7 +76,7 @@ public class UserPermissionsMapper extends AbstractMapper {
      * <p>
      * If record isn't persistent it is simply inserted into corresponding
      * database table. If record is persistent it is updated. No additional
-     * business logic is performed.
+     * business logic like validation, user/room remapping is performed.
      * <p>
      * Parameter passed to this method is considered to be an instance of
      * {@link UserPermissions}. If this isn't so method does nothing and returns
