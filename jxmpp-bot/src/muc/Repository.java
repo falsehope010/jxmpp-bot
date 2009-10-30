@@ -163,7 +163,8 @@ public class Repository {
      *            domain object
      * @return True if succeeded, false otherwise
      */
-    public boolean updateAccessLevel(UserPermissions permissions) {
+    public boolean updateAccessLevel(UserPermissions permissions,
+	    int newAccessLevel) {
 	boolean result = false;
 
 	if (permissions != null && permissions.isPersistent()) {

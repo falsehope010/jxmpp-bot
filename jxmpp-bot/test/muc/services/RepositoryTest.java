@@ -415,13 +415,11 @@ public class RepositoryTest extends RepositoryBaseTest {
 	// update access level
 	final int newAccessLevel = accessLevel + 100;
 
-	permissions.setAccessLevel(newAccessLevel);
-
 	/*
 	 * Verify db and record's fields again
 	 */
 
-	assertTrue(repo.updateAccessLevel(permissions));
+	assertTrue(repo.updateAccessLevel(permissions, newAccessLevel));
 
 	// verify records are mapped into database
 	assertEquals(countRecords(db, "permissions"), 1);

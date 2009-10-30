@@ -4,8 +4,6 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 
-import utils.math.PermutationGenerator;
-
 public class Main {
 
     /**
@@ -13,34 +11,7 @@ public class Main {
      */
     public static void main(String[] args) {
 
-	// long start = MemoryAnalizer.getMemoryUse();
-
-	/*
-	 * final int size = 100000;
-	 * 
-	 * for (int i = 0; i < 72; ++i) { System.out.println(Integer.toString(i,
-	 * 36)); }
-	 */
-
-	int[] indices;
-	String elements = "abcdefg";
-	PermutationGenerator x = new PermutationGenerator(elements.length());
-	StringBuffer permutation;
-	while (x.hasMore()) {
-	    permutation = new StringBuffer();
-	    indices = x.getNext();
-	    for (int i = 0; i < indices.length; i++) {
-		permutation.append(elements.charAt(indices[i]));
-	    }
-	    System.out.println(permutation.toString());
-	}
-	// dowork
-
-	// long total = MemoryAnalizer.getMemoryUse() - start;
-
-	// System.out.print(total);
-
-	// XmppConnect();
+	XmppConnect();
     }
 
     protected static void XmppConnect() {
@@ -63,7 +34,7 @@ public class Main {
 
 		if (chatManager != null) {
 		    XmppMessageListener listener = new XmppMessageListener();
-		    Chat chat = chatManager.createChat("[tillias]@jabber.ru",
+		    Chat chat = chatManager.createChat("tillias@jabber.org",
 			    listener);
 
 		    chat.sendMessage("Hello!");

@@ -96,7 +96,8 @@ public class PermissionsService extends AbstractService {
 	     */
 
 	    if (accessLevel != permissions.getAccessLevel()) {
-		if (repository.updateAccessLevel(permissions)) {
+
+		if (!repository.updateAccessLevel(permissions, accessLevel)) {
 		    throw new ServiceOperationException(
 			    "Can't save new access level to database", null);
 		}
@@ -143,9 +144,7 @@ public class PermissionsService extends AbstractService {
 	UserPermissions permissions = userPermissions.get(key);
 
 	if (permissions != null) {
-	    permissions.setAccessLevel(0);
-
-	    if (!repository.updateAccessLevel(permissions))
+	    if (!repository.updateAccessLevel(permissions, 0))
 		throw new ServiceOperationException(
 			"Can't delete user permissions from database", null);
 	}
