@@ -94,7 +94,15 @@ public class PermissionsServiceTest extends DatabaseBaseTest {
     }
 
     @Test
-    public void testGrantPermissionsCreateRoomAndUser() throws Exception {
+    public void testGrantPermissions() throws Exception {
+
+	/*
+	 * This test assumes that database is empty and checks whether
+	 * grantPermissions() also inserts user/room into database as well as
+	 * permissions object itself. Then it updates accessLevel and checks how
+	 * it is being updated inside database
+	 */
+
 	Database db = prepareDatabase();
 	assertTrue(db.connect());
 
@@ -134,12 +142,10 @@ public class PermissionsServiceTest extends DatabaseBaseTest {
 	assertEquals(roomName, perm.getRoom().getName());
 	assertEquals(newAccessLevel, perm.getAccessLevel());
 
-	db.disconnect();
-    }
-
-    @Test
-    public void testGrantPermissionsUpdateAccessLevel() throws Exception {
+	// todo check in database
 	fail("Not yet implemented");
+
+	db.disconnect();
     }
 
     @Test
