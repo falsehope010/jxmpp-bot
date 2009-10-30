@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import mappers.UserPermissionsMapper;
 import muc.Repository;
 
 import org.junit.Test;
@@ -475,64 +474,6 @@ public class RepositoryTest extends RepositoryBaseTest {
 	assertEquals(dPermissions.getLong("room_id"), (Long) room.getID());
 
 	db.disconnect();
-    }
-
-    protected void assertTruncateDependentTables(Database db) {
-	assertNotNull(db);
-	assertTrue(db.isConnected());
-
-	assertTrue(truncateTable(db, "users"));
-	assertTrue(truncateTable(db, "rooms"));
-	assertTrue(truncateTable(db, "permissions"));
-    }
-
-    @SuppressWarnings("null")
-    protected List<UserPermissions> assertInsertPermissions(Database db,
-	    int recordsCount) {
-	assertTrue(recordsCount > 0);
-
-	ArrayList<UserPermissions> result = new ArrayList<UserPermissions>();
-
-	List<User> users = assertInsertUsers(db, recordsCount);
-	List<Room> rooms = assertInsertRooms(db, recordsCount);
-	List<String> jids = getJids(recordsCount);
-
-	assertEquals(users.size(), recordsCount);
-	assertEquals(rooms.size(), recordsCount);
-
-	// init mapper
-	UserPermissionsMapper mapper = null;
-
-	try {
-	    mapper = new UserPermissionsMapper(db);
-	} catch (Exception e) {
-	    fail(StackTraceUtil.toString(e));
-	}
-
-	assertNotNull(mapper);
-
-	// insert permissions
-	for (int i = 0; i < recordsCount; ++i) {
-	    User u = users.get(i);
-	    Room r = rooms.get(i);
-	    String jid = jids.get(i);
-
-	    assertNotNull(u);
-	    assertNotNull(r);
-	    assertNotNull(jid);
-
-	    UserPermissions permissions = new UserPermissions(u, r, jid);
-
-	    assertTrue(mapper.save(permissions));
-	    assertTrue(permissions.isPersistent());
-	    assertTrue(permissions.getID() > 0);
-
-	    result.add(permissions);
-	}
-
-	assertEquals(countRecords(db, "permissions"), recordsCount);
-
-	return result;
     }
 
 }
