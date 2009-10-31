@@ -168,6 +168,7 @@ public class Repository {
 	boolean result = false;
 
 	if (permissions != null && permissions.isPersistent()) {
+	    permissions.setAccessLevel(newAccessLevel);
 	    result = permissionsMapper.updateAccessLevel(permissions);
 	}
 
