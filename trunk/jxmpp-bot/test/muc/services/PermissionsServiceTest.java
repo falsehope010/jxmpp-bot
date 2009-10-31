@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -16,9 +15,11 @@ import org.junit.Test;
 
 import base.DatabaseBaseTest;
 import database.Database;
+import database.DatabaseRecord;
 import domain.muc.UserPermissions;
 import exceptions.RepositoryInitializationException;
 import exceptions.ServiceInitializationException;
+import exceptions.ServiceOperationException;
 
 public class PermissionsServiceTest extends DatabaseBaseTest {
 
@@ -130,6 +131,13 @@ public class PermissionsServiceTest extends DatabaseBaseTest {
 	assertEquals(roomName, perm.getRoom().getName());
 	assertEquals(accessLevel, perm.getAccessLevel());
 
+	// check database
+	List<DatabaseRecord> records = db.getRecords("permissions");
+	assertNotNull(records);
+	DatabaseRecord record = records.get(0);
+	assertNotNull(record);
+	assertEquals((Integer) accessLevel, record.getInt("access_level"));
+
 	// update access level
 	final int newAccessLevel = accessLevel * 2;
 	service.grantPermissions(jid, roomName, newAccessLevel);
@@ -142,15 +150,152 @@ public class PermissionsServiceTest extends DatabaseBaseTest {
 	assertEquals(roomName, perm.getRoom().getName());
 	assertEquals(newAccessLevel, perm.getAccessLevel());
 
-	// todo check in database
-	fail("Not yet implemented");
+	// check database
+	records = db.getRecords("permissions");
+	assertNotNull(records);
+	record = records.get(0);
+	assertNotNull(record);
+	assertEquals((Integer) newAccessLevel, record.getInt("access_level"));
+
+	db.disconnect();
+    }
+
+    @Test(expected = ServiceOperationException.class)
+    public void testGrantPermissionNullArguments() throws Exception {
+	Database db = prepareDatabase();
+	assertTrue(db.connect());
+
+	assertTruncateDependentTables(db);
+
+	Repository repo = getRepository(db);
+
+	PermissionsService service = new PermissionsService(repo);
+	assertNotNull(service);
+
+	service.grantPermissions(null, null, 0);
+    }
+
+    @Test(expected = ServiceOperationException.class)
+    public void testGrantPermissionNullArgumentJid() throws Exception {
+	Database db = prepareDatabase();
+	assertTrue(db.connect());
+
+	assertTruncateDependentTables(db);
+
+	Repository repo = getRepository(db);
+
+	PermissionsService service = new PermissionsService(repo);
+	assertNotNull(service);
+
+	service.grantPermissions(null, "roomName", 0);
+    }
+
+    @Test(expected = ServiceOperationException.class)
+    public void testGrantPermissionNullArgumentRoomName() throws Exception {
+	Database db = prepareDatabase();
+	assertTrue(db.connect());
+
+	assertTruncateDependentTables(db);
+
+	Repository repo = getRepository(db);
+
+	PermissionsService service = new PermissionsService(repo);
+	assertNotNull(service);
+
+	service.grantPermissions("jabberID", null, 0);
+    }
+
+    @Test
+    public void testRevokePermissionsNonExistingUser() throws Exception {
+
+	/*
+	 * This test assumes that database is empty and no
+	 * permissions/users/rooms exist. Then it attempts to revoke permissions
+	 * from non-existing user
+	 */
+
+	Database db = prepareDatabase();
+	assertTrue(db.connect());
+
+	assertTruncateDependentTables(db);
+
+	Repository repo = getRepository(db);
+
+	PermissionsService service = new PermissionsService(repo);
+	assertNotNull(service);
+
+	final String jid = "testJid";
+	final String roomName = "testRoomName";
+
+	service.revokePermissions(jid, roomName);
+
+	// verify database tables are empty and no user/room/permission has been
+	// created
+	assertEquals(0, countRecords(db, "permissions"));
+	assertEquals(0, countRecords(db, "users"));
+	assertEquals(0, countRecords(db, "rooms"));
+
+	service.revokePermissions(null, roomName);
+
+	// verify database tables are empty and no user/room/permission has been
+	// created
+	assertEquals(0, countRecords(db, "permissions"));
+	assertEquals(0, countRecords(db, "users"));
+	assertEquals(0, countRecords(db, "rooms"));
+
+	service.revokePermissions(jid, null);
+
+	// verify database tables are empty and no user/room/permission has been
+	// created
+	assertEquals(0, countRecords(db, "permissions"));
+	assertEquals(0, countRecords(db, "users"));
+	assertEquals(0, countRecords(db, "rooms"));
+
+	service.revokePermissions(null, null);
+
+	// verify database tables are empty and no user/room/permission has been
+	// created
+	assertEquals(0, countRecords(db, "permissions"));
+	assertEquals(0, countRecords(db, "users"));
+	assertEquals(0, countRecords(db, "rooms"));
 
 	db.disconnect();
     }
 
     @Test
-    public void testRevokePermissions() {
-	fail("Not yet implemented");
+    public void testRevokePermissions() throws Exception {
+	/*
+	 * This test assumes that database is not empty and attempts to revoke
+	 * permissions
+	 */
+
+	Database db = prepareDatabase();
+	assertTrue(db.connect());
+
+	assertTruncateDependentTables(db);
+
+	// populate database with test data
+	Repository repo = getRepository(db);
+	List<UserPermissions> listPermissions = assertPopulateDatabase(repo);
+
+	// init another repo in order to fecth populated data from database
+	Repository repo2 = getRepository(db);
+
+	PermissionsService service = new PermissionsService(repo2);
+	assertNotNull(service);
+
+	for (UserPermissions perm : listPermissions) {
+	    String jabberID = perm.getJabberID();
+	    String roomName = perm.getRoom().getName();
+
+	    service.revokePermissions(jabberID, roomName);
+
+	    UserPermissions up = service.getPermissions(jabberID, roomName);
+	    assertEquals(0, up.getAccessLevel());
+
+	}
+
+	db.disconnect();
     }
 
     protected Repository getRepository(Database db)

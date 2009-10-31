@@ -27,7 +27,6 @@ public class VisitMapper extends AbstractMapper {
      * {@link Visit}. If it isn't so or record is not persistent method does
      * nothing and returns false.
      */
-
     @Override
     public boolean delete(DomainObject obj) {
 	boolean result = false;
