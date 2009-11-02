@@ -18,7 +18,7 @@ import exceptions.ServiceOperationException;
  * @author tillias
  * 
  */
-public class PermissionsService extends AbstractService {
+public class PermissionsService {
 
     /**
      * Creates new instance of user permissions service.
@@ -34,7 +34,10 @@ public class PermissionsService extends AbstractService {
      */
     public PermissionsService(Repository repository)
 	    throws NullPointerException, ServiceInitializationException {
-	super(repository);
+	if (repository == null)
+	    throw new NullPointerException();
+
+	this.repository = repository;
 
 	initializeService();
     }
@@ -223,4 +226,5 @@ public class PermissionsService extends AbstractService {
      */
     HashMap<JidRoomKey, UserPermissions> userPermissions;
 
+    Repository repository;
 }
