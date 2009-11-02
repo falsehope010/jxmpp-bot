@@ -6,12 +6,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import mappers.SyslogMessageMapper;
 import mappers.SyslogSessionMapper;
 import utils.StackTraceUtil;
 import database.Database;
 import database.DatabaseFactory;
+import database.DatabaseRecord;
 import domain.syslog.Message;
 import domain.syslog.SyslogSession;
 
@@ -83,6 +85,18 @@ public class DatabaseBaseTest {
     protected void checkDb(Database db) {
 	assertNotNull(db);
 	assertTrue(db.isConnected());
+    }
+
+    /**
+     * Gets top record from database table
+     * 
+     * @param db
+     * @param tableName
+     * @return
+     */
+    protected DatabaseRecord getTopRecord(Database db, String tableName) {
+	List<DatabaseRecord> records = db.getRecords(tableName);
+	return records.get(records.size() - 1);
     }
 
     /**
