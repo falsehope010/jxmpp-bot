@@ -17,7 +17,7 @@ import domain.DomainObject;
 public class Visit extends DomainObject {
 
     /**
-     * Creates new instance of Visit.
+     * Creates new instance of Visit and sets it's start date to current date
      * 
      * @param permissions
      *            Permissions object used to determine user who joined chat room
