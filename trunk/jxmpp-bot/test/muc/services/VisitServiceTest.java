@@ -257,8 +257,10 @@ public class VisitServiceTest extends DatabaseBaseTest {
 	for (UserPermissions permissions : permissionsList) {
 	    Visit visit = service.getVisit(permissions);
 	    assertNotNull(visit);
+
 	    Visit ethalonVisit = testMap.get(permissions);
 	    assertNotNull(ethalonVisit);
+
 	    assertSame(visit, ethalonVisit);
 	}
 
@@ -269,6 +271,8 @@ public class VisitServiceTest extends DatabaseBaseTest {
 
 	    Visit ethalonVisit = testMap.get(permissions);
 	    assertSame(ethalonVisit, visit);
+	    assertSame(ethalonVisit, service.getVisit(permissions));
+
 	}
 
 	db.disconnect();
