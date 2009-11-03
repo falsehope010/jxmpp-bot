@@ -1,5 +1,6 @@
 package domain.muc;
 
+import utils.HashUtil;
 import domain.DomainObject;
 
 /**
@@ -84,6 +85,44 @@ public class Room extends DomainObject {
 	this.description = description;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+	if (this == obj)
+	    return true;
+
+	if (!(obj instanceof Room))
+	    return false;
+
+	Room room = (Room) obj;
+
+	boolean areEquals = this.getID() == room.getID();
+
+	areEquals &= name.equals(room.name);
+
+	if (description != null)
+	    areEquals &= description.equals(room.description);
+	else
+	    areEquals &= room.description == null;
+
+	return areEquals;
+    }
+
+    @Override
+    public int hashCode() {
+	if (fHashCode == 0) {
+	    int result = HashUtil.SEED;
+	    result ^= HashUtil.hashLong(result, getID());
+	    result ^= HashUtil.hashString(result, name);
+	    result ^= HashUtil.hashString(result, description);
+
+	    fHashCode = result;
+	}
+
+	return fHashCode;
+    }
+
     String name;
     String description;
+
+    int fHashCode;
 }

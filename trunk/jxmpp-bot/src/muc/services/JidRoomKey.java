@@ -1,6 +1,6 @@
 package muc.services;
 
-import utils.StringHasher;
+import utils.HashUtil;
 
 /**
  * Stores jabberID and roomName. Both fields are stored as {@link String}
@@ -45,9 +45,9 @@ public class JidRoomKey {
     @Override
     public int hashCode() {
 	if (fHashCode == 0) {
-	    int result = StringHasher.SEED;
-	    result ^= StringHasher.hashString(result, jabberID);
-	    result ^= StringHasher.hashString(result, roomName);
+	    int result = HashUtil.SEED;
+	    result ^= HashUtil.hashString(result, jabberID);
+	    result ^= HashUtil.hashString(result, roomName);
 
 	    fHashCode = result;
 	}

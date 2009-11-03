@@ -50,6 +50,7 @@ public class VisitService {
      * @param permissions
      *            Specifies user information for which visit will be created and
      *            processed
+     * @return New visit that has been created for given user
      * @throws NullPointerException
      *             Thrown if argument passed to this method is null
      * @throws IllegalArgumentException
@@ -59,7 +60,7 @@ public class VisitService {
      *             Thrown if service is unable to persist new {@link Visit}
      *             object
      */
-    public void startVisit(UserPermissions permissions)
+    public Visit startVisit(UserPermissions permissions)
 	    throws NullPointerException, IllegalArgumentException,
 	    ServiceOperationException {
 
@@ -71,6 +72,8 @@ public class VisitService {
 	} else
 	    throw new ServiceOperationException(
 		    "Can't save Visit into database", null);
+
+	return visit;
     }
 
     /**
@@ -80,6 +83,7 @@ public class VisitService {
      * @param permissions
      *            Specifies user information for which visit will be created and
      *            processed
+     * @return Visit that has been finished for given user
      * @throws NullPointerException
      *             Thrown if argument passed to this method is null
      * @throws IllegalArgumentException
@@ -88,7 +92,7 @@ public class VisitService {
      * @throws ServiceOperationException
      *             Thrown if service is unable to persist {@link Visit} object
      */
-    public void finishVisit(UserPermissions permissions)
+    public Visit finishVisit(UserPermissions permissions)
 	    throws NullPointerException, IllegalArgumentException,
 	    ServiceOperationException {
 
@@ -102,6 +106,8 @@ public class VisitService {
 			"Can't save Visit into database", null);
 	    }
 	}
+
+	return visit;
     }
 
     /**

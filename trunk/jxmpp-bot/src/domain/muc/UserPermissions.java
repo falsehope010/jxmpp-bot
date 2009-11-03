@@ -1,10 +1,12 @@
 package domain.muc;
 
 import mappers.UserPermissionsMapper;
+import utils.HashUtil;
 import domain.DomainObject;
 
 /**
- * Stores access level for multi-chat user in the specified chat room.
+ * Stores access level for multi-chat user in the specified chat room. This is
+ * Value Object
  * 
  * @see User
  * @see Room
@@ -171,8 +173,41 @@ public class UserPermissions extends DomainObject {
 	return result;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+	if (this == obj)
+	    return true;
+	if (!(obj instanceof UserPermissions))
+	    return false;
+
+	UserPermissions permissions = (UserPermissions) obj;
+
+	boolean areEqual = this.getID() == permissions.getID();
+	areEqual &= user.equals(permissions.getUser());
+	areEqual &= room.equals(permissions.getRoom());
+	areEqual &= jabberID.equals(permissions.getJabberID());
+	areEqual &= accessLevel == permissions.getAccessLevel();
+
+	return areEqual;
+    }
+
+    @Override
+    public int hashCode() {
+	if (fHashCode == 0) {
+	    fHashCode = HashUtil.SEED;
+	    fHashCode ^= HashUtil.hashLong(fHashCode, getID());
+	    fHashCode ^= user.hashCode();
+	    fHashCode ^= room.hashCode();
+	    fHashCode ^= HashUtil.hashString(fHashCode, jabberID);
+	    fHashCode ^= accessLevel;
+	}
+	return fHashCode;
+    }
+
     User user;
     Room room;
     String jabberID;
     int accessLevel;
+
+    int fHashCode;
 }

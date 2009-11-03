@@ -2,6 +2,7 @@ package domain.muc;
 
 import java.util.Date;
 
+import utils.HashUtil;
 import domain.DomainObject;
 
 /**
@@ -127,9 +128,79 @@ public class User extends DomainObject {
 	this.comments = comments;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+	if (this == obj)
+	    return true;
+	if (!(obj instanceof User))
+	    return false;
+
+	User user = (User) obj;
+
+	boolean areEquals = this.getID() == user.getID();
+
+	if (realName != null)
+	    areEquals &= realName.equals(user.realName);
+	else
+	    areEquals &= user.realName == null;
+
+	if (areEquals) {
+	    if (job != null)
+		areEquals &= job.equals(user.job);
+	    else
+		areEquals &= user.job == null;
+	} else
+	    return false;
+
+	if (areEquals) {
+	    if (position != null)
+		areEquals &= position.equals(user.position);
+	    else
+		areEquals &= user.position == null;
+	} else
+	    return false;
+
+	if (areEquals) {
+	    if (birthday != null)
+		areEquals &= birthday.equals(user.birthday);
+	    else
+		areEquals &= user.birthday == null;
+	} else
+	    return false;
+
+	if (areEquals) {
+	    if (comments != null)
+		areEquals &= comments.equals(user.comments);
+	    else
+		areEquals &= user.comments == null;
+	} else
+	    return false;
+
+	return areEquals;
+    }
+
+    @Override
+    public int hashCode() {
+	if (fHashCode == 0) {
+	    int result = HashUtil.SEED;
+	    result ^= HashUtil.hashLong(result, getID());
+	    result ^= HashUtil.hashString(result, realName);
+	    result ^= HashUtil.hashString(result, job);
+	    result ^= HashUtil.hashString(result, position);
+	    if (birthday != null)
+		result ^= birthday.hashCode();
+	    result ^= HashUtil.hashString(result, comments);
+	    fHashCode = result;
+	}
+
+	return fHashCode;
+    }
+
     String realName;
     String job;
     String position;
     Date birthday;
     String comments;
+
+    int fHashCode;
 }
