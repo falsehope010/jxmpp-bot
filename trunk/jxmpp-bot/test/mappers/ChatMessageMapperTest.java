@@ -231,6 +231,16 @@ public class ChatMessageMapperTest extends PermissionsTest {
 	assertNotNull(mapper);
     }
 
+    @Test
+    public void testBeginBatchOperation() {
+	fail("Not yet implemented");
+    }
+
+    @Test
+    public void testEndBatchOperation() {
+	fail("Not yet implemented");
+    }
+
     @SuppressWarnings("null")
     private ChatMessage assertCreateMessage(Database db) {
 	ChatMessage result = null;
