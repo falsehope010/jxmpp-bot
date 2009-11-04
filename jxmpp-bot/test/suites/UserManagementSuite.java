@@ -7,6 +7,7 @@ import mappers.UserPermissionsMapperTest;
 import mappers.VisitMapperTest;
 import muc.RoomTest;
 import muc.UserTest;
+import muc.services.ChatMessageServiceTest;
 import muc.services.IdentityMapTest;
 import muc.services.JidRoomKeyTest;
 import muc.services.PermissionsServiceTest;
@@ -24,7 +25,8 @@ import domain.muc.UserPermissionsTest;
 	VisitMapperTest.class, ChatMessageMapperTest.class,
 	IdentityMapTest.class, RepositoryTest.class, JidRoomKeyTest.class,
 	RoomTest.class, UserTest.class, UserPermissionsTest.class,
-	PermissionsServiceTest.class, VisitServiceTest.class })
+	PermissionsServiceTest.class, VisitServiceTest.class,
+	ChatMessageServiceTest.class })
 public class UserManagementSuite {
     // sole constructor
 }
