@@ -2,6 +2,7 @@ package mappers;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import utils.DateConverter;
 import database.Database;
@@ -113,6 +114,33 @@ public class ChatMessageMapper extends AbstractMapper {
     }
 
     /**
+     * Remembers current auto-commit state for underlying {@link Database}
+     * object and force sets state to true.
+     * 
+     * @see #endBatchOperation()
+     */
+    public void beginBatchOperation() {
+	try {
+	    autoCommitState = db.getAutoCommit();
+	} catch (SQLException e) {
+	    /*
+	     * Database is always in connected state since this is checked
+	     * during construction of mapper.
+	     */
+	}
+	db.setAutoCommit(true);
+    }
+
+    /**
+     * Restores previous auto-commit state of underlying {@link Database} object
+     * 
+     * @see #beginBatchOperation()
+     */
+    public void endBatchOperation() {
+	db.setAutoCommit(autoCommitState);
+    }
+
+    /**
      * Insert new record in database (if record is not persistent)
      * 
      * @param permissions
@@ -197,4 +225,6 @@ public class ChatMessageMapper extends AbstractMapper {
 
 	return result;
     }
+
+    boolean autoCommitState;
 }

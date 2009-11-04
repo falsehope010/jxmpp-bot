@@ -504,13 +504,15 @@ public class Database {
     }
 
     /**
-     * Sets autocommit option for sqlite database. Throws no exception.
+     * Sets auto-commit state for sqlite database. Throws no exception.
      * <p>
-     * If state isn't changed (e.g. db is in auto-commit mode already and client
-     * attempts to set true (or vice-versa) operation succeds.
+     * If the new state to be set is the same as the current one (for example
+     * database is in auto-commit state already and the new state to be set is
+     * true) method does nothing and returns true.
+     * 
      * 
      * @param value
-     *            Auto-commit mode value
+     *            auto-commit state value
      * @return True if succeeded, false otherwise
      * @see #getAutoCommit()
      * @see #commit()
