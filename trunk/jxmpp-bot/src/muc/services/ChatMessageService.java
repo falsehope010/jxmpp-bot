@@ -6,6 +6,13 @@ import domain.muc.ChatMessage;
 import exceptions.DatabaseNotConnectedException;
 import exceptions.ServiceOperationException;
 
+/**
+ * This service is responsible for saving {@link ChatMessage} objects into
+ * database
+ * 
+ * @author tillias
+ * 
+ */
 public class ChatMessageService {
 
     /**
@@ -36,6 +43,7 @@ public class ChatMessageService {
      * 
      * @throws ServiceOperationException
      *             Thrown if service is unable to save messages into database
+     * @see #save(ChatMessage)
      */
     public void flush() throws ServiceOperationException {
 	if (itemsCount > 0) {
@@ -62,7 +70,7 @@ public class ChatMessageService {
     }
 
     /**
-     * Saves message into database. Uses buffering
+     * Saves message into database. Buffering is used.
      * 
      * @param msg
      *            Message to be saved to database
