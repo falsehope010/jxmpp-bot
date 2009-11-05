@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import mappers.SyslogMessageMapper;
@@ -14,6 +15,9 @@ import utils.StackTraceUtil;
 import database.Database;
 import database.DatabaseFactory;
 import database.DatabaseRecord;
+import domain.muc.Room;
+import domain.muc.User;
+import domain.muc.UserPermissions;
 import domain.syslog.Message;
 import domain.syslog.SyslogSession;
 
@@ -140,6 +144,37 @@ public class DatabaseBaseTest {
 	    } catch (Exception e) {
 		fail(StackTraceUtil.toString(e));
 	    }
+	}
+
+	return result;
+    }
+
+    /**
+     * Creates new {@link List} filled with {@link UserPermissions} instances.
+     * Permissions aren't saved to database but are set to persistent
+     * programmatically
+     * 
+     * @param recordsCount
+     * @return
+     */
+    protected List<UserPermissions> createPermissions(int recordsCount) {
+	List<UserPermissions> result = new ArrayList<UserPermissions>();
+
+	for (int i = 0; i < recordsCount; ++i) {
+	    User user = new User();
+	    user.mapperSetID(i);
+	    user.mapperSetPersistence(true);
+
+	    Room room = new Room("testRoom" + String.valueOf(i) + "@xmpp.org");
+	    room.mapperSetID(i);
+	    room.mapperSetPersistence(true);
+
+	    UserPermissions permissions = new UserPermissions(user, room,
+		    "testUser" + String.valueOf(i) + "@xmpp.org");
+	    permissions.mapperSetID(i);
+	    permissions.mapperSetPersistence(true);
+
+	    result.add(permissions);
 	}
 
 	return result;

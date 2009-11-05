@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -276,29 +275,6 @@ public class VisitServiceTest extends DatabaseBaseTest {
 	}
 
 	db.disconnect();
-    }
-
-    private List<UserPermissions> createPermissions(int recordsCount) {
-	List<UserPermissions> result = new ArrayList<UserPermissions>();
-
-	for (int i = 0; i < recordsCount; ++i) {
-	    User user = new User();
-	    user.mapperSetID(i);
-	    user.mapperSetPersistence(true);
-
-	    Room room = new Room("testRoom" + String.valueOf(i) + "@xmpp.org");
-	    room.mapperSetID(i);
-	    room.mapperSetPersistence(true);
-
-	    UserPermissions permissions = new UserPermissions(user, room,
-		    "testUser" + String.valueOf(i) + "@xmpp.org");
-	    permissions.mapperSetID(i);
-	    permissions.mapperSetPersistence(true);
-
-	    result.add(permissions);
-	}
-
-	return result;
     }
 
     private void assertTruncateDependentTables(Database db) {
