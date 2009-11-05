@@ -8,7 +8,7 @@ import exceptions.ServiceOperationException;
 
 /**
  * This service is responsible for saving {@link ChatMessage} objects into
- * database
+ * database. Uses buffering.
  * 
  * @author tillias
  * 
@@ -28,13 +28,35 @@ public class ChatMessageService {
      */
     public ChatMessageService(Database db) throws NullPointerException,
 	    DatabaseNotConnectedException {
+	this(db, DEFAULT_CAPACITY);
+    }
+
+    /**
+     * Creates new instance of service and sets it's internal buffer size to
+     * specified value
+     * 
+     * @param db
+     *            {@link Database} object which will be used by service
+     * @param bufferSize
+     *            Internal buffer size
+     * @throws NullPointerException
+     *             Thrown if argument passed to constructor is null
+     * @throws DatabaseNotConnectedException
+     *             Thrown if database passed to constructor is in disconnected
+     *             state
+     * @throws IllegalArgumentException
+     *             Thrown if bufferSize argument is not positive
+     */
+    public ChatMessageService(Database db, int bufferSize)
+	    throws NullPointerException, DatabaseNotConnectedException,
+	    IllegalArgumentException {
 	if (db == null)
 	    throw new NullPointerException();
 	if (!db.isConnected())
 	    throw new DatabaseNotConnectedException();
 
 	mapper = new ChatMessageMapper(db);
-	initBuffer(DEFAULT_CAPACITY);
+	initBuffer(bufferSize);
     }
 
     /**
@@ -75,7 +97,8 @@ public class ChatMessageService {
      * @param msg
      *            Message to be saved to database
      * @throws ServiceOperationException
-     *             Thrown if
+     *             Thrown if buffer is full, service attempted to flush buffer
+     *             and database error has occurred
      * @see {@link #flush()}
      */
     public void save(ChatMessage msg) throws ServiceOperationException {
@@ -87,6 +110,16 @@ public class ChatMessageService {
 	    buffer[itemsCount] = msg;
 	    ++itemsCount;
 	}
+    }
+
+    /**
+     * Gets total maximum number of messages that service can store in its
+     * internal buffer
+     * 
+     * @return service buffer capacity
+     */
+    public int getCapacity() {
+	return maxItemsCount;
     }
 
     /**

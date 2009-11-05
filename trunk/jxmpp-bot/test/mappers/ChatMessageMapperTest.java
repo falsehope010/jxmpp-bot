@@ -1,6 +1,7 @@
 package mappers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -232,13 +233,27 @@ public class ChatMessageMapperTest extends PermissionsTest {
     }
 
     @Test
-    public void testBeginBatchOperation() {
-	fail("Not yet implemented");
-    }
+    public void testBeginBatchOperation() throws Exception {
+	Database db = prepareDatabase();
 
-    @Test
-    public void testEndBatchOperation() {
-	fail("Not yet implemented");
+	ChatMessageMapper mapper = new ChatMessageMapper(db);
+	assertNotNull(mapper);
+
+	db.setAutoCommit(false);
+
+	mapper.beginBatchOperation();
+	assertTrue(db.getAutoCommit());
+	mapper.endBatchOperation();
+	assertFalse(db.getAutoCommit());
+
+	db.setAutoCommit(true);
+
+	mapper.beginBatchOperation();
+	assertTrue(db.getAutoCommit());
+	mapper.endBatchOperation();
+	assertTrue(db.getAutoCommit());
+
+	db.disconnect();
     }
 
     @SuppressWarnings("null")
