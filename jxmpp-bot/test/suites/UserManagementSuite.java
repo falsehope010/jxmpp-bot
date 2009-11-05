@@ -5,8 +5,6 @@ import mappers.RoomMapperTest;
 import mappers.UserMapperTest;
 import mappers.UserPermissionsMapperTest;
 import mappers.VisitMapperTest;
-import muc.RoomTest;
-import muc.UserTest;
 import muc.services.ChatMessageServiceTest;
 import muc.services.IdentityMapTest;
 import muc.services.JidRoomKeyTest;
@@ -17,7 +15,9 @@ import muc.services.VisitServiceTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import domain.muc.RoomTest;
 import domain.muc.UserPermissionsTest;
+import domain.muc.UserTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses( { UserPermissionsTest.class, UserMapperTest.class,
