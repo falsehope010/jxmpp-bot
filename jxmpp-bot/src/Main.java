@@ -1,8 +1,7 @@
-import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 
 public class Main {
 
@@ -30,15 +29,19 @@ public class Main {
 
 		System.out.print("Logged in!\n");
 
-		ChatManager chatManager = conn.getChatManager();
+		MultiUserChat chat = new MultiUserChat(conn,
+			"vegatrek@conference.jabber.ru");
+		chat.join("test");
 
-		if (chatManager != null) {
-		    XmppMessageListener listener = new XmppMessageListener();
-		    Chat chat = chatManager.createChat("tillias@jabber.org",
-			    listener);
-
-		    chat.sendMessage("Hello!");
-		}
+		/*
+		 * ChatManager chatManager = conn.getChatManager();
+		 * 
+		 * if (chatManager != null) { XmppMessageListener listener = new
+		 * XmppMessageListener(); Chat chat =
+		 * chatManager.createChat("tillias@jabber.org", listener);
+		 * 
+		 * chat.sendMessage("Hello!"); }
+		 */
 
 	    } else {
 		System.out.print("Can't login\n");
