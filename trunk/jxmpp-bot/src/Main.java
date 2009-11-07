@@ -1,8 +1,11 @@
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.muc.ParticipantStatusListener;
+
+import xmpp.JidCollector;
+import xmpp.MessageCollector;
 
 public class Main {
 
@@ -29,6 +32,9 @@ public class Main {
 
 	    MultiUserChat chat = null;
 
+	    MessageCollector msgCollector = new MessageCollector();
+	    JidCollector jidCollector = new JidCollector();
+
 	    if (conn.isConnected()) {
 
 		System.out.print("Logged in!\n");
@@ -43,104 +49,8 @@ public class Main {
 		 * } else System.out.println(packet.getClass()); } });
 		 */
 
-		// MucCollector manager = new MucCollector();
-		chat
-			.addParticipantStatusListener(new ParticipantStatusListener() {
-
-			    @Override
-			    public void voiceRevoked(String participant) {
-				// TODO Auto-generated method stub
-
-			    }
-
-			    @Override
-			    public void voiceGranted(String participant) {
-				// TODO Auto-generated method stub
-
-			    }
-
-			    @Override
-			    public void ownershipRevoked(String participant) {
-				// TODO Auto-generated method stub
-
-			    }
-
-			    @Override
-			    public void ownershipGranted(String participant) {
-				// TODO Auto-generated method stub
-
-			    }
-
-			    @Override
-			    public void nicknameChanged(String participant,
-				    String newNickname) {
-				// TODO Auto-generated method stub
-
-			    }
-
-			    @Override
-			    public void moderatorRevoked(String participant) {
-				// TODO Auto-generated method stub
-
-			    }
-
-			    @Override
-			    public void moderatorGranted(String participant) {
-				// TODO Auto-generated method stub
-
-			    }
-
-			    @Override
-			    public void membershipRevoked(String participant) {
-				// TODO Auto-generated method stub
-
-			    }
-
-			    @Override
-			    public void membershipGranted(String participant) {
-				// TODO Auto-generated method stub
-
-			    }
-
-			    @Override
-			    public void left(String participant) {
-				System.out.println("Left: " + participant);
-
-			    }
-
-			    @Override
-			    public void kicked(String participant,
-				    String actor, String reason) {
-				// TODO Auto-generated method stub
-
-			    }
-
-			    @Override
-			    public void joined(String participant) {
-				System.out.println("Joined: " + participant);
-
-			    }
-
-			    @Override
-			    public void banned(String participant,
-				    String actor, String reason) {
-				// TODO Auto-generated method stub
-
-			    }
-
-			    @Override
-			    public void adminRevoked(String participant) {
-				// TODO Auto-generated method stub
-
-			    }
-
-			    @Override
-			    public void adminGranted(String participant) {
-				// TODO Auto-generated method stub
-
-			    }
-			});
-
+		chat.addMessageListener(msgCollector);
+		chat.addParticipantListener(jidCollector);
 		chat.join("DigitalSoul");
 
 		/*
@@ -172,6 +82,16 @@ public class Main {
 
 	    while (true) {
 		Thread.sleep(100);
+		Message msg = msgCollector.poll();
+
+		if (msg != null) {
+		    String nickName = msg.getFrom();
+		    String jid = jidCollector.getJid(nickName);
+
+		    if (jid != null) {
+			System.out.println(jid + ":   " + msg.getBody());
+		    }
+		}
 	    }
 
 	    // chat.leave();
