@@ -9,7 +9,7 @@ import org.jivesoftware.smack.packet.Packet;
 public class MessageCollector implements PacketListener {
 
     public MessageCollector() {
-	messages = new ConcurrentLinkedQueue<Message>();
+	messages = new ConcurrentLinkedQueue<XmppMessage>();
     }
 
     @Override
@@ -17,15 +17,15 @@ public class MessageCollector implements PacketListener {
 
 	if (packet instanceof Message) {
 	    Message messagePacket = (Message) packet;
-
-	    messages.add(messagePacket);
+	    XmppMessage msg = new XmppMessage(messagePacket);
+	    messages.add(msg);
 	}
     }
 
-    public Message poll() {
+    public XmppMessage poll() {
 	return messages.poll();
     }
 
-    ConcurrentLinkedQueue<Message> messages;
+    ConcurrentLinkedQueue<XmppMessage> messages;
 
 }

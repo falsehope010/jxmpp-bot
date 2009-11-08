@@ -1,11 +1,12 @@
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import xmpp.JidCollector;
 import xmpp.MessageCollector;
+import xmpp.XmppMessage;
 
 public class Main {
 
@@ -51,7 +52,10 @@ public class Main {
 
 		chat.addMessageListener(msgCollector);
 		chat.addParticipantListener(jidCollector);
-		chat.join("DigitalSoul");
+
+		DiscussionHistory history = new DiscussionHistory();
+		history.setMaxChars(0);
+		chat.join("DigitalSoul", null, history, 5000);
 
 		/*
 		 * for (Affiliate a : chat.getOwners()) {
@@ -82,14 +86,15 @@ public class Main {
 
 	    while (true) {
 		Thread.sleep(100);
-		Message msg = msgCollector.poll();
+		XmppMessage msg = msgCollector.poll();
 
 		if (msg != null) {
 		    String nickName = msg.getFrom();
 		    String jid = jidCollector.getJid(nickName);
 
 		    if (jid != null) {
-			System.out.println(jid + ":   " + msg.getBody());
+			System.out.println(msg.getTimestamp() + " " + jid
+				+ ":   " + msg.getText());
 		    }
 		}
 	    }
