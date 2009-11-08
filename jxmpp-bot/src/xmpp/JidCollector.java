@@ -1,6 +1,8 @@
 package xmpp;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
@@ -33,7 +35,11 @@ public class JidCollector implements PacketListener {
 			String fullQualifiedNickName = presencePacket.getFrom();
 			String fullQualifiedJid = item.getJid();
 
-			bindings.put(fullQualifiedNickName, fullQualifiedJid);
+			Matcher m = pattern.matcher(fullQualifiedJid);
+			if (m.matches()) {
+			    bindings.put(fullQualifiedNickName, m.group(1));
+			}
+
 		    } catch (Exception e) {
 			e.printStackTrace();
 		    }
@@ -50,4 +56,6 @@ public class JidCollector implements PacketListener {
      * Stores bindings between nickname and it's jid
      */
     ConcurrentHashMap<String, String> bindings;
+
+    Pattern pattern = Pattern.compile("(.*)/(.*)");
 }
