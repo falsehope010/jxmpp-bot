@@ -31,6 +31,10 @@ public class XmppMessage {
 	return body.getTo();
     }
 
+    public Message.Type getType() {
+	return body.getType();
+    }
+
     Message body;
     Date timestamp;
 }

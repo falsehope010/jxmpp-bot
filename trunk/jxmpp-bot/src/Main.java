@@ -1,6 +1,9 @@
+import java.util.regex.Pattern;
+
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Message.Type;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
@@ -94,7 +97,10 @@ public class Main {
 
 		    if (jid != null) {
 			System.out.println(msg.getTimestamp() + " " + jid
-				+ ":   " + msg.getText());
+				+ ":   " + msg.getText() + " " + msg.getType());
+		    }
+		    if (msg.getType() == Type.groupchat) {
+			System.out.println(msg.getFrom());
 		    }
 		}
 	    }
@@ -108,4 +114,6 @@ public class Main {
 	    System.out.print(ex.getStackTrace());
 	}
     }
+
+    static Pattern pattern = Pattern.compile("(.*)/(.*)");
 }
