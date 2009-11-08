@@ -3,13 +3,10 @@ import java.util.regex.Pattern;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.Message.Type;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
-import xmpp.JidCollector;
-import xmpp.MessageCollector;
-import xmpp.XmppMessage;
+import xmpp.XmppPacketListener;
 
 public class Main {
 
@@ -36,8 +33,9 @@ public class Main {
 
 	    MultiUserChat chat = null;
 
-	    MessageCollector msgCollector = new MessageCollector();
-	    JidCollector jidCollector = new JidCollector();
+	    // MessageSourceCollector msgCollector = new
+	    // MessageSourceCollector();
+	    // JidCollector jidCollector = new JidCollector();
 
 	    if (conn.isConnected()) {
 
@@ -53,12 +51,16 @@ public class Main {
 		 * } else System.out.println(packet.getClass()); } });
 		 */
 
-		chat.addMessageListener(msgCollector);
-		chat.addParticipantListener(jidCollector);
+		conn
+			.addPacketListener(new XmppPacketListener(conn, chat),
+				null);
+
+		// chat.addMessageListener(msgCollector);
+		// chat.addParticipantListener(jidCollector);
 
 		DiscussionHistory history = new DiscussionHistory();
 		history.setMaxChars(0);
-		chat.join("DigitalSoul", null, history, 5000);
+		chat.join("DigitalSoul", null, history, 25000);
 
 		/*
 		 * for (Affiliate a : chat.getOwners()) {
@@ -89,20 +91,17 @@ public class Main {
 
 	    while (true) {
 		Thread.sleep(100);
-		XmppMessage msg = msgCollector.poll();
+		// MessageSource msg = msgCollector.poll();
 
-		if (msg != null) {
-		    String nickName = msg.getFrom();
-		    String jid = jidCollector.getJid(nickName);
-
-		    if (jid != null) {
-			System.out.println(msg.getTimestamp() + " " + jid
-				+ ":   " + msg.getText() + " " + msg.getType());
-		    }
-		    if (msg.getType() == Type.groupchat) {
-			System.out.println(msg.getFrom());
-		    }
-		}
+		/*
+		 * if (msg != null) { String nickName = msg.getFrom(); String
+		 * jid = jidCollector.getJid(nickName);
+		 * 
+		 * if (jid != null) { System.out.println(msg.getTimestamp() +
+		 * " " + jid + ":   " + msg.getText() + " " + msg.getType()); }
+		 * if (msg.getType() == Type.groupchat) {
+		 * System.out.println(msg.getFrom()); } }
+		 */
 	    }
 
 	    // chat.leave();
