@@ -157,12 +157,11 @@ public class ChatMessageMapper extends AbstractMapper {
 		Connection conn = db.getConnection();
 
 		pr = conn
-			.prepareStatement("insert into chat_messages(timestamp,text,sender,recipient) "
-				+ "values(?,?,?,?)");
+			.prepareStatement("insert into chat_messages(timestamp,text,sender) "
+				+ "values(?,?,?)");
 		pr.setDate(1, DateConverter.Convert(message.getTimestamp()));
 		pr.setString(2, message.getText());
 		pr.setLong(3, message.getSender().getID());
-		pr.setLong(4, message.getRecipient().getID());
 
 		int rows_affected = pr.executeUpdate();
 
@@ -203,13 +202,11 @@ public class ChatMessageMapper extends AbstractMapper {
 		Connection conn = db.getConnection();
 
 		pr = conn.prepareStatement("update chat_messages set "
-			+ "timestamp=?,text=?,sender=?,recipient=? "
-			+ "where id=?");
+			+ "timestamp=?,text=?,sender=? " + "where id=?");
 		pr.setDate(1, DateConverter.Convert(message.getTimestamp()));
 		pr.setString(2, message.getText());
 		pr.setLong(3, message.getSender().getID());
-		pr.setLong(4, message.getRecipient().getID());
-		pr.setLong(5, message.getID());
+		pr.setLong(4, message.getID());
 
 		int rows_affected = pr.executeUpdate();
 

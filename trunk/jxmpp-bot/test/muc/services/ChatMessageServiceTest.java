@@ -129,8 +129,6 @@ public class ChatMessageServiceTest extends DatabaseBaseTest {
 	    assertEquals(record.getLong("id"), (Long) msg.getID());
 	    assertEquals(record.getLong("sender"), (Long) msg.getSender()
 		    .getID());
-	    assertEquals(record.getLong("recipient"), (Long) msg.getRecipient()
-		    .getID());
 	    assertEquals(record.getString("text"), msg.getText());
 	    assertEquals(record.getDate("timestamp"), msg.getTimestamp());
 	}
@@ -204,15 +202,12 @@ public class ChatMessageServiceTest extends DatabaseBaseTest {
 	for (int i = 0; i < recordsCount; ++i) {
 
 	    Visit senderVisit = new Visit(permissionsList.get(0));
-	    Visit recipientVisit = new Visit(permissionsList.get(0));
 
 	    senderVisit.mapperSetID(i);
 	    senderVisit.mapperSetPersistence(true);
-	    recipientVisit.mapperSetID(i);
-	    recipientVisit.mapperSetPersistence(true);
 
 	    ChatMessage msg = new ChatMessage("text" + String.valueOf(i),
-		    new Date(), senderVisit, recipientVisit);
+		    new Date(), senderVisit);
 
 	    result.add(msg);
 	}

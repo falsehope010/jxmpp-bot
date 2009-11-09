@@ -6,7 +6,9 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
+import xmpp.IXmppManager;
 import xmpp.XmppPacketListener;
+import xmpp.message.XmppMessage;
 
 public class Main {
 
@@ -15,7 +17,6 @@ public class Main {
      * @throws InterruptedException
      */
     public static void main(String[] args) throws InterruptedException {
-
 	XmppConnect();
     }
 
@@ -51,9 +52,14 @@ public class Main {
 		 * } else System.out.println(packet.getClass()); } });
 		 */
 
-		conn
-			.addPacketListener(new XmppPacketListener(conn, chat),
-				null);
+		conn.addPacketListener(new XmppPacketListener(
+			new IXmppManager() {
+
+			    @Override
+			    public void processMessage(XmppMessage msg) {
+				System.out.println(msg);
+			    }
+			}), null);
 
 		// chat.addMessageListener(msgCollector);
 		// chat.addParticipantListener(jidCollector);
