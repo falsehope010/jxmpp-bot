@@ -5,27 +5,25 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.packet.Message.Type;
-import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.packet.MUCUser;
 import org.jivesoftware.smackx.packet.MUCUser.Item;
 
+import xmpp.message.XmppMessage;
+import xmpp.message.XmppMessageData;
+import xmpp.message.XmppMessageType;
+
 public class XmppPacketListener implements PacketListener {
 
-    public XmppPacketListener(XMPPConnection connection, MultiUserChat chat) {
+    public XmppPacketListener(IXmppManager manager) {
 
-	if (connection == null || chat == null)
+	if (manager == null)
 	    throw new NullPointerException();
 
-	this.connection = connection;
-	this.chat = chat;
-
+	this.xmppManager = manager;
 	groupChatBindings = new ConcurrentHashMap<String, String>();
     }
 
@@ -38,10 +36,6 @@ public class XmppPacketListener implements PacketListener {
 	if (packet instanceof Message) {
 	    processeMessagePacket(packet);
 	}
-    }
-
-    public String getJid(String nickName) {
-	return groupChatBindings.get(nickName);
     }
 
     private void processePresencePacket(Packet packet) {
@@ -76,72 +70,19 @@ public class XmppPacketListener implements PacketListener {
     private void processeMessagePacket(Packet packet) {
 	Message messagePacket = (Message) packet;
 
-	XmppMessageType type = getMessageType(messagePacket);
-	System.out.println(type);
+	XmppMessageType messageType = getMessageType(messagePacket);
+	String jid = getSenderJid(messagePacket, messageType);
 
-	// obsolete code, remove and reuse where needed
-	if (false) {
-	    try {
-		switch (messagePacket.getType()) {
-		case groupchat:
-		    /*
-		     * If we've received group-chat message, then there is
-		     * already ready binding between sender and it's jid since
-		     * presence message arrives before any group chat message
-		     */
-		    if (messagePacket.getBody().equals("\\date")) {
-			Message msg = chat.createMessage();
-			msg.setBody((new Date()).toString());
-			msg.setTo(messagePacket.getFrom());
-			msg.setType(Type.chat);
-			chat.sendMessage(msg);
-		    }
+	if (messageType != XmppMessageType.Unknown && jid != null) {
+	    XmppMessageData data = new XmppMessageData();
+	    data.setJid(jid);
+	    data.setSender(messagePacket.getFrom());
+	    data.setText(messagePacket.getBody());
+	    data.setTimestamp(new Date());
+	    data.setType(messageType);
 
-		    System.out.println(groupChatBindings.get(messagePacket
-			    .getFrom())
-			    + ":  " + messagePacket.getBody());
-
-		    break;
-		case chat:
-
-		    String sender = groupChatBindings.get(messagePacket
-			    .getFrom());
-
-		    if (sender == null) {
-
-			// we've just received private message, not from any
-			// chat
-			Message msg = new Message();
-			msg.setTo(messagePacket.getFrom());
-			msg.setType(Type.chat);
-			msg.setBody("answer!");
-			connection.sendPacket(msg);
-		    } else {
-
-			/*
-			 * We've recieved PM message from group-chat's user
-			 * since getFrom() matched some JID which has been sent
-			 * before this packet
-			 */
-			Chat p_chat = chat.createPrivateChat(messagePacket
-				.getFrom(), null);
-			Message msg = new Message();
-			msg.setTo(messagePacket.getFrom());
-			msg.setType(Type.chat);
-			msg.setBody("answer!");
-			p_chat.sendMessage(msg);
-			p_chat = null;
-		    }
-		    break;
-		case error:
-		    System.out.println(messagePacket.getBody());
-		    break;
-		default:
-		    System.out.println("Type: " + messagePacket.getType());
-		}
-	    } catch (Exception e) {
-		e.printStackTrace();
-	    }
+	    XmppMessage msg = new XmppMessage(data);
+	    xmppManager.processMessage(msg);
 	}
     }
 
@@ -180,9 +121,30 @@ public class XmppPacketListener implements PacketListener {
 	return result;
     }
 
-    XMPPConnection connection;
-    MultiUserChat chat;
+    private String getSenderJid(Message msg, XmppMessageType type) {
+	String result = null;
 
+	if (msg != null) {
+	    switch (type) {
+	    case GroupChat:
+	    case PrivateChat:
+		result = groupChatBindings.get(msg.getFrom());
+		break;
+	    case Private:
+		Matcher m = pattern.matcher(msg.getFrom());
+		if (m.matches()) {
+		    result = m.group(1);
+		}
+		break;
+	    default:
+		break;
+	    }
+	}
+
+	return result;
+    }
+
+    IXmppManager xmppManager;
     /**
      * Stores bindings between packet sender and it's jid. Managed using
      * {@link Presence} packets that are sent by xmpp server

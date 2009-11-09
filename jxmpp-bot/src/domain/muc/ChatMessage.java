@@ -36,22 +36,19 @@ public class ChatMessage extends DomainObject {
      *             is not valid persistent domain object
      * @see Visit
      */
-    public ChatMessage(String text, Date timestamp, Visit senderVisit,
-	    Visit recipientVisit) throws NullPointerException,
-	    IllegalArgumentException {
-	if (senderVisit == null || recipientVisit == null)
+    public ChatMessage(String text, Date timestamp, Visit senderVisit)
+	    throws NullPointerException, IllegalArgumentException {
+	if (senderVisit == null)
 	    throw new NullPointerException(
 		    "senderVisit or recipientVisit can't be null");
 
-	if (!senderVisit.isPersistent() || !recipientVisit.isPersistent())
-	    throw new IllegalArgumentException(
-		    "senderVisit and recipientVisit must be persistent"
-			    + "domain objects");
+	if (!senderVisit.isPersistent())
+	    throw new IllegalArgumentException("senderVisit must be persistent"
+		    + "domain objects");
 
 	this.text = text;
 	this.timestamp = timestamp;
 	this.sender = senderVisit;
-	this.recipient = recipientVisit;
     }
 
     /**
@@ -83,16 +80,6 @@ public class ChatMessage extends DomainObject {
     }
 
     /**
-     * Gets recipient visit
-     * 
-     * @return Recipient visit
-     * @see Visit
-     */
-    public Visit getRecipient() {
-	return recipient;
-    }
-
-    /**
      * Sets message text
      * 
      * @param text
@@ -109,5 +96,4 @@ public class ChatMessage extends DomainObject {
     String text;
     Date timestamp;
     Visit sender;
-    Visit recipient;
 }

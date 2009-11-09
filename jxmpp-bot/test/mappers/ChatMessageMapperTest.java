@@ -59,8 +59,6 @@ public class ChatMessageMapperTest extends PermissionsTest {
 	assertEquals(record.getDate("timestamp"), msg.getTimestamp());
 	assertEquals(record.getObject("text"), msg.getText());
 	assertEquals(record.getLong("sender"), (Long) msg.getSender().getID());
-	assertEquals(record.getLong("recipient"), (Long) msg.getRecipient()
-		.getID());
 
 	db.disconnect();
     }
@@ -100,8 +98,6 @@ public class ChatMessageMapperTest extends PermissionsTest {
 	assertEquals(record.getDate("timestamp"), msg.getTimestamp());
 	assertEquals(record.getObject("text"), msg.getText());
 	assertEquals(record.getLong("sender"), (Long) msg.getSender().getID());
-	assertEquals(record.getLong("recipient"), (Long) msg.getRecipient()
-		.getID());
 
 	// update record
 	msg.setText("newText");
@@ -125,8 +121,6 @@ public class ChatMessageMapperTest extends PermissionsTest {
 	assertEquals(record.getDate("timestamp"), msg.getTimestamp());
 	assertEquals(record.getObject("text"), msg.getText());
 	assertEquals(record.getLong("sender"), (Long) msg.getSender().getID());
-	assertEquals(record.getLong("recipient"), (Long) msg.getRecipient()
-		.getID());
 
 	db.disconnect();
     }
@@ -180,7 +174,7 @@ public class ChatMessageMapperTest extends PermissionsTest {
 
 	for (int i = 0; i < recordsCount; ++i) {
 	    ChatMessage msg = new ChatMessage("message" + Integer.toString(i),
-		    new Date(), visit, visit);
+		    new Date(), visit);
 
 	    assertTrue(cm_mapper.save(msg));
 	    assertTrue(visit.isPersistent());
@@ -285,7 +279,7 @@ public class ChatMessageMapperTest extends PermissionsTest {
 
 	assertTrue(v_mapper.save(visit));
 
-	result = new ChatMessage("testMessage", new Date(), visit, visit);
+	result = new ChatMessage("testMessage", new Date(), visit);
 
 	assertNotNull(result);
 
