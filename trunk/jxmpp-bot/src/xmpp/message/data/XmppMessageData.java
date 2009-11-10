@@ -1,7 +1,6 @@
-package xmpp.message;
+package xmpp.message.data;
 
 import java.util.Date;
-
 
 public class XmppMessageData {
 
@@ -13,28 +12,12 @@ public class XmppMessageData {
 	this.sender = sender;
     }
 
-    public String getText() {
-	return text;
-    }
-
-    public void setText(String text) {
-	this.text = text;
-    }
-
     public Date getTimestamp() {
 	return timestamp;
     }
 
     public void setTimestamp(Date timestamp) {
 	this.timestamp = timestamp;
-    }
-
-    public XmppMessageType getType() {
-	return type;
-    }
-
-    public void setType(XmppMessageType type) {
-	this.type = type;
     }
 
     public String getJid() {
@@ -46,8 +29,6 @@ public class XmppMessageData {
     }
 
     String sender;
-    String text;
     Date timestamp;
-    XmppMessageType type;
     String jid;
 }

@@ -1,7 +1,7 @@
 package xmpp;
 
-import xmpp.message.XmppMessage;
+import xmpp.message.IXmppMessage;
 
 public interface IXmppManager {
-    void processMessage(XmppMessage msg);
+    void processTextMessage(IXmppMessage msg);
 }
