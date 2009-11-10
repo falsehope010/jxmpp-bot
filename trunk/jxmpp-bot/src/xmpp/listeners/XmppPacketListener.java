@@ -14,8 +14,10 @@ import org.jivesoftware.smackx.packet.MUCUser;
 import org.jivesoftware.smackx.packet.MUCUser.Item;
 
 import xmpp.IXmppMessageQueue;
+import xmpp.message.XmppNickMessage;
 import xmpp.message.XmppStatusMessage;
 import xmpp.message.XmppTextMessage;
+import xmpp.message.data.XmppNickMessageData;
 import xmpp.message.data.XmppStatusMessageData;
 import xmpp.message.data.XmppStatusMessageType;
 import xmpp.message.data.XmppTextMessageData;
@@ -98,8 +100,7 @@ public class XmppPacketListener extends AbstractXmppListener implements
 
     @Override
     public void nicknameChanged(String participant, String newNickname) {
-	add(createStatusMessage(participant,
-		XmppStatusMessageType.NicknameChanged));
+	add(createNickMessage(participant, newNickname));
     }
 
     @Override
@@ -238,6 +239,16 @@ public class XmppPacketListener extends AbstractXmppListener implements
 	data.setTimestamp(new Date());
 	data.setType(type);
 	return new XmppStatusMessage(data);
+    }
+
+    private XmppNickMessage createNickMessage(String sender, String newNick) {
+	XmppNickMessageData data = new XmppNickMessageData();
+	data.setSender(sender);
+	data.setNewNick(newNick);
+	data.setJid(groupChatBindings.get(sender));
+	data.setTimestamp(new Date());
+	data.setType(XmppStatusMessageType.NicknameChanged);
+	return new XmppNickMessage(data);
     }
 
     /**
