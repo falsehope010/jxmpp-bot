@@ -2,12 +2,12 @@ package xmpp.message;
 
 import java.util.Date;
 
-import xmpp.message.data.XmppTextMessageData;
-import xmpp.message.data.XmppTextMessageType;
+import xmpp.message.data.XmppNickMessageData;
+import xmpp.message.data.XmppStatusMessageType;
 
-public class XmppTextMessage implements IXmppMessage {
+public class XmppNickMessage implements IXmppMessage {
 
-    public XmppTextMessage(XmppTextMessageData data) {
+    public XmppNickMessage(XmppNickMessageData data) {
 	if (data == null)
 	    throw new NullPointerException();
 
@@ -29,12 +29,20 @@ public class XmppTextMessage implements IXmppMessage {
 	return data.getTimestamp();
     }
 
-    public String getText() {
-	return data.getText();
+    public String getRoomName() {
+	return data.getRoomName();
     }
 
-    public XmppTextMessageType getType() {
+    public XmppStatusMessageType getType() {
 	return data.getType();
+    }
+
+    public String getNewNick() {
+	return data.getNewNick();
+    }
+
+    public String getNick() {
+	return data.getNick();
     }
 
     @Override
@@ -47,18 +55,20 @@ public class XmppTextMessage implements IXmppMessage {
 	sb.append("From: ");
 	sb.append(getSender());
 	sb.append('\n');
-	sb.append("Text: ");
-	sb.append(getText());
-	sb.append('\n');
 	sb.append("Jid: ");
 	sb.append(getJid());
 	sb.append('\n');
 	sb.append("Type: ");
 	sb.append(getType());
+	sb.append('\n');
+	sb.append("Old nick: ");
+	sb.append(getNick());
+	sb.append('\n');
+	sb.append("New nick: ");
+	sb.append(getNewNick());
 
 	return sb.toString();
     }
 
-    XmppTextMessageData data;
-
+    XmppNickMessageData data;
 }

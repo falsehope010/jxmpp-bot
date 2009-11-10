@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class XmppStatusMessageData extends XmppMessageData {
 
-    public String getRoomName() {
+    public synchronized String getRoomName() {
 
 	/*
 	 * Extracts conference room name from sender field.
@@ -31,5 +31,5 @@ public class XmppStatusMessageData extends XmppMessageData {
     }
 
     XmppStatusMessageType messageType;
-    Pattern pattern = Pattern.compile("(.+)/(.+)");
+    static Pattern pattern = Pattern.compile("(.+)/(.+)");
 }

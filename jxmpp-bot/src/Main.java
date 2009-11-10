@@ -6,11 +6,9 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
+import xmpp.AbstractXmppManager;
 import xmpp.MessageQueue;
 import xmpp.listeners.XmppPacketListener;
-import xmpp.message.IXmppMessage;
-import xmpp.message.XmppStatusMessage;
-import xmpp.message.data.XmppStatusMessageType;
 
 public class Main {
 
@@ -79,26 +77,20 @@ public class Main {
 		System.out.print("Can't login\n");
 	    }
 
-	    while (true) {
-		Thread.sleep(100);
-		IXmppMessage msg = queue.poll();
-		if (msg != null) {
-		    System.out.println(msg);
+	    AbstractXmppManager manager = new AbstractXmppManager(queue);
+	    Thread thrd = new Thread(manager);
+	    thrd.start();
 
-		    if (msg instanceof XmppStatusMessage) {
-			XmppStatusMessage statusMessage = (XmppStatusMessage) msg;
-			if (statusMessage.getType() == XmppStatusMessageType.NicknameChanged) {
-			    ++nickChangesCount;
-			    System.out.println(nickChangesCount);
-			}
+	    Thread.sleep(600000);
 
-			if (nickChangesCount > 3) {
-			    chat.kickParticipant(statusMessage.getSender(),
-				    "Too many nick name changes");
-			}
-		    }
-		}
-	    }
+	    manager.stop();
+	    /*
+	     * while (true) { Thread.sleep(100); IXmppMessage msg =
+	     * queue.poll(); if (msg != null) { System.out.println(msg); } }
+	     */
+
+	    chat.leave();
+	    conn.disconnect();
 
 	} catch (XMPPException ex) {
 	    System.out.print(ex.getMessage());

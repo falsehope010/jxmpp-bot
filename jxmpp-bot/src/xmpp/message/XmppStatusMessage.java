@@ -52,7 +52,6 @@ public class XmppStatusMessage implements IXmppMessage {
 	sb.append('\n');
 	sb.append("Type: ");
 	sb.append(getType());
-	sb.append('\n');
 
 	return sb.toString();
     }
