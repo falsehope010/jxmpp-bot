@@ -36,19 +36,24 @@ public class Main {
 	    conn.addPacketListener(packetListener, null);
 
 	    MultiUserChat chat = null;
+	    MultiUserChat chat2 = null;
 
 	    if (conn.isConnected()) {
 
 		System.out.print("Logged in!\n");
 
 		chat = new MultiUserChat(conn, "vegatrek@conference.jabber.ru");
+		chat2 = new MultiUserChat(conn,
+			"christian@conference.jabber.ru");
 
 		DiscussionHistory history = new DiscussionHistory();
 		history.setMaxChars(0);
 
 		chat.addParticipantStatusListener(packetListener);
+		chat2.addParticipantStatusListener(packetListener);
 
 		chat.join("DigitalSoul", null, history, 25000);
+		chat2.join("DigitalSoul", null, history, 25000);
 
 		/*
 		 * for (Affiliate a : chat.getOwners()) {
