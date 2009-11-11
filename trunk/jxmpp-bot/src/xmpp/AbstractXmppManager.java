@@ -1,7 +1,6 @@
 package xmpp;
 
 import xmpp.message.IXmppMessage;
-import xmpp.message.XmppNickMessage;
 
 public class AbstractXmppManager implements IXmppManager, Runnable {
 
@@ -14,10 +13,7 @@ public class AbstractXmppManager implements IXmppManager, Runnable {
 
     @Override
     public void processMessage(IXmppMessage msg) {
-	if (msg instanceof XmppNickMessage) {
-	    XmppNickMessage nmsg = (XmppNickMessage) msg;
-	    System.out.println(nmsg + "\n");
-	}
+	System.out.println(msg + "\n");
     }
 
     public void stop() {
