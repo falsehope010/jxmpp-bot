@@ -1,4 +1,4 @@
-package xmpp.message.data;
+package xmpp.messaging.data;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

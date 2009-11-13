@@ -1,7 +1,7 @@
 package xmpp.listeners;
 
-import xmpp.IXmppMessageQueue;
-import xmpp.message.IXmppMessage;
+import xmpp.messaging.IXmppMessage;
+import xmpp.queue.IXmppMessageQueue;
 
 public class AbstractXmppListener {
     public AbstractXmppListener(IXmppMessageQueue queue) {

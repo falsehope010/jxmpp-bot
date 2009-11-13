@@ -1,13 +1,13 @@
-package xmpp.message;
+package xmpp.messaging;
 
 import java.util.Date;
 
-import xmpp.message.data.XmppTextMessageData;
-import xmpp.message.data.XmppTextMessageType;
+import xmpp.messaging.data.XmppStatusMessageData;
+import xmpp.messaging.data.XmppStatusMessageType;
 
-public class XmppTextMessage implements IXmppMessage {
+public class XmppStatusMessage implements IXmppMessage {
 
-    public XmppTextMessage(XmppTextMessageData data) {
+    public XmppStatusMessage(XmppStatusMessageData data) {
 	if (data == null)
 	    throw new NullPointerException();
 
@@ -29,11 +29,11 @@ public class XmppTextMessage implements IXmppMessage {
 	return data.getTimestamp();
     }
 
-    public String getText() {
-	return data.getText();
+    public String getRoomName() {
+	return data.getRoomName();
     }
 
-    public XmppTextMessageType getType() {
+    public XmppStatusMessageType getType() {
 	return data.getType();
     }
 
@@ -47,9 +47,6 @@ public class XmppTextMessage implements IXmppMessage {
 	sb.append("From: ");
 	sb.append(getSender());
 	sb.append('\n');
-	sb.append("Text: ");
-	sb.append(getText());
-	sb.append('\n');
 	sb.append("Jid: ");
 	sb.append(getJid());
 	sb.append('\n');
@@ -59,6 +56,6 @@ public class XmppTextMessage implements IXmppMessage {
 	return sb.toString();
     }
 
-    XmppTextMessageData data;
+    XmppStatusMessageData data;
 
 }
