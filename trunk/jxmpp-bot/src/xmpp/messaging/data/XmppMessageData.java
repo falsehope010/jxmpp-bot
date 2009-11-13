@@ -1,4 +1,4 @@
-package xmpp.message.data;
+package xmpp.messaging.data;
 
 import java.util.Date;
 

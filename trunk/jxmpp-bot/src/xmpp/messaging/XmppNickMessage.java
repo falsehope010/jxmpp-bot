@@ -1,13 +1,13 @@
-package xmpp.message;
+package xmpp.messaging;
 
 import java.util.Date;
 
-import xmpp.message.data.XmppStatusMessageData;
-import xmpp.message.data.XmppStatusMessageType;
+import xmpp.messaging.data.XmppNickMessageData;
+import xmpp.messaging.data.XmppStatusMessageType;
 
-public class XmppStatusMessage implements IXmppMessage {
+public class XmppNickMessage implements IXmppMessage {
 
-    public XmppStatusMessage(XmppStatusMessageData data) {
+    public XmppNickMessage(XmppNickMessageData data) {
 	if (data == null)
 	    throw new NullPointerException();
 
@@ -37,6 +37,14 @@ public class XmppStatusMessage implements IXmppMessage {
 	return data.getType();
     }
 
+    public String getNewNick() {
+	return data.getNewNick();
+    }
+
+    public String getNick() {
+	return data.getNick();
+    }
+
     @Override
     public String toString() {
 	StringBuffer sb = new StringBuffer();
@@ -52,10 +60,15 @@ public class XmppStatusMessage implements IXmppMessage {
 	sb.append('\n');
 	sb.append("Type: ");
 	sb.append(getType());
+	sb.append('\n');
+	sb.append("Old nick: ");
+	sb.append(getNick());
+	sb.append('\n');
+	sb.append("New nick: ");
+	sb.append(getNewNick());
 
 	return sb.toString();
     }
 
-    XmppStatusMessageData data;
-
+    XmppNickMessageData data;
 }

@@ -1,8 +1,9 @@
-package xmpp;
+package xmpp.processing;
 
-import xmpp.message.IXmppMessage;
+import xmpp.messaging.IXmppMessage;
+import xmpp.queue.IXmppMessageQueue;
 
-public class AbstractXmppManager implements IXmppManager, Runnable {
+public class AbstractXmppManager implements IXmppProcessor, Runnable {
 
     public AbstractXmppManager(IXmppMessageQueue queue) {
 	if (queue == null)

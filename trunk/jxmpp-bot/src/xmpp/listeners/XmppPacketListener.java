@@ -13,15 +13,15 @@ import org.jivesoftware.smackx.muc.ParticipantStatusListener;
 import org.jivesoftware.smackx.packet.MUCUser;
 import org.jivesoftware.smackx.packet.MUCUser.Item;
 
-import xmpp.IXmppMessageQueue;
-import xmpp.message.XmppNickMessage;
-import xmpp.message.XmppStatusMessage;
-import xmpp.message.XmppTextMessage;
-import xmpp.message.data.XmppNickMessageData;
-import xmpp.message.data.XmppStatusMessageData;
-import xmpp.message.data.XmppStatusMessageType;
-import xmpp.message.data.XmppTextMessageData;
-import xmpp.message.data.XmppTextMessageType;
+import xmpp.messaging.XmppNickMessage;
+import xmpp.messaging.XmppStatusMessage;
+import xmpp.messaging.XmppTextMessage;
+import xmpp.messaging.data.XmppNickMessageData;
+import xmpp.messaging.data.XmppStatusMessageData;
+import xmpp.messaging.data.XmppStatusMessageType;
+import xmpp.messaging.data.XmppTextMessageData;
+import xmpp.messaging.data.XmppTextMessageType;
+import xmpp.queue.IXmppMessageQueue;
 
 public class XmppPacketListener extends AbstractXmppListener implements
 	PacketListener, ParticipantStatusListener {

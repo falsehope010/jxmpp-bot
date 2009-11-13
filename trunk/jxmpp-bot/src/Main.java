@@ -6,9 +6,9 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
-import xmpp.AbstractXmppManager;
-import xmpp.MessageQueue;
 import xmpp.listeners.XmppPacketListener;
+import xmpp.processing.AbstractXmppManager;
+import xmpp.queue.MessageQueue;
 
 public class Main {
 
