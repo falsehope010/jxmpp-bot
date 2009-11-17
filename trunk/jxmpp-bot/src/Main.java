@@ -7,21 +7,37 @@ import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import xmpp.listeners.XmppPacketListener;
-import xmpp.processing.AbstractXmppManager;
-import xmpp.queue.MessageQueue;
+import xmpp.messaging.IXmppMessage;
+import xmpp.processing.IXmppProcessor;
+import exceptions.ConfigurationException;
 
 public class Main {
 
     /**
      * @param args
      * @throws InterruptedException
+     * @throws ConfigurationException
      */
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException,
+	    ConfigurationException {
+
+	/*
+	 * Configuration config = new Configuration();
+	 * config.read("config.xml");
+	 * 
+	 * ConnectionCredentials credentials = config.getCredentials();
+	 * System.out.println(credentials);
+	 * 
+	 * RoomCredentials[] rooms = config.getRoomsCredentials(); for (int i =
+	 * 0; i < rooms.length; ++i) { System.out.println(rooms[i]); }
+	 */
+
 	XmppConnect();
     }
 
     protected static void XmppConnect() throws InterruptedException {
 	try {
+
 	    ConnectionConfiguration configuration = new ConnectionConfiguration(
 		    "jabbus.org", 5222);
 	    XMPPConnection conn = new XMPPConnection(configuration);
@@ -31,8 +47,14 @@ public class Main {
 	    // SASLAuthentication.supportSASLMechanism("PLAIN", 0);
 
 	    conn.login("tillias", "DJ!u[Fc0i5@Z-13FNKK{Ykqj", "Digital");
-	    MessageQueue queue = new MessageQueue();
-	    XmppPacketListener packetListener = new XmppPacketListener(queue);
+	    XmppPacketListener packetListener = new XmppPacketListener(
+		    new IXmppProcessor() {
+
+			@Override
+			public void processMessage(IXmppMessage msg) {
+			    System.out.println(msg);
+			}
+		    });
 	    conn.addPacketListener(packetListener, null);
 
 	    MultiUserChat chat = null;
@@ -53,7 +75,7 @@ public class Main {
 		chat2.addParticipantStatusListener(packetListener);
 
 		chat.join("DigitalSoul", null, history, 25000);
-		chat2.join("DigitalSoul", null, history, 25000);
+		// chat2.join("DigitalSoul", null, history, 25000);
 
 		/*
 		 * for (Affiliate a : chat.getOwners()) {
@@ -82,19 +104,15 @@ public class Main {
 		System.out.print("Can't login\n");
 	    }
 
-	    AbstractXmppManager manager = new AbstractXmppManager(queue);
-	    Thread thrd = new Thread(manager);
-	    thrd.start();
+	    Thread.sleep(100000);
 
-	    Thread.sleep(600000);
-
-	    manager.stop();
 	    /*
 	     * while (true) { Thread.sleep(100); IXmppMessage msg =
 	     * queue.poll(); if (msg != null) { System.out.println(msg); } }
 	     */
 
 	    chat.leave();
+	    chat2.leave();
 	    conn.disconnect();
 
 	} catch (XMPPException ex) {

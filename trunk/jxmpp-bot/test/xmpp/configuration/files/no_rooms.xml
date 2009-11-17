@@ -1,0 +1,11 @@
+<config>
+    <credentials>
+        <jid>john_doe@xmpp.org</jid>
+        <password>qwerty</password>
+        <server>xmpp.org</server>
+        <port>5222</port>
+        <owner>owner@xmpp.org</owner>
+    </credentials>
+	<rooms>
+	</rooms>
+</config>

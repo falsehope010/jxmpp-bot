@@ -1,20 +1,44 @@
 package xmpp.listeners;
 
 import xmpp.messaging.IXmppMessage;
-import xmpp.queue.IXmppMessageQueue;
+import xmpp.processing.IXmppProcessor;
 
+/**
+ * Base class for all xmpp listeners
+ * 
+ * @author tillias
+ * @see XmppPacketListener
+ * 
+ */
 public class AbstractXmppListener {
-    public AbstractXmppListener(IXmppMessageQueue queue) {
-	if (queue == null)
+    /**
+     * Creates new instance of listener using given {@link IXmppProcessor}
+     * 
+     * @param processor
+     *            Processor which will be used to process new
+     *            {@link IXmppMessage} instances when they will be created by
+     *            this listener
+     * @throws NullPointerException
+     *             Thrown if processor argument passed to constructor is null
+     */
+    public AbstractXmppListener(IXmppProcessor processor)
+	    throws NullPointerException {
+	if (processor == null)
 	    throw new NullPointerException();
 
-	this.queue = queue;
+	this.processor = processor;
     }
 
-    public void add(IXmppMessage msg) {
+    /**
+     * Forwards message to the underlying {@link IXmppProcessor}
+     * 
+     * @param msg
+     *            Message to be forwared
+     */
+    public void processMessage(IXmppMessage msg) {
 	if (msg != null)
-	    queue.add(msg);
+	    processor.processMessage(msg);
     }
 
-    IXmppMessageQueue queue;
+    IXmppProcessor processor;
 }

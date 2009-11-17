@@ -1,0 +1,19 @@
+<config>
+    <credentials>
+    <credentials>
+        <jid>john_doe@xmpp.org</jid>
+        <password>qwerty</password>
+        <server>xmpp.org</server>
+        <owner>owner@xmpp.org</owner>
+    </credentials>
+    </credentials>
+    <rooms>
+       <room>
+           <name>conference@conference.xmpp.org</name>
+           <nick>DigitalSoul2</nick>
+           <resource>home</resource>
+           <password></password>
+           <connect_timeout>25000</connect_timeout>
+       </room>
+    </rooms>
+</config>
