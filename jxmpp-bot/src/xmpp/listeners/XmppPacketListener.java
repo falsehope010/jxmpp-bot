@@ -21,13 +21,13 @@ import xmpp.messaging.data.XmppStatusMessageData;
 import xmpp.messaging.data.XmppStatusMessageType;
 import xmpp.messaging.data.XmppTextMessageData;
 import xmpp.messaging.data.XmppTextMessageType;
-import xmpp.queue.IXmppMessageQueue;
+import xmpp.processing.IXmppProcessor;
 
 public class XmppPacketListener extends AbstractXmppListener implements
 	PacketListener, ParticipantStatusListener {
 
-    public XmppPacketListener(IXmppMessageQueue queue) {
-	super(queue);
+    public XmppPacketListener(IXmppProcessor processor) {
+	super(processor);
 	groupChatBindings = new ConcurrentHashMap<String, String>();
     }
 
@@ -44,85 +44,91 @@ public class XmppPacketListener extends AbstractXmppListener implements
 
     @Override
     public void adminGranted(String participant) {
-	add(createStatusMessage(participant, XmppStatusMessageType.AdminGranted));
+	processMessage(createStatusMessage(participant,
+		XmppStatusMessageType.AdminGranted));
     }
 
     @Override
     public void adminRevoked(String participant) {
-	add(createStatusMessage(participant, XmppStatusMessageType.AdminRevoked));
+	processMessage(createStatusMessage(participant,
+		XmppStatusMessageType.AdminRevoked));
     }
 
     @Override
     public void banned(String participant, String actor, String reason) {
-	add(createStatusMessage(participant, XmppStatusMessageType.Banned));
+	processMessage(createStatusMessage(participant,
+		XmppStatusMessageType.Banned));
     }
 
     @Override
     public void joined(String participant) {
-	add(createStatusMessage(participant,
+	processMessage(createStatusMessage(participant,
 		XmppStatusMessageType.JoinedGroupChat));
     }
 
     @Override
     public void kicked(String participant, String actor, String reason) {
-	add(createStatusMessage(participant, XmppStatusMessageType.Kicked));
+	processMessage(createStatusMessage(participant,
+		XmppStatusMessageType.Kicked));
     }
 
     @Override
     public void left(String participant) {
-	add(createStatusMessage(participant,
+	processMessage(createStatusMessage(participant,
 		XmppStatusMessageType.LeftGroupChat));
     }
 
     @Override
     public void membershipGranted(String participant) {
-	add(createStatusMessage(participant,
+	processMessage(createStatusMessage(participant,
 		XmppStatusMessageType.MembershipGranted));
     }
 
     @Override
     public void membershipRevoked(String participant) {
-	add(createStatusMessage(participant,
+	processMessage(createStatusMessage(participant,
 		XmppStatusMessageType.MembershipRevoked));
     }
 
     @Override
     public void moderatorGranted(String participant) {
-	add(createStatusMessage(participant,
+	processMessage(createStatusMessage(participant,
 		XmppStatusMessageType.ModeratorGranted));
     }
 
     @Override
     public void moderatorRevoked(String participant) {
-	add(createStatusMessage(participant,
+	processMessage(createStatusMessage(participant,
 		XmppStatusMessageType.ModeratorRevoked));
     }
 
     @Override
     public void nicknameChanged(String participant, String newNickname) {
-	add(createNickMessage(participant, newNickname));
+	processMessage(createNickMessage(participant, newNickname));
     }
 
     @Override
     public void ownershipGranted(String participant) {
-	add(createStatusMessage(participant,
+	processMessage(createStatusMessage(participant,
 		XmppStatusMessageType.OwnershipGranted));
     }
 
     @Override
     public void ownershipRevoked(String participant) {
-	add(createStatusMessage(participant,
+	processMessage(createStatusMessage(participant,
 		XmppStatusMessageType.OwnershipRevoked));
     }
 
     @Override
     public void voiceGranted(String participant) {
-	add(createStatusMessage(participant, XmppStatusMessageType.VoiceGranted));
+	processMessage(createStatusMessage(participant,
+		XmppStatusMessageType.VoiceGranted));
     }
 
     @Override
     public void voiceRevoked(String participant) {
-	add(createStatusMessage(participant, XmppStatusMessageType.VoiceRevoked));
+	processMessage(createStatusMessage(participant,
+		XmppStatusMessageType.VoiceRevoked));
     }
 
     private void processePresencePacket(Packet packet) {
@@ -141,12 +147,12 @@ public class XmppPacketListener extends AbstractXmppListener implements
 
 		    String sender = presencePacket.getFrom();
 		    String fullQualifiedJid = item.getJid();
-
-		    Matcher m = pattern.matcher(fullQualifiedJid);
-		    if (m.matches()) {
-			groupChatBindings.put(sender, m.group(1));
+		    if (sender != null && fullQualifiedJid != null) {
+			Matcher m = pattern.matcher(fullQualifiedJid);
+			if (m.matches()) {
+			    groupChatBindings.put(sender, m.group(1));
+			}
 		    }
-
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
@@ -169,7 +175,7 @@ public class XmppPacketListener extends AbstractXmppListener implements
 	    data.setType(messageType);
 
 	    XmppTextMessage msg = new XmppTextMessage(data);
-	    add(msg);
+	    processMessage(msg);
 	}
     }
 

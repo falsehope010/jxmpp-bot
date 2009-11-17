@@ -1,0 +1,27 @@
+package xmpp.queue;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import org.junit.Test;
+
+import xmpp.util.TextMessageGenerator;
+
+public class MessageQueueTest {
+
+    @Test
+    public void testAddPollPoll() {
+	MessageQueue queue = new MessageQueue();
+	TextMessageGenerator generator = new TextMessageGenerator(queue);
+
+	final int itemsCount = 10;
+
+	for (int i = 0; i < itemsCount; ++i)
+	    queue.add(generator.generateMessage());
+
+	for (int i = 0; i < itemsCount; ++i)
+	    assertNotNull(queue.poll());
+
+	assertNull(queue.poll());
+    }
+}

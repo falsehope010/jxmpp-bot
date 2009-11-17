@@ -1,0 +1,17 @@
+<config>
+    <credentials>
+        <jid>john_doe@xmpp.org</jid>
+        <password>qwerty</password>
+        <server>xmpp.org</server>
+        <port>5222</port>
+        <owner>owner@xmpp.org</owner>
+    </credentials>
+    <rooms>
+       <room>
+           <nick>DigitalSoul2</nick>
+           <resource>home</resource>
+           <password></password>
+           <connect_timeout>25000</connect_timeout>
+       </room>
+    </rooms>
+</config>

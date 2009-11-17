@@ -1,0 +1,11 @@
+<config>
+    <rooms>
+       <room>
+           <name>conference@conference.xmpp.org</name>
+           <nick>DigitalSoul2</nick>
+           <resource>home</resource>
+           <password></password>
+           <connect_timeout>25000</connect_timeout>
+       </room>
+    </rooms>
+</config>
