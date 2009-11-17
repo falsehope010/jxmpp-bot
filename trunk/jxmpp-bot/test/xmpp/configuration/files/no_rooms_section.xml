@@ -1,6 +1,6 @@
 <config>
     <credentials>
-        <jid>john_doe@xmpp.org</jid>
+        <nick>john_doe</nick>
         <password>qwerty</password>
         <server>xmpp.org</server>
         <port>5222</port>

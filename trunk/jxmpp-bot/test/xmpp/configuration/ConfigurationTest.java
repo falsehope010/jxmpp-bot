@@ -129,7 +129,7 @@ public class ConfigurationTest {
 	ConnectionCredentials credentials = config.getCredentials();
 	assertNotNull(credentials);
 
-	assertEquals(credentials.getJID(), "john_doe@xmpp.org");
+	assertEquals(credentials.getNick(), "john_doe");
 	assertEquals(credentials.getOwnerJID(), "owner@xmpp.org");
 	assertEquals(credentials.getPassword(), "qwerty");
 	assertEquals(credentials.getPort(), 5222);

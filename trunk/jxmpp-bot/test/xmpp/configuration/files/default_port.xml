@@ -1,7 +1,7 @@
 <config>
     <credentials>
     <credentials>
-        <jid>john_doe@xmpp.org</jid>
+        <nick>john_doe</nick>
         <password>qwerty</password>
         <server>xmpp.org</server>
         <owner>owner@xmpp.org</owner>

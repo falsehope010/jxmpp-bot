@@ -28,6 +28,7 @@ public class XmppPacketListener extends AbstractXmppListener implements
 
     public XmppPacketListener(IXmppProcessor processor) {
 	super(processor);
+
 	groupChatBindings = new ConcurrentHashMap<String, String>();
     }
 
@@ -147,10 +148,16 @@ public class XmppPacketListener extends AbstractXmppListener implements
 
 		    String sender = presencePacket.getFrom();
 		    String fullQualifiedJid = item.getJid();
+
+		    // XXX
+		    System.out.println(sender + " " + fullQualifiedJid);
+
 		    if (sender != null && fullQualifiedJid != null) {
 			Matcher m = pattern.matcher(fullQualifiedJid);
 			if (m.matches()) {
-			    groupChatBindings.put(sender, m.group(1));
+			    {
+				groupChatBindings.put(sender, m.group(1));
+			    }
 			}
 		    }
 		} catch (Exception e) {
@@ -239,11 +246,13 @@ public class XmppPacketListener extends AbstractXmppListener implements
 
     private XmppStatusMessage createStatusMessage(String sender,
 	    XmppStatusMessageType type) {
+
 	XmppStatusMessageData data = new XmppStatusMessageData();
 	data.setSender(sender);
 	data.setJid(groupChatBindings.get(sender));
 	data.setTimestamp(new Date());
 	data.setType(type);
+
 	return new XmppStatusMessage(data);
     }
 
