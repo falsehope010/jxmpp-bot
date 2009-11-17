@@ -19,7 +19,7 @@ import exceptions.ConfigurationException;
 
 /**
  * Stores application configuration and provides method of reading it from XML
- * file
+ * file.
  * 
  * @author tillias
  * @see #read(String)
@@ -83,7 +83,7 @@ public class Configuration {
     }
 
     /**
-     * Gets connection credentials
+     * Gets copy of connection credentials stored inside configuration
      * 
      * @return Connection credentials
      * @see ConnectionCredentials
@@ -97,7 +97,7 @@ public class Configuration {
     }
 
     /**
-     * Gets rooms credentials
+     * Gets copy of rooms credentials stored inside configuration
      * 
      * @return Rooms credentials
      * @see RoomCredentials
@@ -163,8 +163,8 @@ public class Configuration {
 			continue;
 
 		    switch (CredentialsItem.valueOf(nodeName)) {
-		    case jid:
-			result.setJID(currentNode.getTextContent());
+		    case nick:
+			result.setNick(currentNode.getTextContent());
 			break;
 		    case password:
 			result.setPassword(currentNode.getTextContent());
@@ -283,7 +283,7 @@ public class Configuration {
 }
 
 enum CredentialsItem {
-    jid, password, server, port, owner
+    nick, password, server, port, owner
 }
 
 enum RoomCredentialsItem {
