@@ -14,7 +14,7 @@ public class Connection implements IConnection {
 	    throw new NullPointerException(
 		    "Connection credentials can't be null");
 
-	this.credentials = credentials;
+	this.conn_credentials = credentials;
 	this.conn = createXmppConnection(credentials);
     }
 
@@ -27,17 +27,25 @@ public class Connection implements IConnection {
     public void connect() {
 	try {
 	    conn.connect();
-	    conn.login(credentials.getNick(), credentials.getPassword(),
-		    resource);
+	    conn.login(conn_credentials.getNick(), conn_credentials
+		    .getPassword(), resource);
 
 	} catch (Exception e) {
-	    // nothing to do here
+	    e.printStackTrace();
 	}
     }
 
     @Override
     public IRoom createRoom(RoomCredentials credentials) {
-	return null; // TODO
+	IRoom result = null;
+
+	try {
+	    result = new Room(credentials, conn);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+
+	return result;
     }
 
     @Override
@@ -51,13 +59,13 @@ public class Connection implements IConnection {
     }
 
     private XMPPConnection createXmppConnection(
-	    ConnectionCredentials conn_credentials) {
+	    ConnectionCredentials credentials) {
 	ConnectionConfiguration config = new ConnectionConfiguration(
-		conn_credentials.getServer(), conn_credentials.getPort());
+		credentials.getServer(), credentials.getPort());
 	return new XMPPConnection(config);
     }
 
-    ConnectionCredentials credentials;
+    ConnectionCredentials conn_credentials;
     static final String resource = "Digital";
     XMPPConnection conn;
 }

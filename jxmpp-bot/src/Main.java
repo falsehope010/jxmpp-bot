@@ -8,6 +8,7 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import xmpp.Connection;
 import xmpp.IConnection;
+import xmpp.IRoom;
 import xmpp.configuration.Configuration;
 import xmpp.configuration.ConnectionCredentials;
 import xmpp.listeners.XmppPacketListener;
@@ -34,11 +35,17 @@ public class Main {
 	IConnection conn = new Connection(credentials);
 	conn.connect();
 
+	IRoom room = conn.createRoom(config.getRoomsCredentials()[0]);
+	if (room != null)
+	    room.join();
+
+	Thread.sleep(25000);
+
+	room.leave();
+
 	System.out.println(conn.isConnected());
 
 	conn.disconnect();
-
-	System.out.println(conn.isConnected());
 
 	// System.out.println(conn.isConnected());
 

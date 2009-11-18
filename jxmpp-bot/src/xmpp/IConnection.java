@@ -3,7 +3,7 @@ package xmpp;
 import xmpp.configuration.RoomCredentials;
 
 /**
- * Represents connection to remote xmpp server
+ * Represents connection to remote xmpp server.
  * 
  * @author tillias
  * 
@@ -11,7 +11,11 @@ import xmpp.configuration.RoomCredentials;
 public interface IConnection {
     /**
      * Establishes connection to remote xmpp server. If already connected does
-     * nothing
+     * nothing.
+     * <p>
+     * Method <b>mustn't throw</b> any exceptions even unchecked ones. This
+     * behavior forces concrete implementations to use internal logging for
+     * debugging purposes if needed
      * 
      * @see #isConnected()
      */
@@ -19,6 +23,10 @@ public interface IConnection {
 
     /**
      * Disconnects from remote xmpp server. If already disconnected does nothing
+     * <p>
+     * Method <b>mustn't throw</b> any exceptions even unchecked ones. This
+     * behavior forces concrete implementations to use internal logging for
+     * debugging purposes if needed
      * 
      * @see #isConnected()
      */
@@ -41,7 +49,7 @@ public interface IConnection {
      * 
      * @param credentials
      *            Security information which is used during room creation
-     * @return {@link IRoom} instance if succeded, false otherwise
+     * @return {@link IRoom} instance if succeeded, null pointer otherwise
      */
     IRoom createRoom(RoomCredentials credentials);
 }
