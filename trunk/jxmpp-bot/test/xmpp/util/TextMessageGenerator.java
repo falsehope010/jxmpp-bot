@@ -11,7 +11,7 @@ public class TextMessageGenerator extends AbstractMessageGenerator {
 
     @Override
     public Message generateMessage() {
-	return new Message() {
+	return new Message(null, null, null) {
 	    // empty class
 	};
     }
