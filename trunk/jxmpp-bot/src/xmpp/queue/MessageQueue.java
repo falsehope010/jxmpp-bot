@@ -2,23 +2,23 @@ package xmpp.queue;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import xmpp.messaging.IXmppMessage;
+import xmpp.messaging.Message;
 
 public class MessageQueue implements IXmppMessageQueue {
 
     public MessageQueue() {
-	body = new ConcurrentLinkedQueue<IXmppMessage>();
+	body = new ConcurrentLinkedQueue<Message>();
     }
 
     @Override
-    public IXmppMessage poll() {
+    public Message poll() {
 	return body.poll();
     }
 
     @Override
-    public void add(IXmppMessage msg) {
+    public void add(Message msg) {
 	body.add(msg);
     }
 
-    ConcurrentLinkedQueue<IXmppMessage> body;
+    ConcurrentLinkedQueue<Message> body;
 }

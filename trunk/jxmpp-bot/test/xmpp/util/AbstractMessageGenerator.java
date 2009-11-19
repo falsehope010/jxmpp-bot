@@ -2,7 +2,7 @@ package xmpp.util;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import xmpp.messaging.IXmppMessage;
+import xmpp.messaging.Message;
 import xmpp.queue.IXmppMessageQueue;
 
 public abstract class AbstractMessageGenerator extends Thread {
@@ -19,13 +19,13 @@ public abstract class AbstractMessageGenerator extends Thread {
 	terminate.set(false);
     }
 
-    public abstract IXmppMessage generateMessage();
+    public abstract Message generateMessage();
 
     @Override
     public void run() {
 	while (!terminate.get()) {
 	    try {
-		IXmppMessage msg = generateMessage();
+		Message msg = generateMessage();
 		if (msg != null) {
 		    queue.add(msg);
 		}

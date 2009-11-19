@@ -1,9 +1,9 @@
 package xmpp.queue;
 
-import xmpp.messaging.IXmppMessage;
+import xmpp.messaging.Message;
 
 public interface IXmppMessageQueue {
-    void add(IXmppMessage msg);
+    void add(Message msg);
 
-    IXmppMessage poll();
+    Message poll();
 }
