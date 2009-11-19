@@ -29,13 +29,13 @@ public class Room implements IRoom {
 
     @Override
     public String getJID(String occupantName) {
-	String result = presenceCache.get(occupantName);
+	String result = getCachedJid(occupantName);
 
 	if (result == null) {
 	    String jabberID = requestJabberID(occupantName);
 
 	    if (jabberID != null) {
-		presenceCache.put(occupantName, jabberID);
+		setCachedJid(occupantName, jabberID);
 		result = jabberID;
 	    }
 	}
@@ -95,8 +95,9 @@ public class Room implements IRoom {
 			    String sender = presence.getFrom();
 			    String fullQualifiedJid = item.getJid();
 
-			    // XXX
-			    System.out.println(sender + " " + fullQualifiedJid);
+			    // debug
+			    // System.out.println(sender + " " +
+			    // fullQualifiedJid);
 
 			    if (sender != null && fullQualifiedJid != null) {
 				Matcher m = pattern.matcher(fullQualifiedJid);
@@ -115,6 +116,14 @@ public class Room implements IRoom {
 	}
 
 	return result;
+    }
+
+    private String getCachedJid(String occupantName) {
+	return presenceCache.get(occupantName);
+    }
+
+    private void setCachedJid(String occupantName, String jabberID) {
+	presenceCache.put(occupantName, jabberID);
     }
 
     RoomCredentials credentials;

@@ -2,7 +2,7 @@ package xmpp.queue;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import xmpp.messaging.IXmppMessage;
+import xmpp.messaging.Message;
 import xmpp.processing.IXmppProcessor;
 
 public abstract class AbstractQueueManager extends Thread implements
@@ -25,7 +25,7 @@ public abstract class AbstractQueueManager extends Thread implements
     public void run() {
 	while (!terminate.get()) {
 	    try {
-		IXmppMessage msg = queue.poll();
+		Message msg = queue.poll();
 		if (msg != null)
 		    processMessage(msg);
 

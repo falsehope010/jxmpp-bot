@@ -1,6 +1,6 @@
 package xmpp.processing;
 
-import xmpp.messaging.IXmppMessage;
+import xmpp.messaging.Message;
 
 /**
  * Represents an object which can process {@link IXmppMessage} instances and
@@ -16,5 +16,5 @@ public interface IXmppProcessor {
      * @param msg
      *            Message to be processed
      */
-    void processMessage(IXmppMessage msg);
+    void processMessage(Message msg);
 }
