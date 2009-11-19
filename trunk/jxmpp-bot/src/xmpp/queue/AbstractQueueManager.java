@@ -3,10 +3,10 @@ package xmpp.queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import xmpp.messaging.Message;
-import xmpp.processing.IXmppProcessor;
+import xmpp.processing.IProcessor;
 
 public abstract class AbstractQueueManager extends Thread implements
-	IXmppProcessor {
+	IProcessor {
 
     public AbstractQueueManager(IXmppMessageQueue queue) {
 	if (queue == null)

@@ -1,17 +1,13 @@
 package xmpp;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.packet.MUCUser;
-import org.jivesoftware.smackx.packet.MUCUser.Item;
 
 import xmpp.configuration.RoomCredentials;
+import xmpp.utils.PresenceCache;
+import xmpp.utils.PresenceProcessor;
 
 public class Room implements IRoom {
 
@@ -24,7 +20,8 @@ public class Room implements IRoom {
 	this.parent = parent;
 
 	presenceCache = new PresenceCache();
-	chatRoom = createChat();
+	presenceProcessor = new PresenceProcessor();
+	chat = createChat();
     }
 
     @Override
@@ -32,7 +29,7 @@ public class Room implements IRoom {
 	String result = getCachedJid(occupantName);
 
 	if (result == null) {
-	    String jabberID = requestJabberID(occupantName);
+	    String jabberID = requestJabberID(chat, occupantName);
 
 	    if (jabberID != null) {
 		setCachedJid(occupantName, jabberID);
@@ -45,7 +42,7 @@ public class Room implements IRoom {
 
     @Override
     public boolean isJoined() {
-	return chatRoom.isJoined();
+	return chat.isJoined();
     }
 
     @Override
@@ -55,7 +52,7 @@ public class Room implements IRoom {
 	    history.setMaxChars(0);
 
 	    try {
-		chatRoom.join(credentials.getNick(), credentials.getPassword(),
+		chat.join(credentials.getNick(), credentials.getPassword(),
 			history, credentials.getConnectTimeout());
 	    } catch (XMPPException e) {
 		e.printStackTrace();
@@ -66,7 +63,7 @@ public class Room implements IRoom {
     @Override
     public void leave() {
 	if (isJoined()) {
-	    chatRoom.leave();
+	    chat.leave();
 	}
     }
 
@@ -74,48 +71,8 @@ public class Room implements IRoom {
 	return new MultiUserChat(parent, credentials.getRoomName());
     }
 
-    private String requestJabberID(String occupantName) {
-	String result = null;
-
-	if (occupantName != null) {
-	    Presence presence = chatRoom.getOccupantPresence(occupantName);
-	    if (presence != null) {
-
-		Object extension = presence
-			.getExtension("http://jabber.org/protocol/muc#user");
-
-		if (extension instanceof MUCUser) {
-		    MUCUser mucUser = (MUCUser) extension;
-
-		    Item item = mucUser.getItem();
-
-		    if (item != null) {
-			try {
-
-			    String sender = presence.getFrom();
-			    String fullQualifiedJid = item.getJid();
-
-			    // debug
-			    // System.out.println(sender + " " +
-			    // fullQualifiedJid);
-
-			    if (sender != null && fullQualifiedJid != null) {
-				Matcher m = pattern.matcher(fullQualifiedJid);
-				if (m.matches()) {
-				    {
-					result = m.group(1); // JID is here
-				    }
-				}
-			    }
-			} catch (Exception e) {
-			    e.printStackTrace();
-			}
-		    }
-		}
-	    }
-	}
-
-	return result;
+    private String requestJabberID(MultiUserChat chatRoom, String occupantName) {
+	return presenceProcessor.requestJabberID(chatRoom, occupantName);
     }
 
     private String getCachedJid(String occupantName) {
@@ -129,8 +86,8 @@ public class Room implements IRoom {
     RoomCredentials credentials;
     XMPPConnection parent;
 
-    MultiUserChat chatRoom;
+    MultiUserChat chat;
 
     PresenceCache presenceCache;
-    Pattern pattern = Pattern.compile("(.*)/(.*)");
+    PresenceProcessor presenceProcessor;
 }

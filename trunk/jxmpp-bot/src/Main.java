@@ -5,6 +5,8 @@ import xmpp.IConnection;
 import xmpp.IRoom;
 import xmpp.configuration.Configuration;
 import xmpp.configuration.ConnectionCredentials;
+import xmpp.messaging.Message;
+import xmpp.processing.IProcessor;
 import exceptions.ConfigurationException;
 
 public class Main {
@@ -23,7 +25,13 @@ public class Main {
 	ConnectionCredentials credentials = config.getCredentials();
 	System.out.println(credentials);
 
-	IConnection conn = new Connection(credentials);
+	IConnection conn = new Connection(credentials, new IProcessor() {
+
+	    @Override
+	    public void processMessage(Message msg) {
+		System.out.println(msg);
+	    }
+	});
 	conn.connect();
 
 	IRoom room = conn.createRoom(config.getRoomsCredentials()[0]);
