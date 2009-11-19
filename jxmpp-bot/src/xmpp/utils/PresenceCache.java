@@ -1,4 +1,4 @@
-package xmpp;
+package xmpp.utils;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

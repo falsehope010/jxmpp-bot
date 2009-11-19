@@ -3,7 +3,7 @@ package xmpp.messaging;
 import java.util.Date;
 
 /**
- * Base class for all XMPP messages. Subclasses must be <b>immutable</b>
+ * Base class for all XMPP messages. Subclasses must be <b>immutable</b>.
  * 
  * @author tillias
  * 

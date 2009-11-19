@@ -5,17 +5,25 @@ import org.jivesoftware.smack.XMPPConnection;
 
 import xmpp.configuration.ConnectionCredentials;
 import xmpp.configuration.RoomCredentials;
+import xmpp.listeners.PrivateMessageListener;
+import xmpp.processing.IProcessor;
 
 public class Connection implements IConnection {
 
-    public Connection(ConnectionCredentials credentials)
-	    throws NullPointerException {
+    public Connection(ConnectionCredentials credentials,
+	    IProcessor messageProcessor) throws NullPointerException {
 	if (credentials == null)
 	    throw new NullPointerException(
 		    "Connection credentials can't be null");
 
+	if (messageProcessor == null)
+	    throw new NullPointerException("Message processor can't be null");
+
 	this.conn_credentials = credentials;
 	this.conn = createXmppConnection(credentials);
+
+	this.conn.addPacketListener(new PrivateMessageListener(messageProcessor),
+		null);
     }
 
     /**
@@ -66,6 +74,7 @@ public class Connection implements IConnection {
     }
 
     ConnectionCredentials conn_credentials;
+
     static final String resource = "Digital";
     XMPPConnection conn;
 }

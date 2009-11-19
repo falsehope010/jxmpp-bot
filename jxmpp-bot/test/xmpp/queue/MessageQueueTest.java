@@ -5,14 +5,14 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import xmpp.util.TextMessageGenerator;
+import xmpp.util.PrivateMessageGenerator;
 
 public class MessageQueueTest {
 
     @Test
     public void testAddPollPoll() {
 	MessageQueue queue = new MessageQueue();
-	TextMessageGenerator generator = new TextMessageGenerator(queue);
+	PrivateMessageGenerator generator = new PrivateMessageGenerator(queue);
 
 	final int itemsCount = 10;
 

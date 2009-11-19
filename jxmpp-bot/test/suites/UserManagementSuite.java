@@ -28,5 +28,5 @@ import domain.muc.UserTest;
 	PermissionsServiceTest.class, VisitServiceTest.class,
 	ChatMessageServiceTest.class })
 public class UserManagementSuite {
-    // sole constructor
+    // nothing goes here
 }
