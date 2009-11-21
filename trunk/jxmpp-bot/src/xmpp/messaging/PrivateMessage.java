@@ -30,4 +30,17 @@ public class PrivateMessage extends Message {
 	    throw new NullPointerException("Private message text can't be null");
     }
 
+    @Override
+    public String toString() {
+	StringBuilder sb = new StringBuilder();
+	sb.append("Sender: \n");
+	sb.append(getSender().toString());
+	sb.append('\n');
+	sb.append("Recipient: \n");
+	sb.append(getRecipient());
+	sb.append('\n');
+	sb.append("Text: ");
+	sb.append(getText());
+	return sb.toString();
+    }
 }

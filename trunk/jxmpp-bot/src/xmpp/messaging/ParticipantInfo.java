@@ -9,7 +9,19 @@ package xmpp.messaging;
  */
 public class ParticipantInfo {
 
-    public ParticipantInfo(String jabberID, String adress) {
+    /**
+     * Creates new instance using given jabber identifier and fully qualified
+     * adress
+     * 
+     * @param jabberID
+     *            Jabber identifier of participant
+     * @param adress
+     *            Fully qualified adress of participant
+     * @throws NullPointerException
+     *             Thrown if any argument passed to method is null
+     */
+    public ParticipantInfo(String jabberID, String adress)
+	    throws NullPointerException {
 	if (jabberID == null || adress == null)
 	    throw new NullPointerException(
 		    "Arguments passed to constructor can't be null");

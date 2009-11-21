@@ -1,10 +1,10 @@
 import java.util.regex.Pattern;
 
-import xmpp.Connection;
-import xmpp.IConnection;
-import xmpp.IRoom;
 import xmpp.configuration.Configuration;
 import xmpp.configuration.ConnectionCredentials;
+import xmpp.core.Connection;
+import xmpp.core.IConnection;
+import xmpp.core.IRoom;
 import xmpp.messaging.Message;
 import xmpp.processing.IProcessor;
 import exceptions.ConfigurationException;
@@ -43,6 +43,8 @@ public class Main {
 	 */
 
 	System.out.println(conn.isConnected());
+
+	Thread.sleep(30000);
 
 	conn.disconnect();
 
