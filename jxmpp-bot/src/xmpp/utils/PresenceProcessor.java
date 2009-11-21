@@ -68,5 +68,5 @@ public class PresenceProcessor {
 	return result;
     }
 
-    final static Pattern pattern = Pattern.compile("(.*)/(.*)");
+    final Pattern pattern = Pattern.compile("(.*)/(.*)");
 }

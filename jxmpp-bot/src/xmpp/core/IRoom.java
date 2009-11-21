@@ -1,4 +1,4 @@
-package xmpp;
+package xmpp.core;
 
 /**
  * Represents xmpp multi-user chat room

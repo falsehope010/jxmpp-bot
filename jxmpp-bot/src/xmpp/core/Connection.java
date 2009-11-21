@@ -1,4 +1,4 @@
-package xmpp;
+package xmpp.core;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
@@ -21,25 +21,32 @@ public class Connection implements IConnection {
 
 	this.conn_credentials = credentials;
 	this.conn = createXmppConnection(credentials);
-
-	this.conn.addPacketListener(new PrivateMessageListener(messageProcessor),
-		null);
+	this.messageProcessor = messageProcessor;
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * This implementation blocks until connection process succeeds or fails
+     * This implementation opens connection to remote xmpp server and starts
+     * listening for incoming text messages. Valid packets are sent to
+     * underlying {@link IProcessor} of this connection for futher processing.
+     * Method blocks until connection process succeeds or fails. If already
+     * connected does nothing
      */
     @Override
     public void connect() {
-	try {
-	    conn.connect();
-	    conn.login(conn_credentials.getNick(), conn_credentials
-		    .getPassword(), resource);
+	if (!isConnected()) {
+	    try {
+		conn.connect();
+		conn.login(conn_credentials.getNick(), conn_credentials
+			.getPassword(), resource);
 
-	} catch (Exception e) {
-	    e.printStackTrace();
+		conn.addPacketListener(new PrivateMessageListener(
+			messageProcessor), null);
+
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    }
 	}
     }
 
@@ -56,9 +63,16 @@ public class Connection implements IConnection {
 	return result;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation closes connection to remote xmpp server. If already
+     * disconnected does nothing
+     */
     @Override
     public void disconnect() {
-	conn.disconnect();
+	if (isConnected())
+	    conn.disconnect();
     }
 
     @Override
@@ -77,4 +91,5 @@ public class Connection implements IConnection {
 
     static final String resource = "Digital";
     XMPPConnection conn;
+    IProcessor messageProcessor;
 }

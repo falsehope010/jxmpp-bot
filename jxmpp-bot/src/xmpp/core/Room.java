@@ -1,4 +1,4 @@
-package xmpp;
+package xmpp.core;
 
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;

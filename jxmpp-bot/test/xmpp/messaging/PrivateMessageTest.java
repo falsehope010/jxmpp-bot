@@ -4,6 +4,12 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+/**
+ * Main purpose of tests is to confirm that {@link PrivateMessage} is immutable
+ * 
+ * @author tillias
+ * 
+ */
 public class PrivateMessageTest {
 
     @Test

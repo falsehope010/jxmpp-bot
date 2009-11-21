@@ -25,6 +25,11 @@ public abstract class Message {
 	    String text) {
 	if (sender == null || recipient == null)
 	    throw new NullPointerException("Sender or recipient can't be null");
+
+	this.sender = sender;
+	this.recipient = recipient;
+	this.text = text;
+	this.timestamp = new Date();
     }
 
     /**
