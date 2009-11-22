@@ -12,6 +12,7 @@ public class Connection implements IConnection {
 
     public Connection(ConnectionCredentials credentials,
 	    IProcessor messageProcessor) throws NullPointerException {
+
 	if (credentials == null)
 	    throw new NullPointerException(
 		    "Connection credentials can't be null");
@@ -19,8 +20,7 @@ public class Connection implements IConnection {
 	if (messageProcessor == null)
 	    throw new NullPointerException("Message processor can't be null");
 
-	this.conn_credentials = credentials;
-	this.conn = createXmppConnection(credentials);
+	this.credentials = credentials;
 	this.messageProcessor = messageProcessor;
     }
 
@@ -37,9 +37,10 @@ public class Connection implements IConnection {
     public void connect() {
 	if (!isConnected()) {
 	    try {
+		conn = createXmppConnection(credentials);
 		conn.connect();
-		conn.login(conn_credentials.getNick(), conn_credentials
-			.getPassword(), resource);
+		conn.login(credentials.getNick(), credentials.getPassword(),
+			resource);
 
 		conn.addPacketListener(new PrivateMessageListener(
 			messageProcessor), null);
@@ -51,13 +52,15 @@ public class Connection implements IConnection {
     }
 
     @Override
-    public IRoom createRoom(RoomCredentials credentials) {
+    public IRoom createRoom(RoomCredentials roomCredentials) {
 	IRoom result = null;
 
-	try {
-	    result = new Room(credentials, conn);
-	} catch (Exception e) {
-	    e.printStackTrace();
+	if (isConnected()) {
+	    try {
+		result = new Room(roomCredentials, conn);
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    }
 	}
 
 	return result;
@@ -81,13 +84,14 @@ public class Connection implements IConnection {
     }
 
     private XMPPConnection createXmppConnection(
-	    ConnectionCredentials credentials) {
+	    ConnectionCredentials connectionCredentials) {
 	ConnectionConfiguration config = new ConnectionConfiguration(
-		credentials.getServer(), credentials.getPort());
+		connectionCredentials.getServer(), connectionCredentials
+			.getPort());
 	return new XMPPConnection(config);
     }
 
-    ConnectionCredentials conn_credentials;
+    ConnectionCredentials credentials;
 
     static final String resource = "Digital";
     XMPPConnection conn;
