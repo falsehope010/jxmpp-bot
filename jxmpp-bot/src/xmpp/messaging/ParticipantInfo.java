@@ -1,13 +1,13 @@
 package xmpp.messaging;
 
 /**
- * Information about person who is participating in private conversation or
- * group chat. Instances of this class are <b>immutable</b>
+ * Stores information about person who is participating in private conversation
+ * or in a group chat. Class is <b>immutable</b>
  * 
  * @author tillias
  * 
  */
-public class ParticipantInfo {
+public final class ParticipantInfo {
 
     /**
      * Creates new instance using given jabber identifier and fully qualified

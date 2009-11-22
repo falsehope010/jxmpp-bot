@@ -1,6 +1,9 @@
 package xmpp.helpers;
 
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smackx.packet.MUCUser;
+import org.jivesoftware.smackx.packet.MUCUser.Item;
 
 public class PacketGenerator {
     public Message createPrivateChatMessage() {
@@ -43,4 +46,27 @@ public class PacketGenerator {
 	result.setType(Message.Type.chat);
 	return result;
     }
+
+    public Presence createPresence() {
+	return createPresence("participant@server.domain", "participant",
+		Presence.Type.available);
+    }
+
+    public Presence createPresence(String jabberID, String nick,
+	    Presence.Type type) {
+	Presence result = new Presence(type);
+	result.setFrom(jabberID + '/' + "resource");
+
+	Item item = new Item(null, null);
+	item.setJid(jabberID + '/' + "resource");
+	item.setNick(nick);
+
+	MUCUser mucUser = new MUCUser();
+	mucUser.setItem(item);
+
+	result.addExtension(mucUser);
+
+	return result;
+    }
+
 }

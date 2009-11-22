@@ -3,7 +3,9 @@ package xmpp.messaging;
 import java.util.Date;
 
 /**
- * Base class for all XMPP messages. Subclasses must be <b>immutable</b>.
+ * Base class for all XMPP messages. Subclasses must provide <b>defensive
+ * copying</b> for all getters for their internal data fields
+ * 
  * 
  * @author tillias
  * 
@@ -38,7 +40,7 @@ public abstract class Message {
      * @return Sender of this message
      * @see ParticipantInfo
      */
-    public ParticipantInfo getSender() {
+    public final ParticipantInfo getSender() {
 	return new ParticipantInfo(sender);
     }
 
@@ -48,7 +50,7 @@ public abstract class Message {
      * @return Recipient of this message
      * @see ParticipantInfo
      */
-    public ParticipantInfo getRecipient() {
+    public final ParticipantInfo getRecipient() {
 	return new ParticipantInfo(recipient);
     }
 
@@ -58,7 +60,7 @@ public abstract class Message {
      * 
      * @return Timestamp of this message
      */
-    public Date getTimestamp() {
+    public final Date getTimestamp() {
 	return new Date(timestamp.getTime());
     }
 
@@ -67,7 +69,7 @@ public abstract class Message {
      * 
      * @return Text block of this message
      */
-    public String getText() {
+    public final String getText() {
 	return text;
     }
 

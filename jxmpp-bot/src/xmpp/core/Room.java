@@ -6,8 +6,8 @@ import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import xmpp.configuration.RoomCredentials;
-import xmpp.utils.PresenceCache;
-import xmpp.utils.PresenceProcessor;
+import xmpp.utils.presence.PresenceCache;
+import xmpp.utils.presence.PresenceProcessor;
 
 public class Room implements IRoom {
 
