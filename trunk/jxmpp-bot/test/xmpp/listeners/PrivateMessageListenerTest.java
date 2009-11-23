@@ -16,7 +16,7 @@ public class PrivateMessageListenerTest {
 
     @Test(expected = NullPointerException.class)
     public void testPrivateMessageListenerFailNullProcessor() {
-	PrivateMessageListener listener = new PrivateMessageListener(null);
+	PrivateMessageListener listener = new PrivateMessageListener(null, null);
 	assertNull(listener);
     }
 
@@ -31,7 +31,8 @@ public class PrivateMessageListenerTest {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(processor);
+	PrivateMessageListener listener = new PrivateMessageListener(null,
+		processor);
 	assertNotNull(listener);
 
 	listener.processPacket(null);
@@ -57,7 +58,8 @@ public class PrivateMessageListenerTest {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(processor);
+	PrivateMessageListener listener = new PrivateMessageListener(null,
+		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
@@ -86,7 +88,8 @@ public class PrivateMessageListenerTest {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(processor);
+	PrivateMessageListener listener = new PrivateMessageListener(null,
+		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
@@ -127,7 +130,8 @@ public class PrivateMessageListenerTest {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(processor);
+	PrivateMessageListener listener = new PrivateMessageListener(null,
+		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
@@ -149,7 +153,8 @@ public class PrivateMessageListenerTest {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(processor);
+	PrivateMessageListener listener = new PrivateMessageListener(null,
+		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
@@ -172,7 +177,8 @@ public class PrivateMessageListenerTest {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(processor);
+	PrivateMessageListener listener = new PrivateMessageListener(null,
+		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
@@ -189,7 +195,8 @@ public class PrivateMessageListenerTest {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(processor);
+	PrivateMessageListener listener = new PrivateMessageListener(null,
+		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
@@ -209,7 +216,8 @@ public class PrivateMessageListenerTest {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(processor);
+	PrivateMessageListener listener = new PrivateMessageListener(null,
+		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
@@ -225,7 +233,7 @@ public class PrivateMessageListenerTest {
     }
 
     private PrivateMessageListener getListener() {
-	PrivateMessageListener listener = new PrivateMessageListener(
+	PrivateMessageListener listener = new PrivateMessageListener(null,
 		new IProcessor() {
 
 		    @Override

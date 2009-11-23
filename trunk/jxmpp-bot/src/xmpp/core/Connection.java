@@ -1,5 +1,7 @@
 package xmpp.core;
 
+import java.util.HashMap;
+
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 
@@ -22,6 +24,8 @@ public class Connection implements IConnection {
 
 	this.credentials = credentials;
 	this.messageProcessor = messageProcessor;
+
+	rooms = new HashMap<String, IRoom>();
     }
 
     /**
@@ -42,7 +46,7 @@ public class Connection implements IConnection {
 		conn.login(credentials.getNick(), credentials.getPassword(),
 			resource);
 
-		conn.addPacketListener(new PrivateMessageListener(
+		conn.addPacketListener(new PrivateMessageListener(this,
 			messageProcessor), null);
 
 	    } catch (Exception e) {
@@ -58,6 +62,7 @@ public class Connection implements IConnection {
 	if (isConnected()) {
 	    try {
 		result = new Room(roomCredentials, conn, messageProcessor);
+		rooms.put(roomCredentials.getRoomName(), result);
 	    } catch (Exception e) {
 		e.printStackTrace();
 	    }
@@ -83,6 +88,11 @@ public class Connection implements IConnection {
 	return conn.isConnected();
     }
 
+    @Override
+    public IRoom getRoom(String roomName) {
+	return rooms.get(roomName);
+    }
+
     private XMPPConnection createXmppConnection(
 	    ConnectionCredentials connectionCredentials) {
 	ConnectionConfiguration config = new ConnectionConfiguration(
@@ -94,6 +104,9 @@ public class Connection implements IConnection {
     ConnectionCredentials credentials;
 
     static final String resource = "Digital";
+
     XMPPConnection conn;
     IProcessor messageProcessor;
+    HashMap<String, IRoom> rooms;
+
 }

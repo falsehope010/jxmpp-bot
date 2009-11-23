@@ -31,6 +31,13 @@ public interface IRoom {
     boolean isJoined();
 
     /**
+     * Gets room name
+     * 
+     * @return Room name
+     */
+    String getName();
+
+    /**
      * Gets jabber identifier of room's occupant using his fully qualified nick
      * name inside this room
      * 

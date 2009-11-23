@@ -41,7 +41,10 @@ public abstract class Message {
      * @see ParticipantInfo
      */
     public final ParticipantInfo getSender() {
-	return new ParticipantInfo(sender);
+	ParticipantInfo result = null;
+	if (sender != null)
+	    result = new ParticipantInfo(sender);
+	return result;
     }
 
     /**
@@ -51,7 +54,10 @@ public abstract class Message {
      * @see ParticipantInfo
      */
     public final ParticipantInfo getRecipient() {
-	return new ParticipantInfo(recipient);
+	ParticipantInfo result = null;
+	if (recipient != null)
+	    result = new ParticipantInfo(recipient);
+	return result;
     }
 
     /**

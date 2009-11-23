@@ -28,6 +28,9 @@ public abstract class ChatMessage extends Message {
 	    String text, String roomName) {
 	super(sender, recipient, text);
 
+	if (roomName == null)
+	    throw new NullPointerException("Room name can't be null");
+
 	this.roomName = roomName;
     }
 
