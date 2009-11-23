@@ -1,6 +1,6 @@
 package xmpp.processing;
 
-import xmpp.messaging.Message;
+import xmpp.messaging.base.Message;
 
 /**
  * Represents handler that can process {@link Message} instances and possibly

@@ -7,9 +7,9 @@ import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 import xmpp.helpers.PacketGenerator;
-import xmpp.messaging.Message;
-import xmpp.messaging.ParticipantInfo;
 import xmpp.messaging.PrivateMessage;
+import xmpp.messaging.base.Message;
+import xmpp.messaging.domain.ParticipantInfo;
 import xmpp.processing.IProcessor;
 
 public class PrivateMessageListenerTest {

@@ -2,7 +2,7 @@ package xmpp.queue;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import xmpp.messaging.Message;
+import xmpp.messaging.base.Message;
 
 public class MessageQueue implements IXmppMessageQueue {
 

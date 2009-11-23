@@ -35,7 +35,7 @@ public class Connection implements IConnection {
      */
     @Override
     public void connect() {
-	if (!isConnected()) {
+	if (conn == null || !isConnected()) {
 	    try {
 		conn = createXmppConnection(credentials);
 		conn.connect();
@@ -57,7 +57,7 @@ public class Connection implements IConnection {
 
 	if (isConnected()) {
 	    try {
-		result = new Room(roomCredentials, conn);
+		result = new Room(roomCredentials, conn, messageProcessor);
 	    } catch (Exception e) {
 		e.printStackTrace();
 	    }

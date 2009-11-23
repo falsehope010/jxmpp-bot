@@ -1,5 +1,8 @@
 package xmpp.messaging;
 
+import xmpp.messaging.base.Message;
+import xmpp.messaging.domain.ParticipantInfo;
+
 /**
  * Represents direct message that occurs between two jabber users while private
  * chatting
@@ -11,7 +14,8 @@ public class PrivateMessage extends Message {
 
     /**
      * Creates new instance of message using given sender, recipient and text
-     * block. All arguments mustn't be null
+     * block. All arguments mustn't be null otherwise
+     * {@link NullPointerException} will be thrown
      * 
      * @param sender
      *            Message sender
@@ -25,6 +29,9 @@ public class PrivateMessage extends Message {
     public PrivateMessage(ParticipantInfo sender, ParticipantInfo recipient,
 	    String text) throws NullPointerException {
 	super(sender, recipient, text);
+
+	if (sender == null || recipient == null)
+	    throw new NullPointerException("Sender or recipient can't be null");
 
 	if (text == null)
 	    throw new NullPointerException("Private message text can't be null");

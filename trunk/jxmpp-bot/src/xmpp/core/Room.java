@@ -6,22 +6,30 @@ import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import xmpp.configuration.RoomCredentials;
+import xmpp.listeners.ChatMessageListener;
+import xmpp.processing.IProcessor;
 import xmpp.utils.presence.PresenceCache;
 import xmpp.utils.presence.PresenceProcessor;
 
 public class Room implements IRoom {
 
-    public Room(RoomCredentials credentials, XMPPConnection parent) {
+    public Room(RoomCredentials credentials, XMPPConnection parent,
+	    IProcessor messageProcessor) {
 	if (credentials == null || parent == null)
 	    throw new NullPointerException(
 		    "Argument passed to Room constructor can't be null");
 
+	if (messageProcessor == null)
+	    throw new NullPointerException("Message processor can't be null");
+
 	this.credentials = credentials;
 	this.parent = parent;
+	this.messageProcessor = messageProcessor;
 
 	presenceCache = new PresenceCache();
 	presenceProcessor = new PresenceProcessor();
 	chat = createChat();
+	addMessageListener(chat);
     }
 
     @Override
@@ -83,10 +91,19 @@ public class Room implements IRoom {
 	presenceCache.put(occupantName, jabberID);
     }
 
+    private void addMessageListener(MultiUserChat multiUserChat) {
+	if (multiUserChat != null) {
+	    listener = new ChatMessageListener(chat, messageProcessor);
+	    multiUserChat.addMessageListener(listener);
+	}
+    }
+
     RoomCredentials credentials;
     XMPPConnection parent;
 
     MultiUserChat chat;
+    ChatMessageListener listener;
+    IProcessor messageProcessor;
 
     PresenceCache presenceCache;
     PresenceProcessor presenceProcessor;

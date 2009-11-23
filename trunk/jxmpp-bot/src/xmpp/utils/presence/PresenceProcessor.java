@@ -68,7 +68,8 @@ public class PresenceProcessor {
 		    String sender = presence.getFrom();
 		    String fullQualifiedJid = item.getJid();
 
-		    System.out.println(fullQualifiedJid);
+		    // debug
+		    // System.out.println(fullQualifiedJid);
 
 		    if (sender != null && fullQualifiedJid != null) {
 			Matcher m = pattern.matcher(fullQualifiedJid);

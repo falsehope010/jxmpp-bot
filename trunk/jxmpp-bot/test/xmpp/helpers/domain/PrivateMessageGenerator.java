@@ -1,8 +1,8 @@
 package xmpp.helpers.domain;
 
-import xmpp.messaging.Message;
-import xmpp.messaging.ParticipantInfo;
 import xmpp.messaging.PrivateMessage;
+import xmpp.messaging.base.Message;
+import xmpp.messaging.domain.ParticipantInfo;
 import xmpp.queue.IXmppMessageQueue;
 
 public class PrivateMessageGenerator extends AbstractMessageGenerator {

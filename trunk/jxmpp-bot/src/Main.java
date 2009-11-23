@@ -5,7 +5,7 @@ import xmpp.configuration.ConnectionCredentials;
 import xmpp.core.Connection;
 import xmpp.core.IConnection;
 import xmpp.core.IRoom;
-import xmpp.messaging.Message;
+import xmpp.messaging.base.Message;
 import xmpp.processing.IProcessor;
 import exceptions.ConfigurationException;
 
@@ -29,7 +29,7 @@ public class Main {
 
 	    @Override
 	    public void processMessage(Message msg) {
-		System.out.println(msg);
+		System.out.println("Message: " + msg.getTimestamp());
 	    }
 	});
 	conn.connect();
@@ -47,15 +47,6 @@ public class Main {
 	Thread.sleep(30000);
 
 	conn.disconnect();
-
-	// System.out.println(conn.isConnected());
-
-	/*
-	 * RoomCredentials[] rooms = config.getRoomsCredentials(); for (int i =
-	 * 0; i < rooms.length; ++i) { System.out.println(rooms[i]); }
-	 */
-
-	// XmppConnect();
     }
 
     static Pattern pattern = Pattern.compile("(.*)/(.*)");
