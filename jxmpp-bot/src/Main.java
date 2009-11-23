@@ -29,7 +29,8 @@ public class Main {
 
 	    @Override
 	    public void processMessage(Message msg) {
-		System.out.println("Message: " + msg.getTimestamp());
+		System.out.println(msg);
+		System.out.println('\n');
 	    }
 	});
 	conn.connect();
@@ -44,7 +45,7 @@ public class Main {
 
 	System.out.println(conn.isConnected());
 
-	Thread.sleep(30000);
+	Thread.sleep(3000000);
 
 	conn.disconnect();
     }

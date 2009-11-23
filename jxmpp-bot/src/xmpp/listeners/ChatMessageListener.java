@@ -5,6 +5,7 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
+import xmpp.messaging.PublicChatMessage;
 import xmpp.messaging.domain.ParticipantInfo;
 import xmpp.processing.IProcessor;
 import xmpp.utils.presence.PresenceCache;
@@ -45,11 +46,13 @@ public class ChatMessageListener implements PacketListener {
 	    if (packet instanceof Message) {
 		Message msg = (Message) packet;
 
-		ParticipantInfo sender = createParticipantInfo(msg.getFrom());
-		ParticipantInfo recipient = createParticipantInfo(msg.getTo());
-
-		System.out.println(sender);
-		System.out.println(recipient);
+		if (msg.getType() == Message.Type.groupchat) {
+		    ParticipantInfo sender = createParticipantInfo(msg
+			    .getFrom());
+		    PublicChatMessage chatMessage = new PublicChatMessage(
+			    sender, msg.getBody(), chat.getRoom());
+		    messageProcessor.processMessage(chatMessage);
+		}
 	    }
 	}
     }

@@ -40,4 +40,21 @@ public class PrivateChatMessage extends ChatMessage {
 	    throw new NullPointerException("Chat room can't be null");
     }
 
+    @Override
+    public String toString() {
+	StringBuilder sb = new StringBuilder();
+	sb.append("Sender: \n");
+	sb.append(getSender().toString());
+	sb.append('\n');
+	sb.append("Recipient: \n");
+	sb.append(getRecipient());
+	sb.append('\n');
+	sb.append("Text: ");
+	sb.append(getText());
+	sb.append('\n');
+	sb.append("Room: ");
+	sb.append(getRoomName());
+	return sb.toString();
+    }
+
 }

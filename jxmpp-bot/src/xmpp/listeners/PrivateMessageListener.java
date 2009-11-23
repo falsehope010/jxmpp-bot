@@ -8,6 +8,9 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 
 import xmpp.core.Connection;
+import xmpp.core.IConnection;
+import xmpp.core.IRoom;
+import xmpp.messaging.PrivateChatMessage;
 import xmpp.messaging.PrivateMessage;
 import xmpp.messaging.domain.ParticipantInfo;
 import xmpp.processing.IProcessor;
@@ -30,19 +33,24 @@ public class PrivateMessageListener implements PacketListener {
     /**
      * Creates new instance of listener using given {@link IProcessor}
      * 
+     * @param parent
+     *            Parent connection for this listener
      * @param messageProcessor
      *            {@link IProcessor} implementation which will be used to
      *            process packets received by listener
      * @throws NullPointerException
-     *             Thrown if argument passed to constructor is null
+     *             Thrown if any argument passed to constructor is null
      */
-    public PrivateMessageListener(IProcessor messageProcessor)
-	    throws NullPointerException {
+    public PrivateMessageListener(IConnection parent,
+	    IProcessor messageProcessor) throws NullPointerException {
 	if (messageProcessor == null)
 	    throw new NullPointerException(
 		    "Message processor passed to listener can't be null");
+	if (parent == null)
+	    throw new NullPointerException("Parent connection can't be null");
 
 	this.messageProcessor = messageProcessor;
+	this.parent = parent;
     }
 
     /**
@@ -63,17 +71,81 @@ public class PrivateMessageListener implements PacketListener {
 
 		if (message.getType() == Message.Type.chat) {
 
-		    ParticipantInfo sender = createParticipantInfo(message
-			    .getFrom());
-		    ParticipantInfo recipient = createParticipantInfo(message
-			    .getTo());
-		    PrivateMessage privateMessage = new PrivateMessage(sender,
-			    recipient, message.getBody());
-		    messageProcessor.processMessage(privateMessage);
+		    IRoom chatRoom = getRoom(message);
+
+		    if (chatRoom != null)
+			processPrivateChatMessage(message, chatRoom);
+		    else
+			processPrivateMessage(message);
 		}
 	    } catch (Exception e) {
 		e.printStackTrace();
 	    }
+	}
+    }
+
+    /**
+     * Checks whether message was sent from group chat in private mode.
+     * 
+     * @param message
+     *            Message to be checked
+     * @return Valid {@link IRoom} if message was sent from this room in private
+     *         mode, null pointer otherwise
+     */
+    private IRoom getRoom(Message message) {
+	String senderAdress = extractSenderWithoutResource(message.getFrom());
+
+	IRoom chatRoom = parent.getRoom(senderAdress);
+	return chatRoom;
+    }
+
+    private void processPrivateChatMessage(Message message, IRoom chatRoom) {
+	try {
+	    String senderAdress = message.getFrom();
+	    String jabberID = chatRoom.getJID(message.getFrom());
+
+	    if (jabberID != null) {
+		ParticipantInfo sender = new ParticipantInfo(jabberID,
+			senderAdress);
+
+		String recipientAddress = message.getTo();
+		String recipientJID = extractSenderWithoutResource(recipientAddress);
+
+		if (recipientAddress != null && recipientJID != null) {
+		    ParticipantInfo recipient = new ParticipantInfo(
+			    recipientJID, recipientAddress);
+		    PrivateChatMessage privateChatMessage = new PrivateChatMessage(
+			    sender, recipient, message.getBody(), chatRoom
+				    .getName());
+		    messageProcessor.processMessage(privateChatMessage);
+		}
+
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+    }
+
+    /**
+     * Processes private message (e.g. direct xmpp message from one person to
+     * another without the use of multi user chat)
+     * 
+     * @param message
+     *            Message to be processed
+     * @throws NullPointerException
+     *             Thrown if sender or recipient of message can't be created
+     */
+    private void processPrivateMessage(Message message)
+	    throws NullPointerException {
+	try {
+	    ParticipantInfo sender = createParticipantInfo(message.getFrom());
+	    ParticipantInfo recipient = createParticipantInfo(message.getTo());
+
+	    PrivateMessage privateMessage = new PrivateMessage(sender,
+		    recipient, message.getBody());
+	    messageProcessor.processMessage(privateMessage);
+	} catch (Exception e) {
+	    e.printStackTrace();
 	}
     }
 
@@ -84,8 +156,12 @@ public class PrivateMessageListener implements PacketListener {
      * @param senderAdress
      *            fully qualified participant address
      * @return {@link ParticipantInfo} if succeeded, null pointer otherwise
+     * @throws NullPointerException
+     *             Thrown if senderAdress is null or invalid (e.g. there is no
+     *             way to create {@link ParticipantInfo})
      */
-    private ParticipantInfo createParticipantInfo(String senderAdress) {
+    private ParticipantInfo createParticipantInfo(String senderAdress)
+	    throws NullPointerException {
 	ParticipantInfo result = null;
 
 	if (senderAdress != null) {
@@ -100,6 +176,18 @@ public class PrivateMessageListener implements PacketListener {
 	return result;
     }
 
+    private String extractSenderWithoutResource(String sender) {
+	String result = null;
+	if (sender != null) {
+	    Matcher m = pattern.matcher(sender);
+	    if (m.matches()) {
+		result = m.group(1);
+	    }
+	}
+	return result;
+    }
+
+    IConnection parent;
     IProcessor messageProcessor;
 
     final Pattern pattern = Pattern.compile("(.*)/(.*)");

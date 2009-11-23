@@ -75,6 +75,11 @@ public class Room implements IRoom {
 	}
     }
 
+    @Override
+    public String getName() {
+	return credentials.getRoomName();
+    }
+
     private MultiUserChat createChat() {
 	return new MultiUserChat(parent, credentials.getRoomName());
     }
@@ -107,4 +112,5 @@ public class Room implements IRoom {
 
     PresenceCache presenceCache;
     PresenceProcessor presenceProcessor;
+
 }
