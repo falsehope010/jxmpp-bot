@@ -44,9 +44,11 @@ public class ChatMessageListener extends AbstractChatListener {
 		    if (msg.getType() == Message.Type.groupchat) {
 			ParticipantInfo sender = createParticipantInfo(msg
 				.getFrom());
-			PublicChatMessage chatMessage = new PublicChatMessage(
-				sender, msg.getBody(), getChat().getRoom());
-			messageProcessor.processMessage(chatMessage);
+			if (sender != null) {
+			    PublicChatMessage chatMessage = new PublicChatMessage(
+				    sender, msg.getBody(), getChat().getRoom());
+			    messageProcessor.processMessage(chatMessage);
+			}
 		    }
 		}
 

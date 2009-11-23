@@ -1,7 +1,10 @@
 package xmpp.core;
 
 /**
- * Represents xmpp multi-user chat room
+ * Represents xmpp multi-user chat room.
+ * <p>
+ * Provides set of methods for joining and leaving remote chat room. Allows to
+ * get jabber identifier of occupant using his full name
  * 
  * @author tillias
  * 
