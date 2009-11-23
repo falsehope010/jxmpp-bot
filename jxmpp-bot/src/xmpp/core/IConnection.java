@@ -3,7 +3,12 @@ package xmpp.core;
 import xmpp.configuration.RoomCredentials;
 
 /**
- * Represents connection to remote xmpp server.
+ * Represents connection to remote xmpp server. Allows to create {@link IRoom}
+ * implementations (e.g. implements Abstract Factory Pattern) and stores the set
+ * of all {@link IRoom} created by this connection. Allows to get concrete room
+ * using it's name.
+ * <p>
+ * Provides set of methods for connecting and disconnecting from remote server
  * 
  * @author tillias
  * 
