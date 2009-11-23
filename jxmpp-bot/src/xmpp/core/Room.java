@@ -7,14 +7,45 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import xmpp.configuration.RoomCredentials;
 import xmpp.listeners.ChatMessageListener;
+import xmpp.listeners.ChatPresenceListener;
 import xmpp.processing.IProcessor;
 import xmpp.utils.presence.PresenceCache;
 import xmpp.utils.presence.PresenceProcessor;
 
+/**
+ * Represents chat room. Stores internal {@link PresenceCache} which is shared
+ * by this room itself and all it's packet listeners.
+ * <p>
+ * Instances of this class should be created by {@link IConnection}
+ * implementations
+ * 
+ * @author tillias
+ * @see IConnection
+ * @see Connection
+ * 
+ */
 public class Room implements IRoom {
 
-    public Room(RoomCredentials credentials, XMPPConnection parent,
-	    IProcessor messageProcessor) {
+    /**
+     * Package level constructor. {@link Connection} should be used to create
+     * {@link Room} instances
+     * 
+     * @param credentials
+     *            {@link RoomCredentials} instance which will be used to
+     *            configure room
+     * @param parent
+     *            Parent connection
+     * @param messageProcessor
+     *            {@link IProcessor} implementation which will receive all group
+     *            chat messages from given room
+     * @throws NullPointerException
+     *             Thrown if any argument passed to constructor is null
+     * @see {@link IConnection}
+     * @see {@link Connection}
+     */
+    Room(RoomCredentials credentials, XMPPConnection parent,
+	    IProcessor messageProcessor) throws NullPointerException {
+
 	if (credentials == null || parent == null)
 	    throw new NullPointerException(
 		    "Argument passed to Room constructor can't be null");
@@ -29,7 +60,7 @@ public class Room implements IRoom {
 	presenceCache = new PresenceCache();
 	presenceProcessor = new PresenceProcessor();
 	chat = createChat();
-	addMessageListener(chat);
+	addListeners(chat);
     }
 
     @Override
@@ -96,10 +127,22 @@ public class Room implements IRoom {
 	presenceCache.put(occupantName, jabberID);
     }
 
-    private void addMessageListener(MultiUserChat multiUserChat) {
+    /**
+     * Creates new {@link ChatPresenceListener} and {@link ChatMessageListener}
+     * and associates them with given chat room. Shared {@link PresenceCache} is
+     * used.
+     * 
+     * @param multiUserChat
+     *            Chat room
+     */
+    private void addListeners(MultiUserChat multiUserChat) {
 	if (multiUserChat != null) {
-	    listener = new ChatMessageListener(chat, messageProcessor);
+	    listener = new ChatMessageListener(presenceCache, chat,
+		    messageProcessor);
+	    presenceListener = new ChatPresenceListener(presenceCache, chat);
+
 	    multiUserChat.addMessageListener(listener);
+	    multiUserChat.addParticipantListener(presenceListener);
 	}
     }
 
@@ -108,6 +151,8 @@ public class Room implements IRoom {
 
     MultiUserChat chat;
     ChatMessageListener listener;
+    ChatPresenceListener presenceListener;
+
     IProcessor messageProcessor;
 
     PresenceCache presenceCache;

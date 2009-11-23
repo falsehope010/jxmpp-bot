@@ -1,6 +1,5 @@
 package xmpp.listeners;
 
-import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smackx.muc.MultiUserChat;
@@ -9,9 +8,8 @@ import xmpp.messaging.PublicChatMessage;
 import xmpp.messaging.domain.ParticipantInfo;
 import xmpp.processing.IProcessor;
 import xmpp.utils.presence.PresenceCache;
-import xmpp.utils.presence.PresenceProcessor;
 
-public class ChatMessageListener implements PacketListener {
+public class ChatMessageListener extends AbstractChatListener {
 
     /**
      * Creates new chat message listener using given message processor
@@ -25,35 +23,36 @@ public class ChatMessageListener implements PacketListener {
      *             Thrown if {@link IProcessor} any argument passed to
      *             constructor is null
      */
-    public ChatMessageListener(MultiUserChat chat, IProcessor messageProcessor)
-	    throws NullPointerException {
-	if (chat == null)
-	    throw new NullPointerException("Chat room can't be null");
+    public ChatMessageListener(PresenceCache cache, MultiUserChat chat,
+	    IProcessor messageProcessor) throws NullPointerException {
+
+	super(cache, chat);
+
 	if (messageProcessor == null)
 	    throw new NullPointerException("Message processor can't be null");
 
-	this.chat = chat;
 	this.messageProcessor = messageProcessor;
-	this.presenceCache = new PresenceCache();
-
-	presenceProcessor = new PresenceProcessor();
     }
 
     @Override
     public void processPacket(Packet packet) {
+	try {
+	    if (packet != null) {
+		if (packet instanceof Message) {
+		    Message msg = (Message) packet;
 
-	if (packet != null) {
-	    if (packet instanceof Message) {
-		Message msg = (Message) packet;
-
-		if (msg.getType() == Message.Type.groupchat) {
-		    ParticipantInfo sender = createParticipantInfo(msg
-			    .getFrom());
-		    PublicChatMessage chatMessage = new PublicChatMessage(
-			    sender, msg.getBody(), chat.getRoom());
-		    messageProcessor.processMessage(chatMessage);
+		    if (msg.getType() == Message.Type.groupchat) {
+			ParticipantInfo sender = createParticipantInfo(msg
+				.getFrom());
+			PublicChatMessage chatMessage = new PublicChatMessage(
+				sender, msg.getBody(), getChat().getRoom());
+			messageProcessor.processMessage(chatMessage);
+		    }
 		}
+
 	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
 	}
     }
 
@@ -62,10 +61,10 @@ public class ChatMessageListener implements PacketListener {
 
 	try {
 	    if (occupantName != null) {
-		String jabberID = presenceCache.get(occupantName);
+		String jabberID = getCache().get(occupantName);
 
 		if (jabberID == null) {
-		    jabberID = presenceProcessor.requestJabberID(chat,
+		    jabberID = presenceProcessor.requestJabberID(getChat(),
 			    occupantName);
 		}
 
@@ -85,8 +84,5 @@ public class ChatMessageListener implements PacketListener {
 	return info;
     }
 
-    PresenceProcessor presenceProcessor;
-    PresenceCache presenceCache;
     IProcessor messageProcessor;
-    MultiUserChat chat;
 }
