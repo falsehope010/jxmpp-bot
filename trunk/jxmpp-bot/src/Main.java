@@ -19,6 +19,8 @@ public class Main {
     public static void main(String[] args) throws InterruptedException,
 	    ConfigurationException {
 
+	IRoom room = null;
+
 	Configuration config = new Configuration();
 	config.read("config.xml");
 
@@ -35,7 +37,7 @@ public class Main {
 	});
 	conn.connect();
 
-	IRoom room = conn.createRoom(config.getRoomsCredentials()[0]);
+	room = conn.createRoom(config.getRoomsCredentials()[0]);
 	if (room != null)
 	    room.join();
 	/*
@@ -45,7 +47,7 @@ public class Main {
 
 	System.out.println(conn.isConnected());
 
-	Thread.sleep(3000000);
+	Thread.sleep(30000000);
 
 	conn.disconnect();
     }

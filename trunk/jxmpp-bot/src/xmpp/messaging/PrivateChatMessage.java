@@ -49,6 +49,9 @@ public class PrivateChatMessage extends ChatMessage {
 	sb.append("Recipient: \n");
 	sb.append(getRecipient());
 	sb.append('\n');
+	sb.append("Timestamp: ");
+	sb.append(getTimestamp());
+	sb.append('\n');
 	sb.append("Text: ");
 	sb.append(getText());
 	sb.append('\n');

@@ -46,6 +46,9 @@ public class PrivateMessage extends Message {
 	sb.append("Recipient: \n");
 	sb.append(getRecipient());
 	sb.append('\n');
+	sb.append("Timestamp: ");
+	sb.append(getTimestamp());
+	sb.append('\n');
 	sb.append("Text: ");
 	sb.append(getText());
 	return sb.toString();
