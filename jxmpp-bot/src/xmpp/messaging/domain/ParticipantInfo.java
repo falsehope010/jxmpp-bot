@@ -1,4 +1,4 @@
-package xmpp.messaging;
+package xmpp.messaging.domain;
 
 /**
  * Stores information about person who is participating in private conversation

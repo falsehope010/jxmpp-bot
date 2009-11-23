@@ -2,7 +2,7 @@ package xmpp.helpers.domain;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import xmpp.messaging.Message;
+import xmpp.messaging.base.Message;
 import xmpp.queue.IXmppMessageQueue;
 
 public abstract class AbstractMessageGenerator extends Thread {

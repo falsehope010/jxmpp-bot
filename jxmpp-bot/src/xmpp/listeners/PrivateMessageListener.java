@@ -8,8 +8,8 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 
 import xmpp.core.Connection;
-import xmpp.messaging.ParticipantInfo;
 import xmpp.messaging.PrivateMessage;
+import xmpp.messaging.domain.ParticipantInfo;
 import xmpp.processing.IProcessor;
 
 /**
@@ -51,7 +51,7 @@ public class PrivateMessageListener implements PacketListener {
      * This implementation checks whether packet is {@link Message} and it's
      * type is <code>chat</code>. E.g. packet is normal private chat message
      * between two xmpp participants. Then it converts packet to
-     * {@link xmpp.messaging.Message} instance and sends to underlying
+     * {@link xmpp.messaging.base.Message} instance and sends to underlying
      * {@link IProcessor} for futher processing
      */
     @Override

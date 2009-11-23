@@ -1,10 +1,12 @@
-package xmpp.messaging;
+package xmpp.messaging.base;
 
 import java.util.Date;
 
+import xmpp.messaging.domain.ParticipantInfo;
+
 /**
- * Base class for all XMPP messages. Subclasses must provide <b>defensive
- * copying</b> for all getters for their internal data fields
+ * Abstract base class for all XMPP messages. Subclasses must provide
+ * <b>defensive copying</b> for all getters for their internal data fields
  * 
  * 
  * @author tillias
@@ -14,7 +16,7 @@ public abstract class Message {
 
     /**
      * Sole constructor for invocation by subclasses. Sets message date to
-     * current one
+     * current one. No verification of arguments passed to constructor is done.
      * 
      * @param sender
      *            Message sender
@@ -25,8 +27,6 @@ public abstract class Message {
      */
     public Message(ParticipantInfo sender, ParticipantInfo recipient,
 	    String text) {
-	if (sender == null || recipient == null)
-	    throw new NullPointerException("Sender or recipient can't be null");
 
 	this.sender = sender;
 	this.recipient = recipient;

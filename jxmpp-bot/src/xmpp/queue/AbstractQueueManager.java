@@ -2,7 +2,7 @@ package xmpp.queue;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import xmpp.messaging.Message;
+import xmpp.messaging.base.Message;
 import xmpp.processing.IProcessor;
 
 public abstract class AbstractQueueManager extends Thread implements

@@ -2,8 +2,8 @@ package xmpp.listeners;
 
 import java.util.LinkedList;
 
-import xmpp.messaging.Message;
 import xmpp.messaging.PrivateMessage;
+import xmpp.messaging.base.Message;
 import xmpp.processing.IProcessor;
 
 public class ProcessorMoc implements IProcessor {
