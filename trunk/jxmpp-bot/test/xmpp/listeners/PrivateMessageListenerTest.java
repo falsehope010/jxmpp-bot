@@ -3,10 +3,13 @@ package xmpp.listeners;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import xmpp.core.IConnection;
 import xmpp.helpers.PacketGenerator;
+import xmpp.messaging.PrivateChatMessage;
 import xmpp.messaging.PrivateMessage;
 import xmpp.messaging.base.Message;
 import xmpp.messaging.domain.ParticipantInfo;
@@ -16,22 +19,33 @@ public class PrivateMessageListenerTest {
 
     @Test(expected = NullPointerException.class)
     public void testPrivateMessageListenerFailNullProcessor() {
-	PrivateMessageListener listener = new PrivateMessageListener(null, null);
+	IConnection conn = new ConnectionMoc();
+	PrivateMessageListener listener = new PrivateMessageListener(conn, null);
+	assertNull(listener);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testPrivateMessageListenerFailNullParentConnection() {
+	IProcessor processor = new ProcessorMoc();
+	PrivateMessageListener listener = new PrivateMessageListener(null,
+		processor);
 	assertNull(listener);
     }
 
     @Test
     public void testPrivateMessageListener() {
-	PrivateMessageListener listener = getListener();
+	IConnection conn = new ConnectionMoc();
+	IProcessor processor = new ProcessorMoc();
+	PrivateMessageListener listener = new PrivateMessageListener(conn,
+		processor);
 	assertNotNull(listener);
     }
 
     @Test
     public void testProcessNullPacket() {
+	IConnection conn = new ConnectionMoc();
 	ProcessorMoc processor = new ProcessorMoc();
-	assertNotNull(processor);
-
-	PrivateMessageListener listener = new PrivateMessageListener(null,
+	PrivateMessageListener listener = new PrivateMessageListener(conn,
 		processor);
 	assertNotNull(listener);
 
@@ -40,35 +54,74 @@ public class PrivateMessageListenerTest {
     }
 
     @Test
-    public void testProcessPacket() {
-	PrivateMessageListener listener = getListener();
+    public void testProcessPrivatePacketSimple() {
+	IConnection conn = new ConnectionMoc();
+	ProcessorMoc processor = new ProcessorMoc();
+	PrivateMessageListener listener = new PrivateMessageListener(conn,
+		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
 
 	org.jivesoftware.smack.packet.Message msg = generator
-		.createPrivateChatMessage();
+		.createPrivateMessage();
 	assertNotNull(msg);
 
 	listener.processPacket(msg);
+
+	Message processedMsg = processor.get();
+	assertNotNull(processedMsg);
+	assertTrue(processedMsg instanceof PrivateMessage);
     }
 
     @Test
-    public void testProcessPacketCompareSource() {
+    public void processPrivateChatPacketSimple() {
+
+	final String roomName = "room@xmpp.org";
+	final String occupantName = "room@xmpp.org/occupant";
+	final String occupantJid = "occupant@xmpp.org/resource";
+
+	ConnectionMoc conn = new ConnectionMoc();
+	RoomMock roomMock = new RoomMock(roomName);
+	roomMock.addJid(occupantName, occupantJid);
+	conn.addRoom(roomMock);
+
+	ProcessorMoc processor = new ProcessorMoc();
+	PrivateMessageListener listener = new PrivateMessageListener(conn,
+		processor);
+	assertNotNull(listener);
+
+	PacketGenerator generator = new PacketGenerator();
+
+	org.jivesoftware.smack.packet.Message msg = generator
+		.createPrivateChatMessage(occupantName);
+	assertNotNull(msg);
+
+	listener.processPacket(msg);
+
+	Message processedMsg = processor.get();
+	assertNotNull(processedMsg);
+	assertTrue(processedMsg instanceof PrivateChatMessage);
+    }
+
+    @Test
+    public void testProcessPrivatePacketCompare() {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(null,
+	IConnection conn = new ConnectionMoc();
+
+	PrivateMessageListener listener = new PrivateMessageListener(conn,
 		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
 	org.jivesoftware.smack.packet.Message source = generator
-		.createPrivateChatMessage();
+		.createPrivateMessage();
 	listener.processPacket(source);
 
-	PrivateMessage msg = processor.get();
-	assertNotNull(msg);
+	Message msg = processor.get();
+	assertTrue(msg instanceof PrivateMessage);
 
 	assertEquals(source.getBody(), msg.getText());
 	assertNotNull(msg.getTimestamp());
@@ -83,43 +136,85 @@ public class PrivateMessageListenerTest {
     }
 
     @Test
-    public void testProcessOnlyTextMessages() {
+    public void testProcessPrivateChatPacketCompare() {
+	final String roomName = "room@xmpp.org";
+	final String occupantName = "room@xmpp.org/occupant";
+	final String occupantJid = "occupant@xmpp.org/resource";
+
+	ConnectionMoc conn = new ConnectionMoc();
+	RoomMock roomMock = new RoomMock(roomName);
+	roomMock.addJid(occupantName, occupantJid);
+	conn.addRoom(roomMock);
 
 	ProcessorMoc processor = new ProcessorMoc();
-	assertNotNull(processor);
-
-	PrivateMessageListener listener = new PrivateMessageListener(null,
+	PrivateMessageListener listener = new PrivateMessageListener(conn,
 		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
 
 	org.jivesoftware.smack.packet.Message msg = generator
-		.createPrivateChatMessage(org.jivesoftware.smack.packet.Message.Type.error);
+		.createPrivateChatMessage(occupantName);
+	assertNotNull(msg);
+
+	listener.processPacket(msg);
+
+	Message processedMsg = processor.get();
+	assertNotNull(processedMsg);
+	assertTrue(processedMsg instanceof PrivateChatMessage);
+
+	// compare fields
+	assertEquals(occupantJid, processedMsg.getSender().getJabberID());
+
+	PrivateChatMessage privateChatMsg = (PrivateChatMessage) processedMsg;
+	assertNotNull(privateChatMsg);
+
+	assertEquals(roomName, privateChatMsg.getRoomName());
+	assertEquals(occupantName, privateChatMsg.getSender().getAdress());
+	assertEquals(msg.getBody(), privateChatMsg.getText());
+	assertNotNull(privateChatMsg.getTimestamp());
+    }
+
+    @Test
+    public void testProcessOnlyPrivateChatOrPrivateMessages() {
+
+	ProcessorMoc processor = new ProcessorMoc();
+	assertNotNull(processor);
+
+	IConnection conn = new ConnectionMoc();
+
+	PrivateMessageListener listener = new PrivateMessageListener(conn,
+		processor);
+	assertNotNull(listener);
+
+	PacketGenerator generator = new PacketGenerator();
+
+	org.jivesoftware.smack.packet.Message msg = generator
+		.createPrivateMessage(org.jivesoftware.smack.packet.Message.Type.error);
 	assertNotNull(msg);
 	listener.processPacket(msg);
 	assertNull(processor.get());
 
 	msg = generator
-		.createPrivateChatMessage(org.jivesoftware.smack.packet.Message.Type.groupchat);
+		.createPrivateMessage(org.jivesoftware.smack.packet.Message.Type.groupchat);
 	assertNotNull(msg);
 	listener.processPacket(msg);
 	assertNull(processor.get());
 
 	msg = generator
-		.createPrivateChatMessage(org.jivesoftware.smack.packet.Message.Type.headline);
+		.createPrivateMessage(org.jivesoftware.smack.packet.Message.Type.headline);
 	assertNotNull(msg);
 	listener.processPacket(msg);
 	assertNull(processor.get());
 
 	msg = generator
-		.createPrivateChatMessage(org.jivesoftware.smack.packet.Message.Type.normal);
+		.createPrivateMessage(org.jivesoftware.smack.packet.Message.Type.normal);
 	assertNotNull(msg);
 	listener.processPacket(msg);
 	assertNull(processor.get());
 
 	msg = generator
-		.createPrivateChatMessage(org.jivesoftware.smack.packet.Message.Type.chat);
+		.createPrivateMessage(org.jivesoftware.smack.packet.Message.Type.chat);
 	assertNotNull(msg);
 	listener.processPacket(msg);
 	assertNotNull(processor.get());
@@ -130,20 +225,22 @@ public class PrivateMessageListenerTest {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(null,
+	IConnection conn = new ConnectionMoc();
+
+	PrivateMessageListener listener = new PrivateMessageListener(conn,
 		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
-	listener.processPacket(generator.createPrivateChatMessage(null, null,
+	listener.processPacket(generator.createPrivateMessage(null, null,
 		"john_doe@xmpp.org", "resource"));
 	assertNull(processor.get());
 
-	listener.processPacket(generator.createPrivateChatMessage(null,
+	listener.processPacket(generator.createPrivateMessage(null,
 		"sender_resource", "john_doe@xmpp.org", "resource"));
 	assertNull(processor.get());
 
-	listener.processPacket(generator.createPrivateChatMessage(
+	listener.processPacket(generator.createPrivateMessage(
 		"sender@xmpp.org", null, "john_doe@xmpp.org", "resource"));
 	assertNull(processor.get());
     }
@@ -153,20 +250,22 @@ public class PrivateMessageListenerTest {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(null,
+	IConnection conn = new ConnectionMoc();
+
+	PrivateMessageListener listener = new PrivateMessageListener(conn,
 		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
-	listener.processPacket(generator.createPrivateChatMessage(
+	listener.processPacket(generator.createPrivateMessage(
 		"sender@xmpp.org", "sender_resource", null, null));
 	assertNull(processor.get());
 
-	listener.processPacket(generator.createPrivateChatMessage(
+	listener.processPacket(generator.createPrivateMessage(
 		"sender@xmpp.org", "sender_resource", null, "resource"));
 	assertNull(processor.get());
 
-	listener.processPacket(generator.createPrivateChatMessage(
+	listener.processPacket(generator.createPrivateMessage(
 		"sender@xmpp.org", "sender_resource", "recipient@xmpp.org",
 		null));
 	assertNull(processor.get());
@@ -177,13 +276,15 @@ public class PrivateMessageListenerTest {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(null,
+	IConnection conn = new ConnectionMoc();
+
+	PrivateMessageListener listener = new PrivateMessageListener(conn,
 		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
 	org.jivesoftware.smack.packet.Message msg = generator
-		.createPrivateChatMessage();
+		.createPrivateMessage();
 	msg.setBody(null);
 
 	listener.processPacket(msg);
@@ -195,17 +296,19 @@ public class PrivateMessageListenerTest {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(null,
+	IConnection conn = new ConnectionMoc();
+
+	PrivateMessageListener listener = new PrivateMessageListener(conn,
 		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
 
-	listener.processPacket(generator.createPrivateChatMessage(
+	listener.processPacket(generator.createPrivateMessage(
 		"sender@xmpp.org", null, "john_doe@xmpp.org", "resource"));
 	assertNull(processor.get());
 
-	listener.processPacket(generator.createPrivateChatMessage(null,
+	listener.processPacket(generator.createPrivateMessage(null,
 		"sender_resource", "john_doe@xmpp.org", "resource"));
 	assertNull(processor.get());
 
@@ -216,32 +319,21 @@ public class PrivateMessageListenerTest {
 	ProcessorMoc processor = new ProcessorMoc();
 	assertNotNull(processor);
 
-	PrivateMessageListener listener = new PrivateMessageListener(null,
+	IConnection conn = new ConnectionMoc();
+
+	PrivateMessageListener listener = new PrivateMessageListener(conn,
 		processor);
 	assertNotNull(listener);
 
 	PacketGenerator generator = new PacketGenerator();
 
-	listener.processPacket(generator.createPrivateChatMessage(
+	listener.processPacket(generator.createPrivateMessage(
 		"sender@xmpp.org", "sender_resource", null, "resource"));
 	assertNull(processor.get());
 
-	listener.processPacket(generator.createPrivateChatMessage(
+	listener.processPacket(generator.createPrivateMessage(
 		"sender@xmpp.org", "sender_resource", "recipient@xmpp.org",
 		null));
 	assertNull(processor.get());
-    }
-
-    private PrivateMessageListener getListener() {
-	PrivateMessageListener listener = new PrivateMessageListener(null,
-		new IProcessor() {
-
-		    @Override
-		    public void processMessage(Message msg) {
-			// method stun
-		    }
-		});
-	assertNotNull(listener);
-	return listener;
     }
 }
