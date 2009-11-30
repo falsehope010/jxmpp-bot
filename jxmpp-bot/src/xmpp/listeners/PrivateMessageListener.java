@@ -18,7 +18,8 @@ import xmpp.processing.IProcessor;
 /**
  * Converts <code>SMACK</code> {@link Message} packets into
  * {@link PrivateMessage} instances. Used by {@link Connection} in order to
- * listen for incoming text message packets
+ * listen for incoming text message packets. This listener listens for both
+ * private messages and any private group chat messages as well
  * <p>
  * After <code>SMACK</code> packet has been converted into
  * {@link PrivateMessage} it is sent to {@link IProcessor} for further
@@ -26,6 +27,8 @@ import xmpp.processing.IProcessor;
  * 
  * @author tillias
  * @see Connection
+ * @see PrivateMessage
+ * @see PrivateChatMessage
  * 
  */
 public class PrivateMessageListener implements PacketListener {
@@ -85,7 +88,9 @@ public class PrivateMessageListener implements PacketListener {
     }
 
     /**
-     * Checks whether message was sent from group chat in private mode.
+     * Checks whether message was sent from group chat in private mode. To do so
+     * attempts to get {@link IRoom} from parent {@link IConnection} using
+     * room's name
      * 
      * @param message
      *            Message to be checked

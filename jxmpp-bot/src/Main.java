@@ -47,7 +47,7 @@ public class Main {
 
 	System.out.println(conn.isConnected());
 
-	Thread.sleep(30000000);
+	Thread.sleep(300000000);
 
 	conn.disconnect();
     }

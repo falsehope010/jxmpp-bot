@@ -6,21 +6,20 @@ import org.jivesoftware.smackx.packet.MUCUser;
 import org.jivesoftware.smackx.packet.MUCUser.Item;
 
 public class PacketGenerator {
-    public Message createPrivateChatMessage() {
+    public Message createPrivateMessage() {
 
-	return createPrivateChatMessage("sender@server.domain",
-		"sender_resource", "recipient@server.domain",
-		"recipient_resource");
+	return createPrivateMessage("sender@server.domain", "sender_resource",
+		"recipient@server.domain", "recipient_resource");
     }
 
-    public Message createPrivateChatMessage(Message.Type msgType) {
-	Message result = createPrivateChatMessage();
+    public Message createPrivateMessage(Message.Type msgType) {
+	Message result = createPrivateMessage();
 	result.setType(msgType);
 
 	return result;
     }
 
-    public Message createPrivateChatMessage(String senderJID,
+    public Message createPrivateMessage(String senderJID,
 	    String senderResource, String recipientJID, String recipientResource) {
 	Message result = new Message();
 
@@ -44,6 +43,15 @@ public class PacketGenerator {
 
 	result.setBody("Test private chat message");
 	result.setType(Message.Type.chat);
+	return result;
+    }
+
+    public Message createPrivateChatMessage(String occupantName) {
+	Message result = new Message();
+	result.setType(Message.Type.chat);
+	result.setFrom(occupantName);
+	result.setTo("testroom@xmpp.org/recipient");
+	result.setBody("Test text");
 	return result;
     }
 

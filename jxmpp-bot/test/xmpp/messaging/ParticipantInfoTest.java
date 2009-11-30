@@ -1,34 +1,38 @@
 package xmpp.messaging;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import xmpp.messaging.domain.ParticipantInfo;
+
 public class ParticipantInfoTest {
 
-    @Test
-    public void testParticipantInfoStringString() {
-	fail("Not yet implemented"); // TODO
+    @Test(expected = NullPointerException.class)
+    public void testCreateNullJabberID() {
+	ParticipantInfo info = new ParticipantInfo(null, "adress");
+	assertNull(info);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testCreateNullAdress() {
+	ParticipantInfo info = new ParticipantInfo("jid", null);
+	assertNull(info);
     }
 
     @Test
-    public void testParticipantInfoParticipantInfo() {
-	fail("Not yet implemented"); // TODO
-    }
+    public void testCreateCopyingConstructor() {
+	ParticipantInfo base = new ParticipantInfo("jid", "adress");
+	ParticipantInfo dest = new ParticipantInfo(base);
+	assertNotNull(dest);
 
-    @Test
-    public void testGetJabberID() {
-
-	// TODO: test immutable
-
-	fail("Not yet implemented"); // TODO
-    }
-
-    @Test
-    public void testGetAdress() {
-	// TODO: test immutable
-
-	fail("Not yet implemented"); // TODO
+	assertEquals(base.getAdress(), dest.getAdress());
+	assertEquals(base.getJabberID(), dest.getJabberID());
+	assertTrue(base.equals(dest));
+	assertEquals(base.hashCode(), dest.hashCode());
     }
 
 }
