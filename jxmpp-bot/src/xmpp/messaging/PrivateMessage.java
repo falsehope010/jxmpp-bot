@@ -1,11 +1,14 @@
 package xmpp.messaging;
 
+import utils.HashUtil;
 import xmpp.messaging.base.Message;
 import xmpp.messaging.domain.ParticipantInfo;
 
 /**
  * Represents direct message that occurs between two jabber users while private
- * chatting
+ * chatting.
+ * <p>
+ * Is <b>immutable</b>. Implements Value Object pattern
  * 
  * @author tillias
  * 
@@ -53,4 +56,36 @@ public class PrivateMessage extends Message {
 	sb.append(getText());
 	return sb.toString();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+	if (this == obj)
+	    return true;
+
+	if (!(obj instanceof PrivateMessage))
+	    return false;
+
+	PrivateMessage pm = (PrivateMessage) obj;
+
+	boolean ok = getSender().equals(pm.getSender());
+	ok &= getRecipient().equals(pm.getRecipient());
+	ok &= getTimestamp().equals(pm.getTimestamp());
+	ok &= getText().equals(pm.getText());
+
+	return ok;
+    }
+
+    @Override
+    public int hashCode() {
+	if (fHashCode == 0) {
+	    fHashCode = HashUtil.SEED;
+	    fHashCode ^= HashUtil.hashInt(fHashCode, getSender().hashCode());
+	    fHashCode ^= HashUtil.hashInt(fHashCode, getRecipient().hashCode());
+	    fHashCode ^= HashUtil.hashInt(fHashCode, getTimestamp().hashCode());
+	    fHashCode ^= HashUtil.hashString(fHashCode, getText());
+	}
+	return fHashCode;
+    }
+
+    int fHashCode;
 }
