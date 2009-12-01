@@ -6,7 +6,7 @@ import xmpp.messaging.domain.ParticipantInfo;
 
 /**
  * Represents multi-user public chat message which is addressed to all
- * participants of the chat. Recipient field is always null pointer
+ * participants of the chat. Recipient field <b>is always null</b> pointer
  * <p>
  * Is <b>immutable</b>. Implements Value Object pattern
  * 
@@ -71,7 +71,6 @@ public class PublicChatMessage extends ChatMessage {
 	PublicChatMessage pm = (PublicChatMessage) obj;
 
 	boolean ok = getSender().equals(pm.getSender());
-	ok &= getRecipient().equals(pm.getRecipient());
 	ok &= getTimestamp().equals(pm.getTimestamp());
 	ok &= getText().equals(pm.getText());
 	ok &= getRoomName().equals(pm.getRoomName());
@@ -84,7 +83,6 @@ public class PublicChatMessage extends ChatMessage {
 	if (fHashCode == 0) {
 	    fHashCode = HashUtil.SEED;
 	    fHashCode ^= HashUtil.hashInt(fHashCode, getSender().hashCode());
-	    fHashCode ^= HashUtil.hashInt(fHashCode, getRecipient().hashCode());
 	    fHashCode ^= HashUtil.hashInt(fHashCode, getTimestamp().hashCode());
 	    fHashCode ^= HashUtil.hashString(fHashCode, getText());
 	    fHashCode ^= HashUtil.hashString(fHashCode, getRoomName());
