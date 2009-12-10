@@ -9,7 +9,7 @@ import xmpp.messaging.domain.ParticipantInfo;
 import xmpp.processing.IProcessor;
 import xmpp.utils.presence.PresenceCache;
 
-public class ChatMessageListener extends AbstractChatListener {
+public class GroupChatMessageListener extends AbstractChatListener {
 
     /**
      * Creates new chat message listener using given message processor
@@ -23,7 +23,7 @@ public class ChatMessageListener extends AbstractChatListener {
      *             Thrown if {@link IProcessor} any argument passed to
      *             constructor is null
      */
-    public ChatMessageListener(PresenceCache cache, MultiUserChat chat,
+    public GroupChatMessageListener(PresenceCache cache, MultiUserChat chat,
 	    IProcessor messageProcessor) throws NullPointerException {
 
 	super(cache, chat);

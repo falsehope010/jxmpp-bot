@@ -6,7 +6,7 @@ import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import xmpp.configuration.RoomCredentials;
-import xmpp.listeners.ChatMessageListener;
+import xmpp.listeners.GroupChatMessageListener;
 import xmpp.listeners.ChatPresenceListener;
 import xmpp.processing.IProcessor;
 import xmpp.utils.presence.PresenceCache;
@@ -128,7 +128,7 @@ public class Room implements IRoom {
     }
 
     /**
-     * Creates new {@link ChatPresenceListener} and {@link ChatMessageListener}
+     * Creates new {@link ChatPresenceListener} and {@link GroupChatMessageListener}
      * and associates them with given chat room. Shared {@link PresenceCache} is
      * used.
      * 
@@ -137,7 +137,7 @@ public class Room implements IRoom {
      */
     private void addListeners(MultiUserChat multiUserChat) {
 	if (multiUserChat != null) {
-	    listener = new ChatMessageListener(presenceCache, chat,
+	    listener = new GroupChatMessageListener(presenceCache, chat,
 		    messageProcessor);
 	    presenceListener = new ChatPresenceListener(presenceCache, chat);
 
@@ -150,7 +150,7 @@ public class Room implements IRoom {
     XMPPConnection parent;
 
     MultiUserChat chat;
-    ChatMessageListener listener;
+    GroupChatMessageListener listener;
     ChatPresenceListener presenceListener;
 
     IProcessor messageProcessor;
