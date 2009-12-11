@@ -3,13 +3,12 @@ import java.util.regex.Pattern;
 import syslog.ILog;
 import xmpp.configuration.Configuration;
 import xmpp.configuration.ConnectionCredentials;
-import xmpp.configuration.RoomCredentials;
 import xmpp.core.Connection;
-import xmpp.core.ConnectionWatcher;
 import xmpp.core.IConnection;
 import xmpp.core.IRoom;
 import xmpp.messaging.base.Message;
 import xmpp.processing.IProcessor;
+import xmpp.utils.activity.ConnectionWatcher;
 import exceptions.ConfigurationException;
 
 public class Main {
@@ -22,43 +21,11 @@ public class Main {
     public static void main(String[] args) throws InterruptedException,
 	    ConfigurationException {
 
-	ConnectionWatcher w = new ConnectionWatcher(new IConnection() {
-
-	    @Override
-	    public boolean isConnected() {
-		// TODO Auto-generated method stub
-		return false;
-	    }
-
-	    @Override
-	    public IRoom getRoom(String roomName) {
-		// TODO Auto-generated method stub
-		return null;
-	    }
-
-	    @Override
-	    public void disconnect() {
-		// TODO Auto-generated method stub
-
-	    }
-
-	    @Override
-	    public IRoom createRoom(RoomCredentials credentials) {
-		// TODO Auto-generated method stub
-		return null;
-	    }
-
-	    @Override
-	    public void connect() {
-		// TODO Auto-generated method stub
-
-	    }
-	}, new ILog() {
+	ConnectionWatcher w = new ConnectionWatcher(new ILog() {
 
 	    @Override
 	    public boolean putMessage(String text, String sender,
 		    String category, String type) {
-		System.out.println(text);
 		return false;
 	    }
 	}, 1000);
@@ -67,6 +34,7 @@ public class Main {
 	Thread.sleep(30000);
 
 	w.stop();
+
 
 	Thread.sleep(200000);
 
