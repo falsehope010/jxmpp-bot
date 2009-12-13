@@ -20,10 +20,6 @@ public class ChatPresenceListener extends AbstractChatListener {
 	if (packet instanceof Presence) {
 	    String jabberID = presenceProcessor.getJabberID((Presence) packet);
 
-	    // debug
-	    // System.out.println("\n\nRecieved presence: " + jabberID + " "
-	    // + packet.getFrom() + "\n\n");
-
 	    if (jabberID != null) {
 		getCache().put(packet.getFrom(), jabberID);
 	    }

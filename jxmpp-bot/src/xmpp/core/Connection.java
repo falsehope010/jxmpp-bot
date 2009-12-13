@@ -10,6 +10,9 @@ import xmpp.configuration.RoomCredentials;
 import xmpp.listeners.PrivateMessageListener;
 import xmpp.messaging.PrivateChatMessage;
 import xmpp.messaging.PrivateMessage;
+import xmpp.messaging.PublicChatMessage;
+import xmpp.messaging.base.ChatMessage;
+import xmpp.messaging.base.Message;
 import xmpp.processing.IProcessor;
 
 /**
@@ -19,7 +22,7 @@ import xmpp.processing.IProcessor;
  * @author tillias
  * 
  */
-public class Connection implements IConnection {
+public class Connection implements IConnection, ITransport {
 
     /**
      * Creates new instance of connection with empty rooms collection
@@ -114,12 +117,49 @@ public class Connection implements IConnection {
 	return rooms.get(roomName);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation uses appropriative transport method according to
+     * message type.
+     */
+    @Override
+    public void send(Message msg) {
+	if (msg != null) {
+	    if (msg instanceof PrivateMessage) {
+		PrivateMessage privateMessage = (PrivateMessage) msg;
+		sendPrivateMessage(privateMessage);
+	    }
+
+	    if (msg instanceof PrivateChatMessage) {
+		PrivateChatMessage chatMessage = (PrivateChatMessage) msg;
+		sendChatMessage(chatMessage);
+	    }
+	    if (msg instanceof PublicChatMessage) {
+		PublicChatMessage chatMessage = (PublicChatMessage) msg;
+		sendChatMessage(chatMessage);
+	    }
+	}
+    }
+
     private XMPPConnection createXmppConnection(
 	    ConnectionCredentials connectionCredentials) {
 	ConnectionConfiguration config = new ConnectionConfiguration(
 		connectionCredentials.getServer(), connectionCredentials
 			.getPort());
 	return new XMPPConnection(config);
+    }
+
+    private void sendPrivateMessage(PrivateMessage msg) {
+	try {
+	    // TODO
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+    }
+
+    private void sendChatMessage(ChatMessage msg) {
+	// TODO
     }
 
     ConnectionCredentials credentials;
