@@ -8,10 +8,31 @@ import org.jivesoftware.smack.XMPPConnection;
 import xmpp.configuration.ConnectionCredentials;
 import xmpp.configuration.RoomCredentials;
 import xmpp.listeners.PrivateMessageListener;
+import xmpp.messaging.PrivateChatMessage;
+import xmpp.messaging.PrivateMessage;
 import xmpp.processing.IProcessor;
 
+/**
+ * Connection to XMPP server. Provides method of creation of {@link Room}
+ * instances and stores collection of all rooms associated with this connection
+ * 
+ * @author tillias
+ * 
+ */
 public class Connection implements IConnection {
 
+    /**
+     * Creates new instance of connection with empty rooms collection
+     * 
+     * @param credentials
+     *            Credentials which will be used to open connection
+     * @param messageProcessor
+     *            {@link IProcessor} concrete implementation which will be used
+     *            to process {@link PrivateMessage} and
+     *            {@link PrivateChatMessage} received from this connection
+     * @throws NullPointerException
+     *             Thrown if any argument passed to constructor is null pointer
+     */
     public Connection(ConnectionCredentials credentials,
 	    IProcessor messageProcessor) throws NullPointerException {
 
