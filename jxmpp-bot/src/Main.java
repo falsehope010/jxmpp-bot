@@ -5,7 +5,10 @@ import xmpp.configuration.ConnectionCredentials;
 import xmpp.core.Connection;
 import xmpp.core.IConnection;
 import xmpp.core.IRoom;
+import xmpp.core.ITransport;
+import xmpp.messaging.PrivateMessage;
 import xmpp.messaging.base.Message;
+import xmpp.messaging.domain.ParticipantInfo;
 import xmpp.processing.IProcessor;
 import exceptions.ConfigurationException;
 
@@ -46,6 +49,12 @@ public class Main {
 	 */
 
 	System.out.println(conn.isConnected());
+
+	ITransport transport = (ITransport) conn;
+	ParticipantInfo sender = new ParticipantInfo("tillias@jabbus.org", "");
+	ParticipantInfo recipient = new ParticipantInfo("tillias@jabber.org",
+		"");
+	transport.send(new PrivateMessage(sender, recipient, "Hello! Test"));
 
 	Thread.sleep(300000000);
 

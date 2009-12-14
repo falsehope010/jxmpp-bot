@@ -6,8 +6,9 @@ import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import xmpp.configuration.RoomCredentials;
-import xmpp.listeners.GroupChatMessageListener;
 import xmpp.listeners.ChatPresenceListener;
+import xmpp.listeners.GroupChatMessageListener;
+import xmpp.messaging.base.Message;
 import xmpp.processing.IProcessor;
 import xmpp.utils.presence.PresenceCache;
 import xmpp.utils.presence.PresenceProcessor;
@@ -111,6 +112,11 @@ public class Room implements IRoom {
 	return credentials.getRoomName();
     }
 
+    @Override
+    public void send(Message msg) {
+	// TODO Auto-generated method stub
+    }
+
     private MultiUserChat createChat() {
 	return new MultiUserChat(parent, credentials.getRoomName());
     }
@@ -157,5 +163,6 @@ public class Room implements IRoom {
 
     PresenceCache presenceCache;
     PresenceProcessor presenceProcessor;
+
 
 }

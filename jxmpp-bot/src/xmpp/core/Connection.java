@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.packet.Message.Type;
 
 import xmpp.configuration.ConnectionCredentials;
 import xmpp.configuration.RoomCredentials;
@@ -152,14 +153,29 @@ public class Connection implements IConnection, ITransport {
 
     private void sendPrivateMessage(PrivateMessage msg) {
 	try {
-	    // TODO
+	    org.jivesoftware.smack.packet.Message outMsg = new org.jivesoftware.smack.packet.Message(
+		    msg.getRecipient().getJabberID(), Type.chat);
+	    outMsg.setBody(msg.getText());
+
+	    // force set sender field according to system configuration
+	    String sender = credentials.getNick() + '@'
+		    + credentials.getServer();
+	    outMsg.setFrom(sender);
+
+	    conn.sendPacket(outMsg);
+
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
     }
 
     private void sendChatMessage(ChatMessage msg) {
-	// TODO
+	try {
+	    IRoom room = getRoom(msg.getRoomName());
+	    room.send(msg);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
     }
 
     ConnectionCredentials credentials;

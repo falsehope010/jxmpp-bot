@@ -9,7 +9,7 @@ package xmpp.core;
  * @author tillias
  * 
  */
-public interface IRoom {
+public interface IRoom extends ITransport {
     /**
      * Joins xmpp multi-user chat room. If already joined does nothing
      * 
