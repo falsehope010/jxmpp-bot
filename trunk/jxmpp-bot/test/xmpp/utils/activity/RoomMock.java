@@ -1,6 +1,7 @@
 package xmpp.utils.activity;
 
 import xmpp.core.IRoom;
+import xmpp.messaging.base.Message;
 
 public class RoomMock implements IRoom {
 
@@ -32,4 +33,10 @@ public class RoomMock implements IRoom {
     }
 
     boolean isJoined;
+
+    @Override
+    public void send(Message msg) {
+	// TODO Auto-generated method stub
+
+    }
 }

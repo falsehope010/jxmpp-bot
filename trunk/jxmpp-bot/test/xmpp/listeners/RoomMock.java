@@ -3,6 +3,7 @@ package xmpp.listeners;
 import java.util.HashMap;
 
 import xmpp.core.IRoom;
+import xmpp.messaging.base.Message;
 
 public class RoomMock implements IRoom {
 
@@ -41,7 +42,14 @@ public class RoomMock implements IRoom {
 	isJoined = false;
     }
 
+    @Override
+    public void send(Message msg) {
+	// TODO Auto-generated method stub
+
+    }
+
     String name;
     boolean isJoined;
     HashMap<String, String> bindings;
+
 }
