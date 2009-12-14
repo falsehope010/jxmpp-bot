@@ -13,7 +13,7 @@ import xmpp.configuration.RoomCredentials;
  * @author tillias
  * 
  */
-public interface IConnection {
+public interface IConnection extends ITransport {
     /**
      * Establishes connection to remote xmpp server. If already connected does
      * nothing.
