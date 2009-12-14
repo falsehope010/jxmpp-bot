@@ -1,5 +1,6 @@
 package xmpp.core;
 
+import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
@@ -8,6 +9,8 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 import xmpp.configuration.RoomCredentials;
 import xmpp.listeners.ChatPresenceListener;
 import xmpp.listeners.GroupChatMessageListener;
+import xmpp.messaging.PrivateChatMessage;
+import xmpp.messaging.PublicChatMessage;
 import xmpp.messaging.base.Message;
 import xmpp.processing.IProcessor;
 import xmpp.utils.presence.PresenceCache;
@@ -114,7 +117,17 @@ public class Room implements IRoom {
 
     @Override
     public void send(Message msg) {
-	// TODO Auto-generated method stub
+	try {
+	    if (msg instanceof PublicChatMessage) {
+		chat.sendMessage(msg.getText());
+	    }
+
+	    if (msg instanceof PrivateChatMessage) {
+		sendMessage((PrivateChatMessage) msg);
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
     }
 
     private MultiUserChat createChat() {
@@ -133,10 +146,18 @@ public class Room implements IRoom {
 	presenceCache.put(occupantName, jabberID);
     }
 
+    private void sendMessage(PrivateChatMessage msg) throws XMPPException {
+
+	// we don't need listener here since we only send message
+	Chat privateChat = chat.createPrivateChat(msg.getRecipient()
+		.getAdress(), null);
+	privateChat.sendMessage(msg.getText());
+    }
+
     /**
-     * Creates new {@link ChatPresenceListener} and {@link GroupChatMessageListener}
-     * and associates them with given chat room. Shared {@link PresenceCache} is
-     * used.
+     * Creates new {@link ChatPresenceListener} and
+     * {@link GroupChatMessageListener} and associates them with given chat
+     * room. Shared {@link PresenceCache} is used.
      * 
      * @param multiUserChat
      *            Chat room
@@ -163,6 +184,5 @@ public class Room implements IRoom {
 
     PresenceCache presenceCache;
     PresenceProcessor presenceProcessor;
-
 
 }

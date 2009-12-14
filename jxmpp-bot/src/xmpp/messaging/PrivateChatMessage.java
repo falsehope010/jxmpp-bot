@@ -9,6 +9,21 @@ import xmpp.messaging.domain.ParticipantInfo;
  * chat in private.
  * <p>
  * Is <b>immutable</b>. Implements Value Object Pattern
+ * <p>
+ * Example of creation:
+ * 
+ * <pre>
+ * ParticipantInfo sender = new ParticipantInfo(&quot;sender@xmpp.org&quot;,
+ * 	&quot;room@conference.xmpp.org/sender_nick&quot;);
+ * ParticipantInfo recipient = new ParticipantInfo(&quot;recipient@xmpp.org&quot;,
+ * 	&quot;room@conference.xmpp.org/recipient_nick&quot;);
+ * new PrivateChatMessage(sender, recipient, &quot;Hello! Test&quot;,
+ * 	&quot;room@conference.xmpp.org&quot;);
+ * </pre>
+ * 
+ * This example creates private chat message in room with name
+ * <i>room@conference.xmpp.org</i>. Message is addressed to
+ * <i>room@conference.xmpp.org/sender_nick</i>
  * 
  * @author tillias
  * 

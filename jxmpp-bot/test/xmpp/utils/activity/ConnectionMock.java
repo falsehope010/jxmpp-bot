@@ -3,6 +3,7 @@ package xmpp.utils.activity;
 import xmpp.configuration.RoomCredentials;
 import xmpp.core.IConnection;
 import xmpp.core.IRoom;
+import xmpp.messaging.base.Message;
 
 public class ConnectionMock implements IConnection {
 
@@ -34,4 +35,10 @@ public class ConnectionMock implements IConnection {
     }
 
     boolean isConnected;
+
+    @Override
+    public void send(Message msg) {
+	// TODO Auto-generated method stub
+
+    }
 }

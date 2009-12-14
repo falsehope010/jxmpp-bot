@@ -5,6 +5,7 @@ import java.util.HashMap;
 import xmpp.configuration.RoomCredentials;
 import xmpp.core.IConnection;
 import xmpp.core.IRoom;
+import xmpp.messaging.base.Message;
 
 public class ConnectionMoc implements IConnection {
 
@@ -40,6 +41,12 @@ public class ConnectionMoc implements IConnection {
     @Override
     public boolean isConnected() {
 	return isConnected;
+    }
+
+    @Override
+    public void send(Message msg) {
+	// TODO Auto-generated method stub
+
     }
 
     boolean isConnected = true;
