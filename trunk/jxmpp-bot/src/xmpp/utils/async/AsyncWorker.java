@@ -45,6 +45,13 @@ public abstract class AsyncWorker implements Runnable, IAsyncWorker {
 	return timeout;
     }
 
+    protected long getThreadID() {
+	if (thread != null)
+	    return thread.getId();
+
+	return -1;
+    }
+
     boolean terminate;
     Thread thread;
     int timeout;
