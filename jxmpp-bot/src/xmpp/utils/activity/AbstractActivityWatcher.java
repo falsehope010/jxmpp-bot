@@ -1,6 +1,7 @@
 package xmpp.utils.activity;
 
 import syslog.ILog;
+import xmpp.utils.async.AsyncWorker;
 
 /**
  * Base class for all activity watchers ( xmpp connections, chat rooms and so
@@ -27,7 +28,7 @@ import syslog.ILog;
  * @author tilllias
  * 
  */
-public abstract class AbstractActivityWatcher implements Runnable {
+public abstract class AbstractActivityWatcher extends AsyncWorker {
     /**
      * Default connection poll timeout in milliseconds
      */
@@ -65,15 +66,16 @@ public abstract class AbstractActivityWatcher implements Runnable {
      */
     public AbstractActivityWatcher(ILog log, int pollTimeout)
 	    throws NullPointerException, IllegalArgumentException {
+
+	super(pollTimeout);
+
 	if (log == null)
 	    throw new NullPointerException("Log argument can't be null");
 	if (pollTimeout <= 0)
 	    throw new IllegalArgumentException("pollTimeout must be positive");
 
 	this.log = log;
-	this.pollTimeout = pollTimeout;
 
-	terminate = false;
 	logSenderName = getClass().getSimpleName();
 	pollCounter = 0;
 	lastPollInactive = true;
@@ -110,58 +112,29 @@ public abstract class AbstractActivityWatcher implements Runnable {
      */
     public abstract void logActivityException(Exception e);
 
-    /**
-     * This implementation defines main lifeline of watcher.
-     */
     @Override
-    public void run() {
-	while (!terminate) {
-	    try {
-		// do work
-		boolean isAlive = checkActivityAlive();
+    public void performAction() {
+	try {
+	    // do work
+	    boolean isAlive = checkActivityAlive();
 
-		if (!isAlive) {
-		    restartActivity();
-		} else {
+	    if (!isAlive) {
+		restartActivity();
+	    } else {
 
-		    logActivityAlive();
+		logActivityAlive();
 
-		    setLastPollInactive(false);
-		}
-
-		++pollCounter;
-
-		Thread.sleep(getPollTimeout());
-
-	    } catch (Exception e) {
-		logActivityException(e);
-
+		setLastPollInactive(false);
 	    }
+
+	    ++pollCounter;
+
+	    Thread.sleep(getPollTimeout());
+
+	} catch (Exception e) {
+	    logActivityException(e);
+
 	}
-
-	pollCounter = 0;
-    }
-
-    /**
-     * Starts watcher. If watcher is already running does nothing
-     * 
-     * @see #isAlive()
-     */
-    public void start() {
-	if (!isAlive()) {
-	    thread = new Thread(this);
-	    thread.start();
-	}
-    }
-
-    /**
-     * Stops watcher. Method returns immediately but doesn't guarantee that
-     * watcher will be stopped immediately.
-     * 
-     * @see #isAlive()
-     */
-    public void stop() {
-	terminate = true;
     }
 
     /**
@@ -170,32 +143,17 @@ public abstract class AbstractActivityWatcher implements Runnable {
      * @return Total number of milliseconds
      */
     public int getPollTimeout() {
-	return pollTimeout;
+	return getTimeout();
     }
 
     /**
-     * Gets total number of polls since watcher has been started. If watcher is
-     * stopped or never started returns zero
+     * Gets total number of polls since watcher has been started. Counter is
+     * cumulative e.g. it stores its value between restarts
      * 
      * @return Total number of polls since watcher has been started
      */
     public int getPollCount() {
 	return pollCounter;
-    }
-
-    /**
-     * Gets value indicating whether watcher is running
-     * 
-     * @return True if watcher is running false otherwise
-     */
-    public boolean isAlive() {
-	boolean result = false;
-
-	if (thread != null && thread.isAlive()) {
-	    result = true;
-	}
-
-	return result;
     }
 
     protected ILog getLog() {
@@ -228,7 +186,7 @@ public abstract class AbstractActivityWatcher implements Runnable {
     }
 
     protected long getThreadID() {
-	return thread.getId();
+	return super.getThreadID();
     }
 
     private void restartActivity() {
@@ -243,9 +201,6 @@ public abstract class AbstractActivityWatcher implements Runnable {
 
     ILog log;
 
-    boolean terminate;
-    Thread thread;
-    int pollTimeout;
     int pollCounter;
     boolean lastPollInactive;
 

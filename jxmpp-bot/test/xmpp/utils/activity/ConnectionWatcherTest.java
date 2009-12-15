@@ -281,7 +281,7 @@ public class ConnectionWatcherTest {
 
 	assertFalse(watcher.isAlive());
 
-	assertEquals(0, watcher.getPollCount());
+	assertTrue(watcher.getPollCount() > 0);
 
     }
 }
