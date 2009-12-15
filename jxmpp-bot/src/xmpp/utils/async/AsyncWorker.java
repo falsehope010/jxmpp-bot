@@ -1,10 +1,20 @@
 package xmpp.utils.async;
 
+/**
+ * Abstract implementation of {@link IAsyncWorker}. Provides the set of methods
+ * for starting, stopping and monitoring asynchronous action.
+ * <p>
+ * Concrete implementations should override {@link #performAction()} which will
+ * be invoked periodically by this worker.
+ * 
+ * @author tilllias
+ * 
+ */
 public abstract class AsyncWorker implements Runnable, IAsyncWorker {
 
-    public AsyncWorker(int timeout) {
+    public AsyncWorker(int actionTimeout) {
 	terminate = false;
-	this.timeout = timeout;
+	this.actionTimeout = actionTimeout;
     }
 
     public void start() {
@@ -42,10 +52,15 @@ public abstract class AsyncWorker implements Runnable, IAsyncWorker {
     }
 
     public int getTimeout() {
-	return timeout;
+	return actionTimeout;
     }
 
-    protected long getThreadID() {
+    /**
+     * Gets underlying thread id if worker has been started, -1 otherwise
+     * 
+     * @return Identifier of underlying thread
+     */
+    public long getThreadID() {
 	if (thread != null)
 	    return thread.getId();
 
@@ -54,5 +69,5 @@ public abstract class AsyncWorker implements Runnable, IAsyncWorker {
 
     boolean terminate;
     Thread thread;
-    int timeout;
+    int actionTimeout;
 }
