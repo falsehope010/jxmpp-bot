@@ -112,6 +112,7 @@ public abstract class AbstractActivityWatcher extends AsyncWorker {
      */
     public abstract void logActivityException(Exception e);
 
+
     @Override
     public void performAction() {
 	try {
@@ -183,10 +184,6 @@ public abstract class AbstractActivityWatcher extends AsyncWorker {
 
     protected String getLogSenderName() {
 	return logSenderName;
-    }
-
-    protected long getThreadID() {
-	return super.getThreadID();
     }
 
     private void restartActivity() {
