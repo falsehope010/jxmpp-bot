@@ -121,7 +121,7 @@ public class Connection implements IConnection, ITransport {
     /**
      * {@inheritDoc}
      * <p>
-     * This implementation uses appropriative transport method according to
+     * This implementation uses appropriative transporting method according to
      * message type.
      */
     @Override

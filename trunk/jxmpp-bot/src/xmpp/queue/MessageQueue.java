@@ -4,8 +4,17 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import xmpp.messaging.base.Message;
 
-public class MessageQueue implements IXmppMessageQueue {
+/**
+ * Thread-safe queue which can handle XMPP {@link Message} items
+ * 
+ * @author tillias
+ * 
+ */
+public class MessageQueue implements IMessageQueue {
 
+    /**
+     * Creates new instance of message queue
+     */
     public MessageQueue() {
 	body = new ConcurrentLinkedQueue<Message>();
     }
