@@ -3,11 +3,11 @@ package xmpp.helpers.domain;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import xmpp.messaging.base.Message;
-import xmpp.queue.IXmppMessageQueue;
+import xmpp.queue.IMessageQueue;
 
 public abstract class AbstractMessageGenerator extends Thread {
 
-    public AbstractMessageGenerator(IXmppMessageQueue queue) {
+    public AbstractMessageGenerator(IMessageQueue queue) {
 	if (queue == null)
 	    throw new NullPointerException();
 
@@ -38,5 +38,5 @@ public abstract class AbstractMessageGenerator extends Thread {
     }
 
     AtomicBoolean terminate;
-    IXmppMessageQueue queue;
+    IMessageQueue queue;
 }

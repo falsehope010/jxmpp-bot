@@ -8,7 +8,7 @@ package xmpp.utils.async;
  */
 public interface IAsyncWorker {
     /**
-     * Method that will be performed asynchronously
+     * Method (action) that will be performed asynchronously
      */
     void performAction();
 }

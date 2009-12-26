@@ -3,11 +3,11 @@ package xmpp.helpers.domain;
 import xmpp.messaging.PrivateMessage;
 import xmpp.messaging.base.Message;
 import xmpp.messaging.domain.ParticipantInfo;
-import xmpp.queue.IXmppMessageQueue;
+import xmpp.queue.IMessageQueue;
 
 public class PrivateMessageGenerator extends AbstractMessageGenerator {
 
-    public PrivateMessageGenerator(IXmppMessageQueue queue) {
+    public PrivateMessageGenerator(IMessageQueue queue) {
 	super(queue);
     }
 
