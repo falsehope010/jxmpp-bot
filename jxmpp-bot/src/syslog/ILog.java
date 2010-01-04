@@ -1,8 +1,9 @@
 package syslog;
 
 /**
- * Represents a logging utility which can store text messages inside database,
- * file
+ * Represents a logging facility that can store text messages inside some
+ * storage for a continuous time
+ * 
  * 
  * @author tillias
  * 
