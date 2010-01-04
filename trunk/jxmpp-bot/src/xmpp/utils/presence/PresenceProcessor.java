@@ -9,7 +9,7 @@ import org.jivesoftware.smackx.packet.MUCUser;
 import org.jivesoftware.smackx.packet.MUCUser.Item;
 
 /**
- * Provides set of helper methods for processing {@link Presence} packets
+ * Provides the set of helper methods for processing {@link Presence} packets
  * 
  * @author tillias
  * 

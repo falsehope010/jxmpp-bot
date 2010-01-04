@@ -3,6 +3,15 @@ package xmpp.utils.presence;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Stores mappings between occupant's name and his jabber identifier.
+ * <p>
+ * Each occupant of multiuser group chat has fully qualified name and jabber
+ * identifier.
+ * 
+ * @author tillias
+ * 
+ */
 public class PresenceCache {
 
     public PresenceCache() {

@@ -5,7 +5,8 @@ import xmpp.core.IRoom;
 
 /**
  * Performs {@link IRoom} joined state tracking. If in some time room looses
- * joined state performs rejoin
+ * joined state performs rejoin. Logs several events into {@link ILog} while
+ * watching
  * 
  * @author tillias
  * @see AbstractActivityWatcher
