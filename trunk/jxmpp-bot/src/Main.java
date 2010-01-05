@@ -5,9 +5,7 @@ import xmpp.configuration.ConnectionCredentials;
 import xmpp.core.Connection;
 import xmpp.core.IConnection;
 import xmpp.core.IRoom;
-import xmpp.messaging.PublicChatMessage;
 import xmpp.messaging.base.Message;
-import xmpp.messaging.domain.ParticipantInfo;
 import xmpp.processing.IProcessor;
 import exceptions.ConfigurationException;
 
@@ -57,10 +55,12 @@ public class Main {
 	 * PrivateChatMessage(sender, recipient, "Hello! Test",
 	 * "vegatrek@conference.jabber.ru"));
 	 */
-	ParticipantInfo sender = new ParticipantInfo("tillias@jabber.org",
-		"vegatrek@conference.jabber.ru/TheBot");
-	conn.send(new PublicChatMessage(sender, "Test",
-		"vegatrek@conference.jabber.ru"));
+
+	/*
+	 * ParticipantInfo sender = new ParticipantInfo("tillias@jabber.org",
+	 * "vegatrek@conference.jabber.ru/TheBot"); conn.send(new
+	 * PublicChatMessage(sender, "Test", "vegatrek@conference.jabber.ru"));
+	 */
 
 	Thread.sleep(300000000);
 

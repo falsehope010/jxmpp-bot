@@ -7,6 +7,7 @@ import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import xmpp.configuration.RoomCredentials;
+import xmpp.listeners.ChatEventsListener;
 import xmpp.listeners.ChatPresenceListener;
 import xmpp.listeners.GroupChatMessageListener;
 import xmpp.messaging.PrivateChatMessage;
@@ -167,9 +168,12 @@ public class Room implements IRoom {
 	    listener = new GroupChatMessageListener(presenceCache, chat,
 		    messageProcessor);
 	    presenceListener = new ChatPresenceListener(presenceCache, chat);
+	    eventsListener = new ChatEventsListener(presenceCache,
+		    multiUserChat, messageProcessor, this);
 
 	    multiUserChat.addMessageListener(listener);
 	    multiUserChat.addParticipantListener(presenceListener);
+	    multiUserChat.addParticipantStatusListener(eventsListener);
 	}
     }
 
@@ -179,6 +183,7 @@ public class Room implements IRoom {
     MultiUserChat chat;
     GroupChatMessageListener listener;
     ChatPresenceListener presenceListener;
+    ChatEventsListener eventsListener;
 
     IProcessor messageProcessor;
 
