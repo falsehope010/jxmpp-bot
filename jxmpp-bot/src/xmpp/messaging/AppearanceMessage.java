@@ -51,6 +51,26 @@ public class AppearanceMessage extends ChatMessage {
     }
 
     @Override
+    public String toString() {
+	StringBuilder sb = new StringBuilder();
+	sb.append("Sender: \n");
+	sb.append(getSender().toString());
+	sb.append('\n');
+	sb.append("Timestamp: ");
+	sb.append(getTimestamp());
+	sb.append('\n');
+	sb.append("Text: ");
+	sb.append(getText());
+	sb.append('\n');
+	sb.append("Room: ");
+	sb.append(getRoomName());
+	sb.append('\n');
+	sb.append("Status: ");
+	sb.append(isJoined());
+	return sb.toString();
+    }
+
+    @Override
     public boolean equals(Object obj) {
 	if (this == obj)
 	    return true;

@@ -9,13 +9,21 @@ import xmpp.messaging.domain.ParticipantInfo;
 import xmpp.processing.IProcessor;
 import xmpp.utils.presence.PresenceCache;
 
+/**
+ * Listens for multi-user chat public text packets. If received those packets
+ * wraps them into {@link PublicChatMessage} instances and redirects to
+ * underlying {@link IProcessor} for further processing
+ * 
+ * @author tillias
+ * 
+ */
 public class GroupChatMessageListener extends AbstractChatListener {
 
     /**
      * Creates new chat message listener using given message processor
      * 
      * @param chat
-     *            Chat to which this listener belongs
+     *            Chat which this listener listens
      * @param messageProcessor
      *            {@link IProcessor} implementation which will be used to
      *            process packets received by listener

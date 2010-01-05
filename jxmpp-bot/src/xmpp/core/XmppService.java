@@ -1,4 +1,4 @@
-package xmpp;
+package xmpp.core;
 
 import xmpp.configuration.Configuration;
 import xmpp.utils.collections.RoomWatchersCollection;
