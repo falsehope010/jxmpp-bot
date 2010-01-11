@@ -1,5 +1,6 @@
 package xmpp.core;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -104,8 +105,16 @@ public class Connection implements IConnection, ITransport {
      */
     @Override
     public void disconnect() {
-	if (isConnected())
+	if (isConnected()) {
+
+	    // leave all rooms before disconnecting from server
+	    Collection<IRoom> roomsCollection = rooms.values();
+	    for (IRoom room : roomsCollection) {
+		room.leave();
+	    }
+
 	    conn.disconnect();
+	}
     }
 
     @Override
@@ -116,6 +125,12 @@ public class Connection implements IConnection, ITransport {
     @Override
     public IRoom getRoom(String roomName) {
 	return rooms.get(roomName);
+    }
+
+    @Override
+    public IRoom[] getRooms() {
+	Collection<IRoom> roomsCollection = rooms.values();
+	return roomsCollection.toArray(new IRoom[] {});
     }
 
     /**

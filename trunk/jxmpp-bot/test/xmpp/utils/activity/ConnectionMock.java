@@ -34,11 +34,17 @@ public class ConnectionMock implements IConnection {
 	return isConnected;
     }
 
-    boolean isConnected;
+    @Override
+    public IRoom[] getRooms() {
+	// TODO Auto-generated method stub
+	return null;
+    }
 
     @Override
     public void send(Message msg) {
 	// TODO Auto-generated method stub
 
     }
+
+    boolean isConnected;
 }

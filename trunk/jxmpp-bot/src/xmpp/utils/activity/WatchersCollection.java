@@ -1,19 +1,19 @@
-package xmpp.utils.collections;
+package xmpp.utils.activity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import syslog.ILog;
-import xmpp.core.IRoom;
-import xmpp.utils.activity.RoomWatcher;
 
 /**
- * Represents wrapper around collection of {@link RoomWatcher}.
+ * Represents wrapper around collection of {@link AbstractActivityWatcher}
+ * items. Doesn't allow null pointers to be stored. All items are unique (no
+ * duplicates are allowed)
  * 
  * @author tillias
  * 
  */
-public class RoomWatchersCollection {
+public class WatchersCollection {
 
     /**
      * Creates new collection using given {@link ILog} concrete implementation
@@ -30,7 +30,7 @@ public class RoomWatchersCollection {
      *             Thrown if pollTimeout passed to constructor is negative or
      *             zero
      */
-    public RoomWatchersCollection(ILog log, int pollTimeout)
+    public WatchersCollection(ILog log, int pollTimeout)
 	    throws NullPointerException, IllegalArgumentException {
 
 	if (log == null)
@@ -38,33 +38,35 @@ public class RoomWatchersCollection {
 	if (pollTimeout <= 0)
 	    throw new IllegalArgumentException("Poll timeout must be positive");
 
-	items = new ArrayList<RoomWatcher>();
+	items = new ArrayList<AbstractActivityWatcher>();
 
 	this.log = log;
 	this.pollTimeout = pollTimeout;
     }
 
     /**
-     * Creates {@link RoomWatcher} for given {@link IRoom} using general log and
-     * poll timeout and starts watcher if needed
+     * Adds concrete implementation of {@link AbstractActivityWatcher} into this
+     * collection. If there is already such an item in collection or argument is
+     * null pointer then method does nothing.
      * 
-     * @param room
-     *            {@link IRoom} concrete implementation that should be watched.
-     *            If null pointer is passed does nothing
-     * @param startImmediately
-     *            Specifies that room should be started watching immediately
-     * @see #getLog()
-     * @see #getPollTimeout()
+     * @param watcher
+     *            Watcher to be added into this collection
      */
-    public void watchRoom(IRoom room, boolean startImmediately) {
-	if (room != null) {
-	    RoomWatcher watcher = new RoomWatcher(room, getLog(),
-		    getPollTimeout());
+    public void add(AbstractActivityWatcher watcher) {
+	if (watcher != null && !items.contains(watcher)) {
 	    items.add(watcher);
-
-	    if (startImmediately)
-		watcher.start();
 	}
+    }
+
+    /**
+     * Removes item from this collection. If there is no such an item in
+     * collection or argument is null method does nothing
+     * 
+     * @param watcher
+     *            Item to be removed from collection
+     */
+    public void remove(AbstractActivityWatcher watcher) {
+	items.remove(watcher);
     }
 
     /**
@@ -73,7 +75,7 @@ public class RoomWatchersCollection {
      * @see #stop()
      */
     public void start() {
-	for (RoomWatcher w : items) {
+	for (AbstractActivityWatcher w : items) {
 	    w.start();
 	}
     }
@@ -84,7 +86,7 @@ public class RoomWatchersCollection {
      * @see #start()
      */
     public void stop() {
-	for (RoomWatcher w : items) {
+	for (AbstractActivityWatcher w : items) {
 	    w.stop();
 	}
     }
@@ -107,7 +109,8 @@ public class RoomWatchersCollection {
 	return pollTimeout;
     }
 
-    List<RoomWatcher> items;
+    List<AbstractActivityWatcher> items;
     ILog log;
     int pollTimeout;
+
 }
