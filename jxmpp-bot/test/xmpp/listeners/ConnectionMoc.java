@@ -49,6 +49,13 @@ public class ConnectionMoc implements IConnection {
 
     }
 
+    @Override
+    public IRoom[] getRooms() {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
     boolean isConnected = true;
     HashMap<String, RoomMock> rooms;
+
 }

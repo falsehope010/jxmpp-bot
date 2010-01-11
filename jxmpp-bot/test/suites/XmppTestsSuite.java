@@ -16,7 +16,6 @@ import xmpp.queue.TransportQueueIntegrationTest;
 import xmpp.queue.TransportQueueTest;
 import xmpp.utils.activity.ConnectionWatcherTest;
 import xmpp.utils.activity.RoomWatcherTest;
-import xmpp.utils.collections.RoomWatchersCollectionTest;
 import xmpp.utils.presence.PresenceProcessorTest;
 
 @RunWith(Suite.class)
@@ -26,8 +25,7 @@ import xmpp.utils.presence.PresenceProcessorTest;
 	PublicChatMessageTest.class, AppearanceMessageTest.class,
 	PrivateMessageListenerTest.class, ChatMessageListenerTest.class,
 	ConnectionWatcherTest.class, RoomWatcherTest.class,
-	RoomWatchersCollectionTest.class, TransportQueueTest.class,
-	TransportQueueIntegrationTest.class })
+	TransportQueueTest.class, TransportQueueIntegrationTest.class })
 public class XmppTestsSuite {
     // nothing goes here
 }

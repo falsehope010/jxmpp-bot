@@ -49,7 +49,7 @@ public interface IConnection extends ITransport {
     boolean isConnected();
 
     /**
-     * Gets room associated with given connection using it's name.
+     * Gets room managed by this connection using room's name.
      * 
      * @param roomName
      *            Room name
@@ -60,8 +60,15 @@ public interface IConnection extends ITransport {
     IRoom getRoom(String roomName);
 
     /**
+     * Gets array of rooms which are managed by this connection
+     * 
+     * @return Array of rooms which are managed by this connection
+     */
+    IRoom[] getRooms();
+
+    /**
      * Creates new {@link IRoom} instance using given {@link RoomCredentials}
-     * object and associates it with this connection
+     * object and associates it with this connection.
      * 
      * @param credentials
      *            Security information which is used during room creation
