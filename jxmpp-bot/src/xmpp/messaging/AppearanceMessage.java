@@ -8,6 +8,8 @@ import xmpp.messaging.domain.ParticipantInfo;
  * Represents multi-user chat message that stores boolean marker that indicates
  * that user entered (joined) or leaved multi-user chat. Those messages are
  * created by remote xmpp server when user joins/leaves multi-user chat.
+ * <p>
+ * Is <b>immutable</b>. Implements Value Object Pattern
  * 
  * @author tillias
  * 
