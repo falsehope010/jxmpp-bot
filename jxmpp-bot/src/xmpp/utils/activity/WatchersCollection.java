@@ -70,6 +70,15 @@ public class WatchersCollection {
     }
 
     /**
+     * Gets total number of items in this collection
+     * 
+     * @return Total number of items in this collection
+     */
+    public int size() {
+	return items.size();
+    }
+
+    /**
      * Starts all watchers in this collection
      * 
      * @see #stop()
@@ -107,6 +116,42 @@ public class WatchersCollection {
      */
     public int getPollTimeout() {
 	return pollTimeout;
+    }
+
+    /**
+     * Gets list which contains all non running items of this collection. If all
+     * items of this collection are running returns empty list
+     * 
+     * @return List of all non running items of this collection
+     */
+    public List<AbstractActivityWatcher> getNotRunningWatchers() {
+	List<AbstractActivityWatcher> result = new ArrayList<AbstractActivityWatcher>();
+
+	for (AbstractActivityWatcher w : items) {
+	    if (!w.isAlive()) {
+		result.add(w);
+	    }
+	}
+
+	return result;
+    }
+
+    /**
+     * Gets list which contains all running items of this collection. If all
+     * items of this collection aren't running returns empty list
+     * 
+     * @return List of all running items of this collection
+     */
+    public List<AbstractActivityWatcher> getRunningWatchers() {
+	List<AbstractActivityWatcher> result = new ArrayList<AbstractActivityWatcher>();
+
+	for (AbstractActivityWatcher w : items) {
+	    if (w.isAlive()) {
+		result.add(w);
+	    }
+	}
+
+	return result;
     }
 
     List<AbstractActivityWatcher> items;
