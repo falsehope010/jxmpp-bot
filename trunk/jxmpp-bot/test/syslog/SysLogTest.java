@@ -103,7 +103,7 @@ public class SysLogTest extends DatabaseBaseTest {
 	assertNotNull(log);
 
 	// syslog not running, current session should be null
-	assertFalse(log.isRunning());
+	assertFalse(log.isAlive());
 	assertNull(log.getCurrentSession());
 	assertFalse(verifySessionInserted(db));
 
@@ -172,7 +172,7 @@ public class SysLogTest extends DatabaseBaseTest {
 	assertNotNull(log.getThreadState());
 	assertNotSame(log.getThreadState(), Thread.State.TERMINATED);
 
-	assertTrue("Syslog should be running", log.isRunning());
+	assertTrue("Syslog should be running", log.isAlive());
 	assertFalse("Terminate must be set to false", log.getTerminate());
 
 	Thread.sleep(500);
@@ -204,7 +204,7 @@ public class SysLogTest extends DatabaseBaseTest {
 	assertNotNull(log.getThreadState());
 	assertNotSame(log.getThreadState(), Thread.State.TERMINATED);
 
-	assertTrue("Syslog should be running", log.isRunning());
+	assertTrue("Syslog should be running", log.isAlive());
 	assertFalse("Terminate must be set to false", log.getTerminate());
 
 	Thread.sleep(500);
@@ -217,7 +217,7 @@ public class SysLogTest extends DatabaseBaseTest {
 
 	Thread.sleep(1000);
 
-	assertFalse(log.isRunning());
+	assertFalse(log.isAlive());
 	assertTrue(log.getThreadState() == State.TERMINATED);
 
 	// verify last session was closed
@@ -245,11 +245,11 @@ public class SysLogTest extends DatabaseBaseTest {
 	assertTrue(cleanupSyslogTables(db));
 
 	for (int i = 0; i < iterations; ++i) {
-	    assertTrue(log.start());
+	    log.start();
 
 	    Thread.sleep(200);
 
-	    assertTrue(log.isRunning());
+	    assertTrue(log.isAlive());
 	    assertNotNull(log.getThreadState());
 	    assertNotSame(log.getThreadState(), Thread.State.TERMINATED);
 
@@ -257,7 +257,7 @@ public class SysLogTest extends DatabaseBaseTest {
 
 	    Thread.sleep(1000);
 
-	    assertFalse(log.isRunning());
+	    assertFalse(log.isAlive());
 	    assertTrue(log.getThreadState() == State.TERMINATED);
 	}
 

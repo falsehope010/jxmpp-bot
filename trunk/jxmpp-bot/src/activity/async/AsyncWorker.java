@@ -1,4 +1,6 @@
-package xmpp.utils.async;
+package activity.async;
+
+import activity.IActive;
 
 /**
  * Abstract implementation of {@link IAsyncWorker}. Provides the set of methods
@@ -13,7 +15,7 @@ package xmpp.utils.async;
  * @author tilllias
  * 
  */
-public abstract class AsyncWorker implements Runnable, IAsyncWorker {
+public abstract class AsyncWorker implements IActive, IAsyncWorker {
 
     /**
      * Creates new instance of worker using given time period between
@@ -34,9 +36,11 @@ public abstract class AsyncWorker implements Runnable, IAsyncWorker {
     }
 
     /**
-     * Starts worker (if it is already started does nothing). Worker will be
-     * invoking {@link #performAction()} periodically until {@link #stop()} will
-     * be called.
+     * {@inheritDoc}
+     * <p>
+     * This implementation starts worker (if it is already started does
+     * nothing). Worker will be invoking {@link #performAction()} periodically
+     * until {@link #stop()} will be called.
      * 
      * @see #isAlive()
      * @see #stop()
@@ -49,8 +53,10 @@ public abstract class AsyncWorker implements Runnable, IAsyncWorker {
     }
 
     /**
-     * Stops worker. Method is asynchronous and doesn't guarantee that worker
-     * has been stopped immediately.
+     * {@inheritDoc}
+     * <p>
+     * This implementation stops worker. Method is asynchronous and doesn't
+     * guarantee that worker has been stopped immediately.
      * 
      * @see #start()
      * @see #isAlive()
@@ -73,9 +79,11 @@ public abstract class AsyncWorker implements Runnable, IAsyncWorker {
     }
 
     /**
-     * Gets value indicating whether worker is alive (e.g. running). If worker
-     * has been created but not started returns false. If worker has been
-     * created and then stopped returns false.
+     * {@inheritDoc}
+     * <p>
+     * This implementation gets value indicating whether worker is alive (e.g.
+     * running). If worker has been created but not started returns false. If
+     * worker has been created and then stopped returns false.
      * 
      * @return Value indicating that worker is running
      * @see #start()

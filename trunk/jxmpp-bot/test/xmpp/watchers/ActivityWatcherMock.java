@@ -1,6 +1,7 @@
-package xmpp.utils.activity;
+package xmpp.watchers;
 
 import syslog.ILog;
+import xmpp.watchers.AbstractActivityWatcher;
 
 public class ActivityWatcherMock extends AbstractActivityWatcher {
 

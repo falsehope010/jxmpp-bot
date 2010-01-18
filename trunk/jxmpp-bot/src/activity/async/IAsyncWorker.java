@@ -1,4 +1,4 @@
-package xmpp.utils.async;
+package activity.async;
 
 /**
  * Performs action asynchronously
@@ -7,6 +7,7 @@ package xmpp.utils.async;
  * 
  */
 public interface IAsyncWorker {
+
     /**
      * Method (action) that will be performed asynchronously
      */

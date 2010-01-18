@@ -1,4 +1,4 @@
-package xmpp.utils.activity;
+package xmpp.watchers;
 
 import java.util.ArrayList;
 import java.util.List;

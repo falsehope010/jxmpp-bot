@@ -1,4 +1,4 @@
-package xmpp.utils.activity;
+package xmpp.watchers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -8,6 +8,8 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+
+import xmpp.watchers.RoomWatcher;
 
 public class RoomWatcherTest {
 
