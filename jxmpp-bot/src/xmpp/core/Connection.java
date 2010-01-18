@@ -52,6 +52,8 @@ public class Connection implements IConnection, ITransport {
 	this.messageProcessor = messageProcessor;
 
 	rooms = new HashMap<String, IRoom>();
+
+	conn = createXmppConnection(credentials);
     }
 
     /**
@@ -67,7 +69,6 @@ public class Connection implements IConnection, ITransport {
     public void connect() {
 	if (conn == null || !isConnected()) {
 	    try {
-		conn = createXmppConnection(credentials);
 		conn.connect();
 		conn.login(credentials.getNick(), credentials.getPassword(),
 			resource);
@@ -119,7 +120,10 @@ public class Connection implements IConnection, ITransport {
 
     @Override
     public boolean isConnected() {
-	return conn.isConnected();
+	if (conn != null)
+	    return conn.isConnected();
+
+	return false;
     }
 
     @Override

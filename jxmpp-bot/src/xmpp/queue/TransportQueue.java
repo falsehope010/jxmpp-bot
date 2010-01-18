@@ -1,8 +1,8 @@
 package xmpp.queue;
 
+import activity.async.AsyncWorker;
 import xmpp.core.ITransport;
 import xmpp.messaging.base.Message;
-import xmpp.utils.async.AsyncWorker;
 
 /**
  * Represents active queue object. Provides thread-safe {@link #add(Message)}

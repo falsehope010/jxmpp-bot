@@ -1,4 +1,4 @@
-package xmpp.utils.activity;
+package xmpp.watchers;
 
 import syslog.ILog;
 import xmpp.core.IRoom;

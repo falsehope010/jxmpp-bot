@@ -11,6 +11,7 @@ import mappers.SyslogSessionMapper;
 import stopwatch.BoundedStopWatch;
 import syslog.rotate.ILogRotateStrategy;
 import utils.StackTraceUtil;
+import activity.IActive;
 import database.Database;
 import domain.syslog.Message;
 import domain.syslog.SyslogSession;
@@ -32,7 +33,7 @@ import exceptions.SessionNotStartedException;
  * @author tillias_work
  * 
  */
-public class SysLog implements Runnable, ILog {
+public class SysLog implements IActive, ILog {
 
     /**
      * Creates new syslog instance. Call {@link #start()} in order to begin
@@ -102,7 +103,7 @@ public class SysLog implements Runnable, ILog {
      *             Thrown if you attempted to put message without starting
      *             syslog
      * @see #start()
-     * @see #isRunning()
+     * @see #isAlive()
      * @see #getSaveLogsTimeout()
      */
     @Override
@@ -145,10 +146,6 @@ public class SysLog implements Runnable, ILog {
 	return currentSession;
     }
 
-    /*
-     * Threading
-     */
-
     @Override
     public void run() {
 	flushCacheWatch.start();
@@ -162,14 +159,9 @@ public class SysLog implements Runnable, ILog {
 
 		logRotate();
 
-		/*
-		 * if (logRotateWatch.breaksBound()) {
-		 * logRotateStrategy.rotate(); logRotateWatch.restart(); }
-		 */
 		Thread.sleep(250);
 	    } catch (Exception e) {
 		e.printStackTrace();
-		// TODO: Put syslog message with stacktrace as text
 	    }
 	}
 
@@ -186,26 +178,20 @@ public class SysLog implements Runnable, ILog {
      * <p>
      * This is synchronous operation.
      * 
-     * @return True if succeded, false otherwise
-     * @see #isRunning()
+     * @see #isAlive()
      * @see #stop()
      */
-    public boolean start() {
-	boolean result = false;
-
-	if (!isRunning()) {
+    public void start() {
+	if (!isAlive()) {
 
 	    thread = new Thread(this);
 	    setTerminate(false); // otherwise thread will exit immediately
 	    thread.start();
 
 	    if (startNewSession()) {
-		result = true;
-
 		setRunning(true);
 	    }
 	}
-	return result;
     }
 
     /**
@@ -213,10 +199,10 @@ public class SysLog implements Runnable, ILog {
      * <p>
      * This is asynchronous operation and it can take a while until syslog
      * actually stops it's underlying thread. You can detect that syslog has
-     * stopped it's thread by checking {@link #isRunning()}
+     * stopped it's thread by checking {@link #isAlive()}
      */
     public void stop() {
-	if (isRunning()) {
+	if (isAlive()) {
 	    setTerminate(true);
 
 	    // is running guarantees that session isn't null
@@ -231,7 +217,7 @@ public class SysLog implements Runnable, ILog {
      * @see #stop()
      * @return
      */
-    public boolean isRunning() {
+    public boolean isAlive() {
 	return running;
     }
 

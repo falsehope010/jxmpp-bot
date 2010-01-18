@@ -1,7 +1,7 @@
-package xmpp.utils.activity;
+package xmpp.watchers;
 
+import activity.async.AsyncWorker;
 import syslog.ILog;
-import xmpp.utils.async.AsyncWorker;
 
 /**
  * Base class for all activity watchers ( xmpp connections, chat rooms and so

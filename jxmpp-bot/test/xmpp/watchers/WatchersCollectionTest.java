@@ -1,4 +1,4 @@
-package xmpp.utils.activity;
+package xmpp.watchers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -6,9 +6,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
+
+import xmpp.watchers.WatchersCollection;
 
 public class WatchersCollectionTest {
 
@@ -104,7 +105,7 @@ public class WatchersCollectionTest {
     }
 
     @Test
-    public void testStart() {
+    public void testStartStop() throws InterruptedException {
 	int pollTimeout = 10;
 
 	assertTrue(pollTimeout > 0);
@@ -129,13 +130,15 @@ public class WatchersCollectionTest {
 
 	coll.start();
 
+	assertTrue(item1.isAlive());
+	assertTrue(item2.isAlive());
+
+	coll.stop();
+
+	Thread.sleep(1000);
+
 	assertFalse(item1.isAlive());
 	assertFalse(item2.isAlive());
-    }
-
-    @Test
-    public void testStop() {
-	fail("Not yet implemented");
     }
 
     @Test

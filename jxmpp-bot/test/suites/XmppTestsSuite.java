@@ -14,10 +14,10 @@ import xmpp.messaging.PublicChatMessageTest;
 import xmpp.queue.MessageQueueTest;
 import xmpp.queue.TransportQueueIntegrationTest;
 import xmpp.queue.TransportQueueTest;
-import xmpp.utils.activity.ConnectionWatcherTest;
-import xmpp.utils.activity.RoomWatcherTest;
-import xmpp.utils.activity.WatchersCollectionTest;
 import xmpp.utils.presence.PresenceProcessorTest;
+import xmpp.watchers.ConnectionWatcherTest;
+import xmpp.watchers.RoomWatcherTest;
+import xmpp.watchers.WatchersCollectionTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses( { ConfigurationTest.class, MessageQueueTest.class,

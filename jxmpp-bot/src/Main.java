@@ -1,10 +1,12 @@
 import java.util.regex.Pattern;
 
+import syslog.ILog;
 import xmpp.configuration.Configuration;
 import xmpp.configuration.ConnectionCredentials;
 import xmpp.core.Connection;
 import xmpp.core.IConnection;
 import xmpp.core.IRoom;
+import xmpp.core.XmppService;
 import xmpp.messaging.base.Message;
 import xmpp.processing.IProcessor;
 import exceptions.ConfigurationException;
@@ -18,7 +20,27 @@ public class Main {
      */
     public static void main(String[] args) throws InterruptedException,
 	    ConfigurationException {
+	Configuration config = new Configuration();
+	config.read("config.xml");
 
+	XmppService service = new XmppService(config, new ILog() {
+
+	    @Override
+	    public boolean putMessage(String text, String sender,
+		    String category, String type) {
+		System.out.println(text);
+
+		return true;
+	    }
+	});
+
+	service.start();
+
+	Thread.sleep(3000000);
+    }
+
+    private static void connectJabber() throws ConfigurationException,
+	    NullPointerException, InterruptedException {
 	IRoom room = null;
 
 	Configuration config = new Configuration();
@@ -40,27 +62,8 @@ public class Main {
 	room = conn.createRoom(config.getRoomsCredentials()[0]);
 	if (room != null)
 	    room.join();
-	/*
-	 * System.out.println("Jid: " +
-	 * room.getJID("vegatrek@conference.jabber.ru/tillias.work"));
-	 */
 
 	System.out.println(conn.isConnected());
-
-	/*
-	 * ParticipantInfo sender = new ParticipantInfo("tillias@jabber.org",
-	 * "vegatrek@conference.jabber.ru/TheBot"); ParticipantInfo recipient =
-	 * new ParticipantInfo("[tillias]@jabber.ru",
-	 * "vegatrek@conference.jabber.ru/tillias"); conn.send(new
-	 * PrivateChatMessage(sender, recipient, "Hello! Test",
-	 * "vegatrek@conference.jabber.ru"));
-	 */
-
-	/*
-	 * ParticipantInfo sender = new ParticipantInfo("tillias@jabber.org",
-	 * "vegatrek@conference.jabber.ru/TheBot"); conn.send(new
-	 * PublicChatMessage(sender, "Test", "vegatrek@conference.jabber.ru"));
-	 */
 
 	Thread.sleep(300000000);
 

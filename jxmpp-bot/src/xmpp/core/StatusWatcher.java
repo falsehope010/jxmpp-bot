@@ -1,9 +1,9 @@
 package xmpp.core;
 
 import syslog.ILog;
-import xmpp.utils.activity.ConnectionWatcher;
-import xmpp.utils.activity.RoomWatcher;
-import xmpp.utils.activity.WatchersCollection;
+import xmpp.watchers.ConnectionWatcher;
+import xmpp.watchers.RoomWatcher;
+import xmpp.watchers.WatchersCollection;
 
 /**
  * Represents {@link IConnection} and {@link IRoom} state watcher. Can manage

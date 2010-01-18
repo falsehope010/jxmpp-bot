@@ -1,4 +1,4 @@
-package xmpp.utils.activity;
+package xmpp.watchers;
 
 import xmpp.core.IRoom;
 import xmpp.messaging.base.Message;
