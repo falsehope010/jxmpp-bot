@@ -1,6 +1,7 @@
 package xmpp.processing;
 
 import xmpp.messaging.base.Message;
+import xmpp.queue.IMessageQueue;
 
 public class MessageProcessor implements IProcessor {
 
@@ -10,4 +11,14 @@ public class MessageProcessor implements IProcessor {
 
     }
 
+    /**
+     * Sets transport queue for this message processor.
+     * 
+     * @param transportQueue
+     */
+    public void setTransport(IMessageQueue transportQueue) {
+	this.transportQueue = transportQueue;
+    }
+
+    IMessageQueue transportQueue;
 }
