@@ -6,6 +6,7 @@ import xmpp.messaging.PrivateChatMessage;
 import xmpp.messaging.PrivateMessage;
 import xmpp.messaging.base.Message;
 import xmpp.processing.IProcessor;
+import xmpp.queue.IMessageQueue;
 
 /**
  * Represents mock around {@link IProcessor} interface. When processMessage() is
@@ -28,9 +29,16 @@ public class ProcessorMoc implements IProcessor {
 
     }
 
+    @Override
+    public void setTransport(IMessageQueue queue) {
+	// TODO Auto-generated method stub
+
+    }
+
     public Message get() {
 	return queue.poll();
     }
 
     LinkedList<Message> queue;
+
 }
