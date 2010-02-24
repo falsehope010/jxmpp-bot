@@ -12,10 +12,13 @@ public class MessageProcessor implements IProcessor {
     }
 
     /**
+     * {@inheritDoc}
+     * 
      * Sets transport queue for this message processor.
      * 
      * @param transportQueue
      */
+    @Override
     public void setTransport(IMessageQueue transportQueue) {
 	this.transportQueue = transportQueue;
     }

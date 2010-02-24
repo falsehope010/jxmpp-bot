@@ -7,10 +7,13 @@ import xmpp.configuration.RoomCredentials;
 import xmpp.messaging.base.Message;
 import xmpp.processing.IProcessor;
 import xmpp.queue.IMessageQueue;
+import xmpp.queue.TransportQueue;
+import activity.ActivityUtils;
 
 public class XmppService {
 
-    public XmppService(Configuration config, ILog log) {
+    public XmppService(Configuration config, ILog log)
+	    throws NullPointerException {
 	if (config == null)
 	    throw new NullPointerException("Configuration can't be null");
 	if (log == null)
@@ -21,6 +24,12 @@ public class XmppService {
 	this.statusWatcher = new StatusWatcher(log, 60000);
 
 	connection = createConnection(config);
+
+	transportQueue = new TransportQueue(connection, 100);
+	ActivityUtils.start(transportQueue);
+
+	messageProcessor.setTransport(transportQueue);
+
     }
 
     public void start() {
@@ -58,7 +67,7 @@ public class XmppService {
     }
 
     /**
-     * XXX!
+     * TODO:
      * 
      * @return
      */
@@ -68,6 +77,11 @@ public class XmppService {
 	    @Override
 	    public void processMessage(Message msg) {
 		System.out.println(msg);
+	    }
+
+	    @Override
+	    public void setTransport(IMessageQueue queue) {
+		// stub method
 	    }
 	};
     }
