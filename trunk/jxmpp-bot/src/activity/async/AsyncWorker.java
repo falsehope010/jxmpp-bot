@@ -31,8 +31,12 @@ public abstract class AsyncWorker implements IActive, IAsyncWorker {
 	if (invocationTimeout <= 0)
 	    throw new IllegalArgumentException(
 		    "InvocationTimeout can't be negative");
+
 	terminate = false;
+
 	this.actionTimeout = invocationTimeout;
+
+	this.lastActionPerformed = 0;
     }
 
     /**
@@ -49,6 +53,8 @@ public abstract class AsyncWorker implements IActive, IAsyncWorker {
 	if (!isAlive()) {
 	    thread = new Thread(this);
 	    thread.start();
+
+	    terminate = false;
 	}
     }
 
@@ -69,9 +75,13 @@ public abstract class AsyncWorker implements IActive, IAsyncWorker {
     public void run() {
 	try {
 	    while (!terminate) {
-		performAction();
 
-		Thread.sleep(getTimeout());
+		if (Math.abs(System.currentTimeMillis() - lastActionPerformed) > getTimeout()) {
+		    performAction();
+		    lastActionPerformed = System.currentTimeMillis();
+		}
+
+		Thread.sleep(500);
 	    }
 	} catch (Exception e) {
 	    // nothing todo here
@@ -124,4 +134,6 @@ public abstract class AsyncWorker implements IActive, IAsyncWorker {
     boolean terminate;
     Thread thread;
     int actionTimeout;
+
+    long lastActionPerformed;
 }

@@ -88,8 +88,20 @@ public class Connection implements IConnection, ITransport {
 
 	if (isConnected()) {
 	    try {
-		result = new Room(roomCredentials, conn, messageProcessor);
-		rooms.put(roomCredentials.getRoomName(), result);
+
+		/*
+		 * connection might already have room with given name. If so new
+		 * room mustn't be created
+		 */
+		String roomName = roomCredentials.getRoomName();
+		IRoom existingRoom = rooms.get(roomName);
+
+		if (existingRoom == null) {
+		    result = new Room(roomCredentials, conn, messageProcessor);
+		    rooms.put(roomName, result);
+		} else {
+		    result = existingRoom;
+		}
 	    } catch (Exception e) {
 		e.printStackTrace();
 	    }
@@ -113,6 +125,8 @@ public class Connection implements IConnection, ITransport {
 	    for (IRoom room : roomsCollection) {
 		room.leave();
 	    }
+
+	    roomsCollection.clear();
 
 	    conn.disconnect();
 	}

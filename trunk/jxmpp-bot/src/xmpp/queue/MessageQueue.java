@@ -29,5 +29,11 @@ public class MessageQueue implements IMessageQueue {
 	body.add(msg);
     }
 
+    @Override
+    public void clear() {
+	body.clear();
+    }
+
     ConcurrentLinkedQueue<Message> body;
+
 }
