@@ -24,4 +24,9 @@ public interface IMessageQueue {
      * @return Head of the queue or null if queue is empty
      */
     Message poll();
+
+    /**
+     * Removes all items from queue
+     */
+    void clear();
 }

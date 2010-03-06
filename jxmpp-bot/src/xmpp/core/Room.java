@@ -119,7 +119,7 @@ public class Room implements IRoom {
     @Override
     public void send(Message msg) {
 	try {
-	    if (msg instanceof PublicChatMessage) {
+	    if (msg instanceof PublicChatMessage && chat.isJoined()) {
 		chat.sendMessage(msg.getText());
 	    }
 

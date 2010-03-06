@@ -1,7 +1,8 @@
 package activity;
 
 /**
- * Provides util methods for managing {@link IActive} concrete implementations
+ * Provides utility methods for managing {@link IActive} concrete
+ * implementations
  * 
  * @author tillias
  * 

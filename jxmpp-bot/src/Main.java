@@ -28,9 +28,13 @@ public class Main {
 	    }
 	});
 
-	service.start();
+	while (true) {
 
-	Thread.sleep(3000000);
+	    service.start();
+
+	    Thread.sleep(10000);
+	}
+
     }
 
     /*

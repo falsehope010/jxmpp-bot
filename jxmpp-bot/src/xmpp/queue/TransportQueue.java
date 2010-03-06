@@ -1,8 +1,8 @@
 package xmpp.queue;
 
-import activity.async.AsyncWorker;
 import xmpp.core.ITransport;
 import xmpp.messaging.base.Message;
+import activity.async.AsyncWorker;
 
 /**
  * Represents active queue object. Provides thread-safe {@link #add(Message)}
@@ -72,6 +72,16 @@ public class TransportQueue extends AsyncWorker implements IMessageQueue {
 	    queue.add(msg);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation is thread-safe
+     */
+    @Override
+    public void clear() {
+	queue.clear();
+    }
+
     @Override
     public Message poll() {
 	return queue.poll();
@@ -79,4 +89,5 @@ public class TransportQueue extends AsyncWorker implements IMessageQueue {
 
     MessageQueue queue;
     ITransport transport;
+
 }

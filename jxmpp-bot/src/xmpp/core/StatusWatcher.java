@@ -52,7 +52,9 @@ public class StatusWatcher {
 
     /**
      * Begins watching for connected stated of given connection. Once connected
-     * state is lost performs automatic reconnect
+     * state is lost performs automatic reconnect.
+     * <p>
+     * If argument passed to this method is null does nothing
      * 
      * @param conn
      *            Connection to be watched
@@ -69,6 +71,8 @@ public class StatusWatcher {
     /**
      * Begins watching for joined state of given room. Once joined state is lost
      * performs automatic rejoin
+     * <p>
+     * If argument passed to this method is null does nothing
      * 
      * @param room
      *            Room to be watched
@@ -82,7 +86,7 @@ public class StatusWatcher {
     }
 
     /**
-     * Stops watching for all objects managed by this watcher
+     * Stops watching for all objects which are managed by this watcher
      */
     public void stop() {
 	watchers.stop();

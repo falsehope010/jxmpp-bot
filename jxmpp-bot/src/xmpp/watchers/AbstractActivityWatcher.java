@@ -1,7 +1,7 @@
 package xmpp.watchers;
 
-import activity.async.AsyncWorker;
 import syslog.ILog;
+import activity.async.AsyncWorker;
 
 /**
  * Base class for all activity watchers ( xmpp connections, chat rooms and so
@@ -112,7 +112,6 @@ public abstract class AbstractActivityWatcher extends AsyncWorker {
      */
     public abstract void logActivityException(Exception e);
 
-
     @Override
     public void performAction() {
 	try {
@@ -129,8 +128,6 @@ public abstract class AbstractActivityWatcher extends AsyncWorker {
 	    }
 
 	    ++pollCounter;
-
-	    Thread.sleep(getPollTimeout());
 
 	} catch (Exception e) {
 	    logActivityException(e);
