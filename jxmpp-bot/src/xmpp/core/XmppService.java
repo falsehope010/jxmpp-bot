@@ -1,5 +1,6 @@
 package xmpp.core;
 
+import plugins.PluginManager;
 import syslog.ILog;
 import xmpp.configuration.Configuration;
 import xmpp.configuration.ConnectionCredentials;
@@ -14,8 +15,34 @@ import xmpp.queue.TransportQueue;
 import activity.ActivityUtils;
 import exceptions.ConfigurationException;
 
+/**
+ * Service which is responsible for handling xmpp issues: establishing
+ * connection to remote server, keeping connection alive, managing multi-user
+ * chat rooms, transporting.
+ * <p>
+ * Creates and manages {@link PluginManager}
+ * <p>
+ * Service can be started and stopped multiple times.
+ * 
+ * @author tillias
+ * 
+ */
 public class XmppService {
 
+    /**
+     * Creates new service using given {@link Configuration} and system log
+     * implementation
+     * 
+     * @param config
+     *            Configuration of service
+     * @param log
+     *            System log which will be used for logging various events,
+     *            errors etc
+     * @throws NullPointerException
+     *             Thrown if any argument passed to constructor is null
+     * @throws ConfigurationException
+     *             Thrown if configuration of service is invalid
+     */
     public XmppService(Configuration config, ILog log)
 	    throws NullPointerException, ConfigurationException {
 	if (config == null)
@@ -39,30 +66,56 @@ public class XmppService {
 	messageProcessor.setTransport(transportQueue);
     }
 
-    public void start() {
-	if (!isStarted()) {
+    /**
+     * Starts service, attempts to establish connection to remote xmpp server
+     * and joins all chat rooms enlisted in configuration.
+     * <p>
+     * If service is already started does nothing
+     * 
+     * @return True if service has been started, false otherwise
+     * @see #isRunning()
+     * @see #shutdown()
+     */
+    public boolean start() {
+	boolean result = false;
+
+	if (!isRunning()) {
 
 	    ActivityUtils.start(messageProcessor);
 	    ActivityUtils.start(transportQueue);
 
 	    connection.connect();
-	    statusWatcher.watchConnection(connection);
 
-	    RoomCredentials[] roomCredentials = config.getRoomsCredentials();
+	    if (connection.isConnected()) {
+		statusWatcher.watchConnection(connection);
 
-	    if (roomCredentials != null && roomCredentials.length > 0) {
-		for (RoomCredentials rc : roomCredentials) {
-		    IRoom room = connection.createRoom(rc);
-		    statusWatcher.watchRoom(room);
+		RoomCredentials[] roomCredentials = config
+			.getRoomsCredentials();
+
+		if (roomCredentials != null && roomCredentials.length > 0) {
+		    for (RoomCredentials rc : roomCredentials) {
+			IRoom room = connection.createRoom(rc);
+			statusWatcher.watchRoom(room);
+		    }
 		}
-	    }
 
-	    setStarted(true);
+		setRunning(true);
+	    }
 	}
+
+	return result;
     }
 
+    /**
+     * Stops service (if already started), closes connection to remote server
+     * and leaves all chat rooms listed in configuration. After service is
+     * stopped it can be stared once again.
+     * 
+     * @see #start()
+     * @see #isRunning()
+     */
     public void shutdown() {
-	if (isStarted()) {
+	if (isRunning()) {
 
 	    connection.disconnect();
 
@@ -73,8 +126,19 @@ public class XmppService {
 
 	    statusWatcher.stop();
 
-	    setStarted(false);
+	    setRunning(false);
 	}
+    }
+
+    /**
+     * Gets value indicating that service has been started and is running.
+     * 
+     * @return True if service is started and running, false otherwise
+     * @see #start()
+     * @see #shutdown()
+     */
+    public boolean isRunning() {
+	return serviceRunning;
     }
 
     /**
@@ -161,12 +225,8 @@ public class XmppService {
 	return result;
     }
 
-    private void setStarted(boolean value) {
-	serviceStarted = value;
-    }
-
-    private boolean isStarted() {
-	return serviceStarted;
+    private void setRunning(boolean value) {
+	serviceRunning = value;
     }
 
     IConnection connection;
@@ -177,5 +237,5 @@ public class XmppService {
     Configuration config;
     ILog log;
 
-    boolean serviceStarted;
+    boolean serviceRunning;
 }
