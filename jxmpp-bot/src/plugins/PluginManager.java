@@ -20,10 +20,12 @@ public class PluginManager implements IProcessor, IActive {
 
 	pluginsCollection = new ArrayList<IPlugin>();
 
-	loadPlugins(pluginsCollection);
+	loadPlugins();
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
      * This implementation loops through all underlying plugins and checks
      * whether there are any which can process given message or not. If there
      * are found any plugins which can process given message method call is
@@ -50,8 +52,11 @@ public class PluginManager implements IProcessor, IActive {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
      * This implementation sets transport queue for all underlying plugins
      */
+    @Override
     public void setTransport(IMessageQueue queue) {
 	for (IPlugin p : pluginsCollection) {
 	    p.setTransport(queue);
@@ -64,10 +69,9 @@ public class PluginManager implements IProcessor, IActive {
     }
 
     /**
-     * <p>
-     * This implementation attempts to start all plugins which are managed by
-     * this plugin manager. Plugins must implement {@link IActive} interface in
-     * order to be started correctly
+     * Attempts to start all plugins which are managed by this plugin manager.
+     * Plugins must implement {@link IActive} interface in order to be started
+     * correctly
      */
     @Override
     public void start() {
@@ -79,10 +83,9 @@ public class PluginManager implements IProcessor, IActive {
     }
 
     /**
-     * <p>
-     * This implementation attempts to stop all plugins which are managed by
-     * this plugin manager. Plugins must implement {@link IActive} interface in
-     * order to be stopped correctly
+     * Attempts to stop all plugins which are managed by this plugin manager.
+     * Plugins must implement {@link IActive} interface in order to be stopped
+     * correctly
      */
     @Override
     public void stop() {
@@ -98,9 +101,37 @@ public class PluginManager implements IProcessor, IActive {
 	// objects currently
     }
 
-    private void loadPlugins(List<IPlugin> pluginsList) {
+    /**
+     * Loads all plugins into internal collection.
+     * 
+     * @see #registerPlugin(IPlugin)
+     */
+    protected void loadPlugins() {
 	// stub method for future needs
-	System.out.println("Loaded plugins: " + pluginsList.size()); // debug
+    }
+
+    /**
+     * Registers given plugin inside internal collection of plugins of this
+     * manager. If argument is null or plugin is already registered method does
+     * nothing.
+     * 
+     * @param plugin
+     *            Plugin to be registered
+     * @see #loadPlugins()
+     */
+    protected void registerPlugin(IPlugin plugin) {
+	if (plugin != null && !pluginsCollection.contains(plugin)) {
+	    pluginsCollection.add(plugin);
+	}
+    }
+
+    /**
+     * Gets total number of plugins controlled by this plugin manager
+     * 
+     * @return Total number of plugins controlled by plugin manager
+     */
+    protected int getPluginsCount() {
+	return pluginsCollection.size();
     }
 
     private void setRunning(boolean value) {
