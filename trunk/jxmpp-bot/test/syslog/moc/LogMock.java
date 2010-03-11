@@ -1,4 +1,4 @@
-package xmpp.watchers;
+package syslog.moc;
 
 import syslog.ILog;
 

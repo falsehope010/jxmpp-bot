@@ -9,6 +9,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import syslog.moc.LogMock;
+
 import xmpp.watchers.ConnectionWatcher;
 
 public class ConnectionWatcherTest {
