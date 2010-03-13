@@ -81,7 +81,7 @@ public abstract class AsyncWorker implements IActive, IAsyncWorker {
 		    lastActionPerformed = System.currentTimeMillis();
 		}
 
-		Thread.sleep(500);
+		Thread.sleep(100);
 	    }
 	} catch (Exception e) {
 	    // nothing todo here

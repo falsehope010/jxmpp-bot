@@ -7,20 +7,28 @@ public class MessageQueueMoc implements IMessageQueue {
 
     @Override
     public void add(Message msg) {
-	// TODO Auto-generated method stub
-
+	++messagesCount;
     }
 
     @Override
     public void clear() {
-	// TODO Auto-generated method stub
-
+	messagesCount = 0;
     }
 
     @Override
     public Message poll() {
-	// TODO Auto-generated method stub
+	--messagesCount;
 	return null;
     }
+
+    public int getMessagesCount() {
+	return messagesCount;
+    }
+
+    public void setMessagesCount(int messagesCount) {
+	this.messagesCount = messagesCount;
+    }
+
+    int messagesCount;
 
 }
