@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="JMock">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/Lib/JMock" />
+      <root url="file://$PROJECT_DIR$/Lib/JMock" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/Lib/JMock" recursive="false" />
+  </library>
+</component>
