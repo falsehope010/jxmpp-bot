@@ -11,18 +11,19 @@ import javax.inject.Inject;
  * Created by IntelliJ IDEA.
  * User: ternovykh
  * Date: 29.07.11
- * Time: 17:05
+ * Time: 15:14
  */
-public class PresencePacketListener extends PacketListenerBase implements PacketListener
+
+public class CommonPacketListener extends PacketListenerBase implements PacketListener
 {
-    private static final Logger log = Logger.getLogger(PresencePacketListener.class.getName());
+    private static final Logger log = Logger.getLogger(CommonPacketListener.class.getName());
 
     @Inject
-    public PresencePacketListener(CommonProcessor processor)
+    public CommonPacketListener(CommonProcessor processor)
     {
         super(processor);
 
-        log.info("Creating presence listener " + hashCode());
+        log.info("Creating packet listener " + hashCode());
     }
 
     @Override

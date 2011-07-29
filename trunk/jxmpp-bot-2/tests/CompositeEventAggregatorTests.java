@@ -7,6 +7,9 @@ import org.jmock.Mockery;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 /**
  * Created by IntelliJ IDEA.
@@ -83,4 +86,16 @@ public class CompositeEventAggregatorTests
 
         Assert.assertEquals(5, subscriber1.getReceivedValue());
     }
+
+/*    @Test
+    public void foo()
+    {
+        Pattern p = Pattern.compile("(.+)/(.+)");
+        String str = "christian@conference.jabber.ru/TheBot";
+        Matcher m = p.matcher(str);
+        Assert.assertTrue(m.find());
+
+        Assert.assertEquals(m.group(1), "christian@conference.jabber.ru");
+        Assert.assertEquals(m.group(2),"TheBot");
+    }*/
 }
