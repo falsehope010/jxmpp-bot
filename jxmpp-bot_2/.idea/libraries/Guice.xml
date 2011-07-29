@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Guice">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/Lib/Guice" />
+      <root url="file://$PROJECT_DIR$/Lib/Guice" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/Lib/Guice" recursive="false" />
+  </library>
+</component>
