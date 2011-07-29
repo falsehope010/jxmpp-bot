@@ -2,7 +2,8 @@ package jxmpp.com.code.google.core;
 
 import com.google.inject.Injector;
 import jxmpp.com.code.google.core.connectivity.ConnectionDirector;
-import jxmpp.com.code.google.core.events.EventAggregator;
+import jxmpp.com.code.google.core.connectivity.RoomDirector;
+import org.apache.log4j.Logger;
 import org.jivesoftware.smack.XMPPException;
 
 /**
@@ -14,6 +15,8 @@ import org.jivesoftware.smack.XMPPException;
  */
 public class JxmppBot
 {
+    private static final Logger log = Logger.getLogger(JxmppBot.class.getName());
+
     public JxmppBot(Injector injector)
     {
         if (injector == null)
@@ -27,13 +30,28 @@ public class JxmppBot
     public void run() throws XMPPException
     {
         connectionDirector.run();
+        roomDirector.run(connectionDirector.getConnection());
+
+
+        while (true)
+        {
+            try
+            {
+                Thread.sleep(100);
+            } catch (InterruptedException e)
+            {
+                log.error(e);
+            }
+        }
     }
 
     private void init()
     {
         connectionDirector = injector.getInstance(ConnectionDirector.class);
+        roomDirector = injector.getInstance(RoomDirector.class);
     }
 
     private ConnectionDirector connectionDirector;
+    private RoomDirector roomDirector;
     private Injector injector;
 }

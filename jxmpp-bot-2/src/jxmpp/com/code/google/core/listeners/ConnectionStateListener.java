@@ -2,6 +2,8 @@ package jxmpp.com.code.google.core.listeners;
 
 import com.google.inject.Inject;
 import jxmpp.com.code.google.core.events.EventAggregator;
+import jxmpp.com.code.google.core.events.concrete.ReconnectEvent;
+import org.apache.log4j.Logger;
 import org.jivesoftware.smack.ConnectionListener;
 
 /**
@@ -11,10 +13,12 @@ import org.jivesoftware.smack.ConnectionListener;
  * Time: 11:11
  * To change this template use File | Settings | File Templates.
  */
-public class XmppConnectionListener implements ConnectionListener
+public class ConnectionStateListener implements ConnectionListener
 {
+    private static final Logger log = Logger.getLogger(ConnectionStateListener.class.getName());
+
     @Inject
-    public XmppConnectionListener(EventAggregator eventAggregator)
+    public ConnectionStateListener(EventAggregator eventAggregator)
     {
         if (eventAggregator == null)
             throw new NullPointerException("Illegal null-reference eventAggregator");
@@ -24,27 +28,29 @@ public class XmppConnectionListener implements ConnectionListener
 
     public void connectionClosed()
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        log.info("Connection closed");
     }
 
     public void connectionClosedOnError(Exception e)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        log.info("Connection closed by error", e);
     }
 
     public void reconnectingIn(int i)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+//        log.info("Reconnecting in + " + i);
     }
 
     public void reconnectionSuccessful()
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        log.info("Successfully reconnected");
+
+        eventAggregator.publish(new ReconnectEvent());
     }
 
     public void reconnectionFailed(Exception e)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        log.info("Reconnection failed", e);
     }
 
     private EventAggregator eventAggregator;

@@ -5,6 +5,7 @@ import org.w3c.dom.events.Event;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -20,7 +21,7 @@ public class CompositeEventAggregator implements EventAggregator
     public CompositeEventAggregator()
     {
         log.info("Creating composite event aggegator");
-        subscriberHashMap = new HashMap<String, ArrayList<EventSubscriber>>();
+        subscriberHashMap = new ConcurrentHashMap<String, ArrayList<EventSubscriber>>();
     }
 
     public void publish(CompositeEvent event)
@@ -88,5 +89,5 @@ public class CompositeEventAggregator implements EventAggregator
         return subscriberHashMap.get(getEventTypeName(event));
     }
 
-    private HashMap<String, ArrayList<EventSubscriber>> subscriberHashMap;
+    private ConcurrentHashMap<String, ArrayList<EventSubscriber>> subscriberHashMap;
 }
